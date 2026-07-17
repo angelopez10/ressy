@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/colors.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/typography.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/effects.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/brief.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{margin:0;background:var(--color-surface-alt);color:var(--color-ink);font-family:var(--font-brand);}
+  *{box-sizing:border-box;}
+  a{color:var(--color-accent);text-decoration:none;}
+  .btn{font-family:var(--font-brand);border-radius:var(--radius-button);font-weight:600;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .15s,background .15s,border-color .15s;white-space:nowrap;}
+  .btn:active{transform:scale(.98);}
+  .scr::-webkit-scrollbar{width:0;}
+  @keyframes pop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+  @keyframes dash{to{stroke-dashoffset:0;}}
+  input,textarea{font-family:var(--font-brand);}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 60px;gap:22px;">
+
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div style="display:flex;align-items:center;gap:8px;"><img src="assets/ressy-logo.png" alt="Ressy" style="width:30px;height:30px;border-radius:50%;" /><span style="font-weight:800;font-size:18px;letter-spacing:-.02em;">ressy</span></div>
+    <span style="color:var(--color-ink-tertiary);">·</span>
+    <span style="font-size:14px;color:var(--color-ink-secondary);">{{ pageLabel }}</span>
+    <div style="display:inline-flex;background:#fff;border:1px solid var(--color-border);border-radius:9999px;padding:3px;margin-left:6px;">
+      <button onClick="{{ setEs }}" class="btn" style="{{ esStyle }}">ES</button>
+      <button onClick="{{ setEn }}" class="btn" style="{{ enStyle }}">EN</button>
+    </div>
+  </div>
+
+  <!-- PHONE -->
+  <div style="width:390px;max-width:100%;background:#000;border-radius:46px;padding:11px;box-shadow:0 40px 90px rgba(0,0,0,.25);">
+    <div style="background:var(--color-surface);border-radius:36px;overflow:hidden;height:800px;display:flex;flex-direction:column;position:relative;">
+
+      <!-- status bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 8px;font-size:14px;font-weight:600;flex:0 0 auto;">
+        <span>9:41</span>
+        <div style="display:flex;gap:6px;align-items:center;"><i data-lucide="signal" style="width:16px;height:16px;"></i><i data-lucide="wifi" style="width:16px;height:16px;"></i><i data-lucide="battery-full" style="width:18px;height:18px;"></i></div>
+      </div>
+
+      <!-- top bar: back + stepper -->
+      <div style="padding:6px 18px 12px;flex:0 0 auto;">
+        <div style="display:flex;align-items:center;gap:12px;min-height:32px;">
+          <button onClick="{{ back }}" class="btn" style="{{ backStyle }}"><i data-lucide="chevron-left" style="width:20px;height:20px;"></i></button>
+          <div style="flex:1;display:flex;gap:6px;">
+            <span style="flex:1;height:4px;border-radius:9999px;background:{{ bar1 }};"></span>
+            <span style="flex:1;height:4px;border-radius:9999px;background:{{ bar2 }};"></span>
+            <span style="flex:1;height:4px;border-radius:9999px;background:{{ bar3 }};"></span>
+            <span style="flex:1;height:4px;border-radius:9999px;background:{{ bar4 }};"></span>
+            <span style="flex:1;height:4px;border-radius:9999px;background:{{ bar5 }};"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- scroll body -->
+      <div class="scr" id="scr" style="flex:1;overflow-y:auto;"></div>
+
+    </div>
+  </div>
+  <div style="font-size:13px;color:var(--color-ink-tertiary);display:flex;align-items:center;gap:6px;">Powered by <span style="font-weight:700;color:var(--color-ink-secondary);">Ressy</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang:"es", step:1, pro:null, date:14, slot:null };
+
+  componentDidMount(){ this.render(); this.icons(); }
+  componentDidUpdate(){ this.render(); this.icons(); }
+  icons(){ if(window.lucide) window.lucide.createIcons(); }
+  t(es,en){ return this.state.lang==="es"?es:en; }
+  go(n){ const s=document.getElementById("scr"); if(s) s.scrollTop=0; this.setState({step:n}); }
+
+  money(n){ return "$"+n.toLocaleString("es-CL"); }
+
+  render(){
+    const el=document.getElementById("scr"); if(!el) return;
+    const fn=[null,this.s1,this.s2,this.s3,this.s4,this.s5][this.state.step];
+    el.innerHTML = fn.call(this);
+    // wire
+    el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>this.go(+b.getAttribute("data-go")));
+    el.querySelectorAll("[data-pro]").forEach(b=>b.onclick=()=>{this.setState({pro:b.getAttribute("data-pro"),step:3});});
+    el.querySelectorAll("[data-slot]").forEach(b=>b.onclick=()=>{this.setState({slot:b.getAttribute("data-slot")});});
+    el.querySelectorAll("[data-date]").forEach(b=>b.onclick=()=>{if(!b.hasAttribute("disabled"))this.setState({date:+b.getAttribute("data-date")});});
+  }
+
+  primary(label,go,disabled){
+    const d = disabled?"background:#DBDBDB;color:#9a9a9a;cursor:not-allowed;":"background:var(--color-accent);color:#fff;";
+    return `<button ${disabled?"":`data-go="${go}"`} class="btn" style="${d}width:100%;padding:16px;font-size:16px;">${label}</button>`;
+  }
+
+  s1(){
+    const svc=[
+      [this.t("Corte de pelo","Haircut"),"45 min",12000],
+      [this.t("Corte + barba","Cut + beard"),"60 min",16000],
+      [this.t("Arreglo de barba","Beard trim"),"30 min",8000],
+      [this.t("Afeitado clásico","Classic shave"),"40 min",11000],
+    ];
+    return `
+    <div style="position:relative;height:150px;">
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#2c7970,#348D83);"></div>
+    </div>
+    <div style="padding:0 20px 24px;margin-top:-46px;position:relative;">
+      <div style="width:78px;height:78px;border-radius:20px;background:#fff;border:3px solid #fff;box-shadow:var(--shadow-card-elevated);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        <div style="width:100%;height:100%;background:var(--color-ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;">B</div>
+      </div>
+      <h1 style="margin:14px 0 4px;font-size:24px;font-weight:700;letter-spacing:-.02em;">Barbería Bravo</h1>
+      <div style="display:flex;align-items:center;gap:6px;color:var(--color-ink-secondary);font-size:14px;"><i data-lucide="star" style="width:15px;height:15px;fill:var(--color-accent);stroke:var(--color-accent);"></i><b style="color:var(--color-ink);">4.9</b> · 320 ${this.t("reseñas","reviews")}</div>
+      <div style="display:flex;align-items:center;gap:6px;color:var(--color-ink-secondary);font-size:14px;margin-top:6px;"><i data-lucide="map-pin" style="width:15px;height:15px;"></i>Av. Providencia 1234, Santiago</div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <a href="#" class="btn" style="background:var(--color-surface-alt);color:var(--color-ink);padding:8px 14px;font-size:13px;"><i data-lucide="at-sign" style="width:15px;height:15px;"></i>Instagram</a>
+        <a href="#" class="btn" style="background:var(--color-surface-alt);color:var(--color-ink);padding:8px 14px;font-size:13px;"><i data-lucide="message-circle" style="width:15px;height:15px;"></i>WhatsApp</a>
+      </div>
+      <h2 style="margin:26px 0 12px;font-size:17px;font-weight:600;">${this.t("Elige un servicio","Choose a service")}</h2>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${svc.map((s,i)=>`<div style="border:1px solid var(--color-border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;">
+          <div style="flex:1;"><div style="font-weight:600;font-size:15px;">${s[0]}</div><div style="display:flex;align-items:center;gap:5px;color:var(--color-ink-secondary);font-size:13px;margin-top:3px;"><i data-lucide="clock" style="width:14px;height:14px;"></i>${s[1]} · ${this.money(s[2])}</div></div>
+          <button data-go="2" class="btn" style="background:var(--color-accent);color:#fff;padding:9px 18px;font-size:14px;">${this.t("Reservar","Book")}</button>
+        </div>`).join("")}
+      </div>
+    </div>`;
+  }
+
+  s2(){
+    const pros=[
+      ["any",this.t("Cualquier profesional","Any professional"),this.t("El primero disponible","First available"),"users"],
+      ["franco","Franco M.",this.t("Barbero senior","Senior barber"),null],
+      ["diego","Diego S.",this.t("Barbero","Barber"),null],
+      ["cami","Camila R.",this.t("Estilista","Stylist"),null],
+    ];
+    return `<div style="padding:8px 20px 24px;">
+      <h1 style="margin:8px 0 4px;font-size:22px;font-weight:700;letter-spacing:-.02em;">${this.t("¿Con quién quieres tu cita?","Who would you like to see?")}</h1>
+      <p style="margin:0 0 18px;color:var(--color-ink-secondary);font-size:14px;">${this.t("Corte de pelo · 45 min","Haircut · 45 min")}</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${pros.map(p=>`<button data-pro="${p[0]}" class="btn" style="justify-content:flex-start;background:#fff;border:1px solid ${p[0]==='any'?'var(--color-ink)':'var(--color-border)'};border-radius:16px;padding:14px;gap:14px;text-align:left;width:100%;">
+          <span style="width:48px;height:48px;border-radius:50%;background:${p[3]?'var(--color-accent-soft)':'var(--color-surface-alt)'};color:${p[3]?'var(--color-accent-hover)':'var(--color-ink-secondary)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;flex:0 0 auto;">${p[3]?`<i data-lucide="${p[3]}" style="width:22px;height:22px;"></i>`:p[1][0]}</span>
+          <span style="flex:1;"><span style="display:block;font-weight:600;font-size:15px;color:var(--color-ink);">${p[1]}</span><span style="display:block;color:var(--color-ink-secondary);font-size:13px;">${p[2]}</span></span>
+          <i data-lucide="chevron-right" style="width:20px;height:20px;color:var(--color-ink-tertiary);"></i>
+        </button>`).join("")}
+      </div>
+    </div>`;
+  }
+
+  s3(){
+    const dis=[5,6,12,13,19,20,26,27];
+    let cal="";
+    for(let i=0;i<2;i++)cal+="<span></span>";
+    for(let d=1;d<=31;d++){
+      const sel=d===this.state.date, dd=dis.includes(d);
+      const st= sel?"background:var(--color-ink);color:#fff;font-weight:600;": dd?"color:var(--color-ink-tertiary);":"color:var(--color-ink);";
+      cal+=`<button data-date="${d}" ${dd?"disabled":""} class="btn" style="${st}height:38px;padding:0;font-size:14px;border-radius:9px;${dd?'cursor:not-allowed;':''}">${d}</button>`;
+    }
+    const slots=["09:00","09:45","10:30","11:15","12:45","15:00","15:45","16:30"];
+    const gone=["11:15","15:45"];
+    return `<div style="padding:8px 20px 120px;">
+      <h1 style="margin:8px 0 4px;font-size:22px;font-weight:700;letter-spacing:-.02em;">${this.t("Elige fecha y hora","Pick a date and time")}</h1>
+      <div style="display:flex;align-items:center;gap:6px;color:var(--color-ink-secondary);font-size:13px;margin-bottom:16px;"><i data-lucide="globe" style="width:14px;height:14px;"></i>${this.t("Horario de Santiago · GMT-3","Santiago time · GMT-3")}</div>
+      <div style="border:1px solid var(--color-border);border-radius:16px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><button class="btn" style="background:var(--color-surface-alt);width:32px;height:32px;padding:0;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button><b style="font-size:15px;">${this.t("Julio 2026","July 2026")}</b><button class="btn" style="background:var(--color-surface-alt);width:32px;height:32px;padding:0;"><i data-lucide="chevron-right" style="width:16px;height:16px;"></i></button></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11px;color:var(--color-ink-tertiary);font-weight:600;margin-bottom:6px;"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">${cal}</div>
+      </div>
+      <h2 style="margin:22px 0 12px;font-size:15px;font-weight:600;">${this.t("Horas disponibles","Available times")}</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;">
+        ${slots.map(s=>{const g=gone.includes(s), sel=this.state.slot===s;
+          const st= g?"background:var(--color-surface-alt);color:var(--color-ink-tertiary);text-decoration:line-through;cursor:not-allowed;border-color:var(--color-border);": sel?"background:var(--color-ink);color:#fff;border-color:var(--color-ink);":"background:#fff;color:var(--color-ink);border-color:var(--color-border);";
+          return `<button ${g?"disabled":`data-slot="${s}"`} class="btn" style="${st}padding:13px 0;font-size:14px;border-width:1px;">${s}</button>`;}).join("")}
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px 24px;background:linear-gradient(to top,#fff 70%,transparent);">
+      ${this.primary(this.state.slot?`${this.t("Continuar","Continue")} · ${this.state.slot}`:this.t("Elige una hora","Pick a time"),4,!this.state.slot)}
+    </div>`;
+  }
+
+  s4(){
+    return `<div style="padding:8px 20px 120px;">
+      <h1 style="margin:8px 0 4px;font-size:22px;font-weight:700;letter-spacing:-.02em;">${this.t("Completa tus datos","Your details")}</h1>
+      <p style="margin:0 0 20px;color:var(--color-ink-secondary);font-size:14px;">${this.t("Reservas como invitado, sin crear cuenta.","Book as a guest — no account needed.")}</p>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        ${this.field(this.t("Nombre completo","Full name"),this.t("¿Cómo te llamas?","What's your name?"))}
+        ${this.field(this.t("Correo","Email"),"tucorreo@email.com")}
+        ${this.field(this.t("Teléfono","Phone"),"+56 9 …")}
+        <div><label style="display:block;font-size:13px;font-weight:600;color:var(--color-ink-secondary);margin-bottom:7px;">${this.t("Nota (opcional)","Note (optional)")}</label><textarea rows="2" placeholder="${this.t("Algo que debamos saber…","Anything we should know…")}" style="width:100%;padding:13px 15px;border:1px solid var(--color-border);border-radius:12px;font-size:15px;color:var(--color-ink);outline:none;resize:vertical;"></textarea></div>
+      </div>
+      <div style="margin-top:20px;border:1px solid var(--color-border);border-radius:16px;padding:16px;background:var(--color-surface-alt);">
+        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;"><span style="color:var(--color-ink-secondary);">${this.t("Corte de pelo · 45 min","Haircut · 45 min")}</span><b>${this.money(12000)}</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--color-ink-secondary);">${this.t("Anticipo (30%)","Deposit (30%)")}</span><b style="color:var(--color-accent-hover);">${this.money(3600)}</b></div>
+        <div style="border-top:1px dashed var(--color-border);margin:12px 0;"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--color-ink-secondary);"><span>${this.t("Pagas hoy","You pay today")}</span><span>${this.money(3600)} · ${this.t("resto en el local","rest in store")}</span></div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px 24px;background:linear-gradient(to top,#fff 70%,transparent);">
+      ${this.primary(this.t("Confirmar y pagar anticipo","Confirm & pay deposit"),5,false)}
+    </div>`;
+  }
+
+  field(label,ph){
+    return `<div><label style="display:block;font-size:13px;font-weight:600;color:var(--color-ink-secondary);margin-bottom:7px;">${label}</label><input placeholder="${ph}" style="width:100%;padding:14px 15px;border:1px solid var(--color-border);border-radius:12px;font-size:15px;color:var(--color-ink);outline:none;" /></div>`;
+  }
+
+  s5(){
+    const pro = this.state.pro==="franco"?"Franco M.":this.state.pro==="diego"?"Diego S.":this.state.pro==="cami"?"Camila R.":this.t("Cualquier profesional","Any pro");
+    return `<div style="padding:20px 20px 40px;text-align:center;">
+      <div style="width:82px;height:82px;border-radius:50%;background:rgba(0,138,5,.12);display:flex;align-items:center;justify-content:center;margin:12px auto 20px;animation:pop .4s ease;">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" style="stroke-dasharray:30;stroke-dashoffset:30;animation:dash .5s .25s ease forwards;"/></svg>
+      </div>
+      <h1 style="margin:0 0 6px;font-size:24px;font-weight:700;letter-spacing:-.02em;">${this.t("¡Reserva confirmada!","Booking confirmed!")}</h1>
+      <p style="margin:0 auto 24px;color:var(--color-ink-secondary);font-size:14px;max-width:280px;">${this.t("Te enviamos los detalles a tu correo y un recordatorio por WhatsApp.","We sent the details to your email and a WhatsApp reminder.")}</p>
+      <div style="border:1px solid var(--color-border);border-radius:16px;padding:18px;text-align:left;box-shadow:var(--shadow-card-elevated);border-color:transparent;">
+        <div style="display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--color-border);"><div style="width:44px;height:44px;border-radius:12px;background:var(--color-ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;">B</div><div><div style="font-weight:700;font-size:15px;">Barbería Bravo</div><div style="color:var(--color-ink-secondary);font-size:13px;">Av. Providencia 1234</div></div></div>
+        ${this.sumRow("scissors",this.t("Servicio","Service"),this.t("Corte de pelo · 45 min","Haircut · 45 min"))}
+        ${this.sumRow("user",this.t("Profesional","Professional"),pro)}
+        ${this.sumRow("calendar",this.t("Fecha","Date"),this.t("Mar 14 de julio, 2026","Tue Jul 14, 2026"))}
+        ${this.sumRow("clock",this.t("Hora","Time"),(this.state.slot||"10:30")+" · GMT-3")}
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn" style="flex:1;background:var(--color-accent);color:#fff;padding:14px;font-size:14px;"><i data-lucide="calendar-plus" style="width:17px;height:17px;"></i>${this.t("Agregar","Add to calendar")}</button>
+        <button data-go="1" class="btn" style="flex:1;background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:14px;font-size:14px;">${this.t("Reagendar","Reschedule")}</button>
+      </div>
+      <button data-go="1" class="btn" style="background:none;color:var(--color-ink-secondary);margin-top:16px;font-size:14px;font-weight:500;">${this.t("Volver al inicio","Back to start")}</button>
+    </div>`;
+  }
+  sumRow(ic,k,v){
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-border);"><i data-lucide="${ic}" style="width:18px;height:18px;color:var(--color-ink-secondary);flex:0 0 auto;"></i><span style="flex:1;color:var(--color-ink-secondary);font-size:14px;">${k}</span><span style="font-weight:600;font-size:14px;text-align:right;">${v}</span></div>`;
+  }
+
+  renderVals(){
+    const es=this.state.lang==="es", st=this.state.step;
+    const active="background:var(--color-ink);color:#fff;padding:5px 12px;font-size:12px;border:none;";
+    const inactive="background:transparent;color:var(--color-ink-secondary);padding:5px 12px;font-size:12px;border:none;";
+    const on="var(--color-ink)", off="var(--color-border)";
+    const labels=[null,this.t("Perfil","Profile"),this.t("Profesional","Pro"),this.t("Fecha y hora","Date & time"),this.t("Tus datos","Details"),this.t("Confirmación","Done")];
+    return {
+      setEs:()=>this.setState({lang:"es"}), setEn:()=>this.setState({lang:"en"}),
+      esStyle:es?active:inactive, enStyle:es?inactive:active,
+      pageLabel:labels[st],
+      back:()=> st>1 && this.go(st-1),
+      backStyle: st>1 ? "background:var(--color-surface-alt);width:32px;height:32px;padding:0;color:var(--color-ink);" : "background:var(--color-surface-alt);width:32px;height:32px;padding:0;color:var(--color-ink-tertiary);opacity:.4;pointer-events:none;",
+      bar1: st>=1?on:off, bar2: st>=2?on:off, bar3: st>=3?on:off, bar4: st>=4?on:off, bar5: st>=5?on:off,
+    };
+  }
+}
+</script>
+</body>
+</html>

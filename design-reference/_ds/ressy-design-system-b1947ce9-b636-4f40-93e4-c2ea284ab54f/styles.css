@@ -1,0 +1,12 @@
+@import './tokens/fig-tokens.css';
+@import './tokens/colors.css';
+@import './tokens/typography.css';
+@import './tokens/effects.css';
+@import './tokens/brief.css';
+@import './components/core/fig-tokens.css';
+@import './components/core/fig-assets.css';
+
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font-body);color:var(--text-primary);background:var(--surface-page)}
+a{color:var(--category-blue)}
+a:hover{color:var(--colors-blue-400)}

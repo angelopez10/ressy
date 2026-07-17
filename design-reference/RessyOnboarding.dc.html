@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/colors.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/typography.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/effects.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/brief.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{margin:0;background:var(--color-surface-alt);color:var(--color-ink);font-family:var(--font-brand);}
+  *{box-sizing:border-box;}
+  .btn{font-family:var(--font-brand);border-radius:var(--radius-button);font-weight:600;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .15s,background .15s,border-color .15s;white-space:nowrap;}
+  .btn:active{transform:scale(.98);}
+  input,select{font-family:var(--font-brand);}
+  .in{width:100%;padding:13px 15px;border:1px solid var(--color-border);border-radius:12px;font-size:15px;color:var(--color-ink);outline:none;background:#fff;}
+  .in:focus{border-color:var(--color-ink);box-shadow:0 0 0 3px var(--color-accent-soft);}
+  .lbl{display:block;font-size:13px;font-weight:600;color:var(--color-ink-secondary);margin-bottom:7px;}
+  @keyframes pop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;">
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--color-border);background:#fff;">
+    <div style="display:flex;align-items:center;gap:9px;"><img src="assets/ressy-logo.png" alt="Ressy" style="width:32px;height:32px;border-radius:50%;" /><span style="font-weight:800;font-size:19px;letter-spacing:-.02em;">ressy</span></div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span style="font-size:14px;color:var(--color-ink-secondary);">{{ progressLabel }}</span>
+      <div style="display:inline-flex;background:var(--color-surface-alt);border-radius:9999px;padding:3px;">
+        <button onClick="{{ setEs }}" class="btn" style="{{ esStyle }}">ES</button>
+        <button onClick="{{ setEn }}" class="btn" style="{{ enStyle }}">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:44px 24px 60px;">
+    <!-- stepper -->
+    <div id="stepper" style="display:flex;align-items:center;width:100%;max-width:620px;margin-bottom:40px;"></div>
+    <!-- card -->
+    <div style="width:100%;max-width:680px;background:#fff;border:1px solid var(--color-border);border-radius:20px;padding:40px;box-shadow:var(--shadow-card-elevated);border-color:transparent;">
+      <div id="body"></div>
+      <div id="nav" style="display:flex;justify-content:space-between;align-items:center;margin-top:32px;"></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang:"es", step:1, slug:"barberia-bravo", copied:false,
+    services:[["Corte de pelo",45,12000],["Corte + barba",60,16000]] };
+
+  componentDidMount(){ this.render(); this.icons(); }
+  componentDidUpdate(){ this.render(); this.icons(); }
+  icons(){ if(window.lucide) window.lucide.createIcons(); }
+  t(es,en){ return this.state.lang==="es"?es:en; }
+  go(n){ if(n>=1&&n<=5) this.setState({step:n}); }
+
+  render(){ this.buildStepper(); this.buildBody(); this.buildNav(); this.wire(); }
+
+  buildStepper(){
+    const el=document.getElementById("stepper"); if(!el) return;
+    const names=[this.t("Negocio","Business"),this.t("Servicios","Services"),this.t("Horario","Hours"),this.t("Página","Page"),this.t("Listo","Done")];
+    const st=this.state.step;
+    let h="";
+    names.forEach((n,i)=>{
+      const idx=i+1, done=idx<st, cur=idx===st;
+      const circle = done?`background:var(--color-ink);color:#fff;`: cur?`background:var(--color-accent);color:#fff;`:`background:#fff;border:1px solid var(--color-border);color:var(--color-ink-tertiary);`;
+      h+=`<div style="display:flex;flex-direction:column;align-items:center;gap:7px;flex:0 0 auto;"><div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;${circle}">${done?'<i data-lucide="check" style="width:16px;height:16px;"></i>':idx}</div><span style="font-size:12px;font-weight:${cur?'600':'500'};color:${cur||done?'var(--color-ink)':'var(--color-ink-tertiary)'};">${n}</span></div>`;
+      if(idx<5) h+=`<div style="flex:1;height:2px;margin:0 6px 22px;background:${idx<st?'var(--color-ink)':'var(--color-border)'};"></div>`;
+    });
+    el.innerHTML=h;
+  }
+
+  buildBody(){
+    const el=document.getElementById("body"); if(!el) return;
+    el.innerHTML=[null,this.b1,this.b2,this.b3,this.b4,this.b5][this.state.step].call(this);
+  }
+
+  head(t,s){ return `<h1 style="margin:0 0 6px;font-size:26px;font-weight:700;letter-spacing:-.02em;">${t}</h1><p style="margin:0 0 28px;color:var(--color-ink-secondary);font-size:15px;">${s}</p>`; }
+
+  b1(){
+    const cats=[this.t("Barbería","Barbershop"),this.t("Peluquería / Salón","Hair salon"),"Spa",this.t("Clínica / Estética","Clinic / Aesthetics"),"Fitness",this.t("Tatuajes","Tattoo"),this.t("Servicios legales","Legal"),this.t("Otro","Other")];
+    return this.head(this.t("Cuéntanos de tu negocio","Tell us about your business"),this.t("Con esto configuramos tu zona horaria y moneda automáticamente.","We'll set your timezone and currency automatically."))+`
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div><label class="lbl">${this.t("Nombre del negocio","Business name")}</label><input class="in" value="Barbería Bravo" /></div>
+        <div><label class="lbl">${this.t("Categoría","Category")}</label><select class="in">${cats.map(c=>`<option>${c}</option>`).join("")}</select></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div><label class="lbl">${this.t("País","Country")}</label><select class="in"><option>Chile</option><option>México</option><option>Colombia</option><option>España</option><option>Argentina</option></select></div>
+          <div><label class="lbl">${this.t("Zona horaria","Timezone")}</label><select class="in"><option>Santiago · GMT-3</option><option>CDMX · GMT-6</option><option>Bogotá · GMT-5</option></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div><label class="lbl">${this.t("Moneda","Currency")}</label><select class="in"><option>CLP $</option><option>MXN $</option><option>USD $</option><option>EUR €</option></select></div>
+          <div><label class="lbl">${this.t("Teléfono","Phone")}</label><input class="in" placeholder="+56 9 …" /></div>
+        </div>
+      </div>`;
+  }
+
+  b2(){
+    return this.head(this.t("Agrega tus servicios","Add your services"),this.t("Los que tus clientes podrán reservar. Puedes editarlos después.","What your clients can book. You can edit these later."))+`
+      <div style="display:flex;flex-direction:column;gap:12px;" id="svc-list">
+        ${this.state.services.map((s,i)=>`
+          <div style="display:grid;grid-template-columns:1fr 110px 130px 40px;gap:10px;align-items:center;">
+            <input class="in" value="${s[0]}" />
+            <div style="position:relative;"><input class="in" value="${s[1]}" style="padding-right:44px;" /><span style="position:absolute;right:13px;top:13px;color:var(--color-ink-tertiary);font-size:13px;">min</span></div>
+            <div style="position:relative;"><span style="position:absolute;left:13px;top:13px;color:var(--color-ink-tertiary);font-size:15px;">$</span><input class="in" value="${s[2].toLocaleString('es-CL')}" style="padding-left:26px;" /></div>
+            <button data-del="${i}" class="btn" style="background:var(--color-surface-alt);width:40px;height:44px;padding:0;color:var(--color-ink-secondary);">${this.state.services.length>1?'<i data-lucide="trash-2" style="width:17px;height:17px;"></i>':''}</button>
+          </div>`).join("")}
+      </div>
+      <button id="add-svc" class="btn" style="background:none;color:var(--color-accent);margin-top:16px;padding:8px 0;font-size:15px;"><i data-lucide="plus" style="width:18px;height:18px;"></i>${this.t("Agregar servicio","Add service")}</button>`;
+  }
+
+  b3(){
+    const days=[this.t("Lunes","Monday"),this.t("Martes","Tuesday"),this.t("Miércoles","Wednesday"),this.t("Jueves","Thursday"),this.t("Viernes","Friday"),this.t("Sábado","Saturday"),this.t("Domingo","Sunday")];
+    return this.head(this.t("Define tu horario semanal","Set your weekly hours"),this.t("Configura un día y cópialo al resto en un clic.","Set one day and copy it to the rest in one click."))+`
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${days.map((d,i)=>{const off=i>=5;return `
+          <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--color-border);border-radius:12px;${off?'background:var(--color-surface-alt);':''}">
+            <span style="width:88px;font-weight:600;font-size:14px;color:${off?'var(--color-ink-tertiary)':'var(--color-ink)'};">${d}</span>
+            <button class="btn tgl" data-off="${off?1:0}" style="width:44px;height:25px;border-radius:9999px;border:2px solid ${off?'var(--color-border)':'var(--color-success)'};background:${off?'var(--color-surface-alt)':'rgba(67,208,98,.12)'};position:relative;padding:0;flex:0 0 auto;"><span style="position:absolute;top:1px;left:${off?'1px':'20px'};width:17px;height:17px;border-radius:50%;background:${off?'var(--color-ink-tertiary)':'var(--color-success)'};transition:left .15s;"></span></button>
+            ${off?`<span style="color:var(--color-ink-tertiary);font-size:14px;">${this.t("Cerrado","Closed")}</span>`:`<div style="display:flex;align-items:center;gap:8px;"><input class="in" value="09:00" style="width:92px;padding:8px 10px;" /><span style="color:var(--color-ink-tertiary);">—</span><input class="in" value="19:00" style="width:92px;padding:8px 10px;" /></div>${i===0?`<button class="btn" style="background:var(--color-surface-alt);color:var(--color-ink);padding:8px 14px;font-size:13px;margin-left:auto;"><i data-lucide="copy" style="width:15px;height:15px;"></i>${this.t("Copiar a todos","Copy to all")}</button>`:''}`}
+          </div>`;}).join("")}
+      </div>`;
+  }
+
+  b4(){
+    return this.head(this.t("Personaliza tu página de reservas","Customize your booking page"),this.t("Elige tu link. Así lo verán tus clientes.","Choose your link. This is what your clients will see."))+`
+      <div style="display:grid;grid-template-columns:1fr 260px;gap:28px;align-items:start;">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div><label class="lbl">${this.t("Tu link de Ressy","Your Ressy link")}</label>
+            <div style="display:flex;align-items:stretch;border:1px solid var(--color-border);border-radius:12px;overflow:hidden;">
+              <span style="background:var(--color-surface-alt);color:var(--color-ink-secondary);padding:13px 12px;font-size:15px;border-right:1px solid var(--color-border);">getressy.com/</span>
+              <input id="slug" class="in" value="${this.state.slug}" style="border:none;border-radius:0;box-shadow:none;" />
+            </div>
+          </div>
+          <div><label class="lbl">${this.t("Logo","Logo")}</label>
+            <div style="display:flex;align-items:center;gap:14px;"><div style="width:56px;height:56px;border-radius:14px;background:var(--color-ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;">B</div><button class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:11px 18px;font-size:14px;"><i data-lucide="upload" style="width:16px;height:16px;"></i>${this.t("Subir logo","Upload logo")}</button></div>
+          </div>
+          <div><label class="lbl">${this.t("Color de tu marca","Brand color")}</label>
+            <div style="display:flex;gap:10px;">
+              ${["#348D83","#222222","#C13515","#3B5BDB","#8A63D2","#E8590C"].map((c,i)=>`<span style="width:36px;height:36px;border-radius:50%;background:${c};cursor:pointer;${i===0?'box-shadow:0 0 0 3px #fff,0 0 0 5px var(--color-ink);':''}"></span>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--color-ink-tertiary);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:10px;">${this.t("Vista previa en vivo","Live preview")}</div>
+          <div style="border:1px solid var(--color-border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-card-elevated);">
+            <div style="height:56px;background:linear-gradient(135deg,#2c7970,#348D83);"></div>
+            <div style="padding:0 14px 16px;margin-top:-22px;">
+              <div style="width:44px;height:44px;border-radius:12px;background:var(--color-ink);border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;">B</div>
+              <div style="font-weight:700;font-size:15px;margin-top:8px;">Barbería Bravo</div>
+              <div style="color:var(--color-ink-tertiary);font-size:11px;word-break:break-all;">getressy.com/<span id="slug-preview">${this.state.slug}</span></div>
+              <div style="height:36px;border-radius:9999px;background:var(--color-accent);margin-top:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;">${this.t("Reservar","Book")}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  b5(){
+    return `<div style="text-align:center;">
+      <div style="width:76px;height:76px;border-radius:50%;background:rgba(0,138,5,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pop .4s ease;"><i data-lucide="party-popper" style="width:36px;height:36px;color:var(--color-success);"></i></div>
+      <h1 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-.02em;">${this.t("¡Tu página está lista!","Your page is live!")}</h1>
+      <p style="margin:0 auto 28px;color:var(--color-ink-secondary);font-size:15px;max-width:400px;">${this.t("Comparte tu link o imprime el QR para tu local. Cada reserva llega directo a tu calendario.","Share your link or print the QR for your counter. Every booking lands straight in your calendar.")}</p>
+      <div style="display:flex;gap:24px;justify-content:center;align-items:center;flex-wrap:wrap;">
+        <div style="padding:16px;background:#fff;border:1px solid var(--color-border);border-radius:16px;"><canvas id="qr" width="150" height="150" style="display:block;"></canvas></div>
+        <div style="text-align:left;max-width:280px;">
+          <div style="display:flex;align-items:stretch;border:1px solid var(--color-border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
+            <span style="flex:1;padding:12px 14px;font-size:14px;color:var(--color-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">getressy.com/${this.state.slug}</span>
+            <button id="copy" class="btn" style="background:var(--color-ink);color:#fff;padding:0 16px;font-size:13px;border-radius:0;">${this.state.copied?this.t("¡Copiado!","Copied!"):this.t("Copiar","Copy")}</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn" style="background:var(--color-accent);color:#fff;padding:13px;font-size:15px;width:100%;"><i data-lucide="at-sign" style="width:17px;height:17px;"></i>${this.t("Compartir en Instagram","Share on Instagram")}</button>
+            <button class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:13px;font-size:15px;width:100%;"><i data-lucide="message-circle" style="width:17px;height:17px;"></i>${this.t("Compartir por WhatsApp","Share on WhatsApp")}</button>
+          </div>
+        </div>
+      </div>
+      <button data-go="1" class="btn" style="background:none;color:var(--color-ink-secondary);margin-top:24px;font-size:14px;">${this.t("Ir a mi dashboard","Go to my dashboard")} <i data-lucide="arrow-right" style="width:16px;height:16px;"></i></button>
+    </div>`;
+  }
+
+  drawQr(){
+    const c=document.getElementById("qr"); if(!c) return;
+    const ctx=c.getContext("2d"), n=25, s=150/n;
+    ctx.clearRect(0,0,150,150);
+    ctx.fillStyle="#222222";
+    let seed=7;
+    const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+    for(let y=0;y<n;y++)for(let x=0;x<n;x++){ if(rnd()>0.5) ctx.fillRect(x*s,y*s,s,s); }
+    // finder squares
+    const finder=(ox,oy)=>{ctx.clearRect(ox*s,oy*s,7*s,7*s);ctx.fillRect(ox*s,oy*s,7*s,7*s);ctx.clearRect((ox+1)*s,(oy+1)*s,5*s,5*s);ctx.fillStyle="#fff";ctx.fillRect((ox+1)*s,(oy+1)*s,5*s,5*s);ctx.fillStyle="#222222";ctx.fillRect((ox+2)*s,(oy+2)*s,3*s,3*s);};
+    finder(0,0);finder(n-7,0);finder(0,n-7);
+  }
+
+  buildNav(){
+    const el=document.getElementById("nav"); if(!el) return;
+    const st=this.state.step;
+    if(st===5){ el.innerHTML=""; el.style.display="none"; return; }
+    el.style.display="flex";
+    const backBtn = st>1 ? `<button data-back class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:13px 24px;font-size:15px;"><i data-lucide="arrow-left" style="width:17px;height:17px;"></i>${this.t("Atrás","Back")}</button>` : `<span></span>`;
+    const nextLabel = st===4 ? this.t("Publicar mi página","Publish my page") : this.t("Continuar","Continue");
+    el.innerHTML = backBtn + `<button data-next class="btn" style="background:var(--color-accent);color:#fff;padding:13px 26px;font-size:15px;">${nextLabel}<i data-lucide="arrow-right" style="width:17px;height:17px;"></i></button>`;
+  }
+
+  wire(){
+    const bd=document.getElementById("body"), nv=document.getElementById("nav");
+    nv.querySelector("[data-next]")?.addEventListener("click",()=>this.go(this.state.step+1));
+    nv.querySelector("[data-back]")?.addEventListener("click",()=>this.go(this.state.step-1));
+    bd.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>this.go(+b.getAttribute("data-go")));
+    bd.querySelector("#add-svc")?.addEventListener("click",()=>this.setState(s=>({services:[...s.services,["",30,0]]})));
+    bd.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const i=+b.getAttribute("data-del");this.setState(s=>({services:s.services.filter((_,j)=>j!==i)}));});
+    bd.querySelectorAll(".tgl").forEach(b=>b.onclick=()=>{const off=b.getAttribute("data-off")==="1";b.setAttribute("data-off",off?"0":"1");this.forceUpdate();});
+    const slug=bd.querySelector("#slug");
+    if(slug) slug.oninput=(e)=>{const v=e.target.value;const p=document.getElementById("slug-preview");if(p)p.textContent=v;this.state.slug=v;};
+    bd.querySelector("#copy")?.addEventListener("click",()=>{this.setState({copied:true});setTimeout(()=>this.setState({copied:false}),1600);});
+    if(this.state.step===5) this.drawQr();
+  }
+
+  renderVals(){
+    const es=this.state.lang==="es";
+    const active="background:var(--color-ink);color:#fff;padding:6px 14px;font-size:13px;border:none;";
+    const inactive="background:transparent;color:var(--color-ink-secondary);padding:6px 14px;font-size:13px;border:none;";
+    return {
+      setEs:()=>this.setState({lang:"es"}), setEn:()=>this.setState({lang:"en"}),
+      esStyle:es?active:inactive, enStyle:es?inactive:active,
+      progressLabel:this.t(`Paso ${Math.min(this.state.step,5)} de 5`,`Step ${Math.min(this.state.step,5)} of 5`),
+    };
+  }
+}
+</script>
+</body>
+</html>

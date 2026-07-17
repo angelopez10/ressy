@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   Ressy — design tokens (CLAUDE.md §5)
+   ----------------------------------------------------------------------------
+   Fuente de verdad del design system. Los nombres coinciden 1:1 con la tabla
+   del CLAUDE.md, así que Tailwind v4 expone tanto la variable CSS
+   (`var(--color-accent)`) como la utilidad (`bg-accent`, `text-ink`...).
+
+   Ningún componente debe hardcodear un hex fuera de este bloque.
+   Sin bloque `dark`: v1 no lleva dark mode.
+   ========================================================================== */
+@theme {
+  /* --- Color ------------------------------------------------------------- */
+  --color-accent: #348d83;
+  --color-accent-hover: #2c7a71;
+  --color-accent-soft: rgba(52, 141, 131, 0.08);
+  --color-ink: #222222;
+  --color-ink-secondary: #6a6a6a;
+  --color-ink-tertiary: #b0b0b0;
+  --color-border: #ebebeb;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f7f7f7;
+  --color-success: #008a05;
+  --color-warning: #c13515;
+
+  /* Contraste sobre fondos sólidos (no está en la tabla, pero los primitivos
+     lo necesitan para no hardcodear `text-white`). */
+  --color-accent-foreground: #ffffff;
+  --color-success-soft: rgba(0, 138, 5, 0.08);
+  --color-warning-soft: rgba(193, 53, 21, 0.08);
+
+  /* --- Tipografía -------------------------------------------------------- */
+  /* Una sola familia para todo. La var la inyecta next/font en app/layout.tsx. */
+  --font-sans:
+    var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* --- Radios ------------------------------------------------------------ */
+  --radius-card: 16px;
+  --radius-input: 12px;
+  --radius-button: 9999px;
+  --radius-modal: 24px;
+
+  /* --- Sombra ------------------------------------------------------------ */
+  /* Solo en hover/elevación. En reposo las cards llevan borde. */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 20px rgba(0, 0, 0, 0.06);
+
+  /* --- Layout ------------------------------------------------------------ */
+  --container-page: 1120px;
+}
+
+/* ============================================================================
+   Puente shadcn/ui → tokens Ressy
+   ----------------------------------------------------------------------------
+   shadcn trae sus propios tokens semánticos (--color-primary, --color-muted...).
+   En vez de dejar sus defaults, los apuntamos a los nuestros: así cualquier
+   componente que agreguemos con el CLI sale con el look Ressy sin editarlo.
+
+   OJO con `accent`: para shadcn, `accent` es el gris de hover de menús; para
+   nosotros (CLAUDE.md) es el teal de marca. Gana el nuestro. Los componentes
+   del CLI que usen `hover:bg-accent` para hover de fondo hay que cambiarlos a
+   `hover:bg-muted` — está documentado en el README.
+   ========================================================================== */
+@theme {
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-ink);
+
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-ink);
+
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-accent-foreground);
+
+  --color-secondary: var(--color-surface);
+  --color-secondary-foreground: var(--color-ink);
+
+  --color-muted: var(--color-surface-alt);
+  --color-muted-foreground: var(--color-ink-secondary);
+
+  --color-destructive: var(--color-warning);
+  --color-destructive-foreground: #ffffff;
+
+  --color-input: var(--color-border);
+  --color-ring: var(--color-accent);
+
+  --radius: var(--radius-input);
+}
+
+/* ============================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus ring en el acento de marca (CLAUDE.md §5). */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::placeholder {
+    color: var(--color-ink-tertiary);
+  }
+}
+
+/* ============================================================================
+   Utilidades de layout
+   ========================================================================== */
+
+/* Container del producto: 1120px, 24px de padding lateral en móvil. */
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 24px;
+}
+
+/* Escala tipográfica del CLAUDE.md §5. Como clases y no como tokens sueltos
+   para que "Display", "H2", "H3" signifiquen lo mismo en todas las pantallas. */
+@utility text-display {
+  font-size: clamp(2.5rem, 5vw, 4rem); /* 40 → 64px */
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+@utility text-h2 {
+  font-size: clamp(2rem, 3vw, 2.5rem); /* 32 → 40px */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+@utility text-h3 {
+  font-size: 1.375rem; /* 22px */
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@utility text-body {
+  font-size: 1rem; /* 16px */
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@utility text-small {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.5;
+}

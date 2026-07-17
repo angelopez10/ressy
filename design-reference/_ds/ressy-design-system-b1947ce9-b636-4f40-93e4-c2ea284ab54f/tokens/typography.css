@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500&display=swap');
+:root{
+  /* families */
+  --font-body: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-ui: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  /* Proxima Nova appears in one legacy toggle label (18px/700); no license/file in the kit — substituted with Poppins (closest geometric-grotesk match on Google Fonts). Flagged for the user. */
+  --font-proxima-substitute: Poppins, "Plus Jakarta Sans", sans-serif;
+
+  /* desktop type scale — exact values from the Typography System page */
+  --text-h2-size: 56px; --text-h2-line: 84px; --text-h2-weight: 900;
+  --text-h3-size: 46px; --text-h3-line: 69px; --text-h3-weight: 700;
+  --text-h4-size: 38px; --text-h4-line: 57px; --text-h4-weight: 700;
+  --text-title-size: 26px; --text-title-line: 39px; --text-title-weight: 700;
+  --text-texttitle-size: 22px; --text-texttitle-line: 33px; --text-texttitle-weight: 400;
+  --text-subtitle-size: 18px; --text-subtitle-line: 48px; --text-subtitle-weight: 500;
+  --text-body-size: 16px; --text-body-line: 48px; --text-body-weight: 400;
+  --text-body-strong-size: 16px; --text-body-strong-line: 48px; --text-body-strong-weight: 700;
+  --text-small-size: 12px; --text-small-line: 48px; --text-small-weight: 400;
+  --text-small-strong-size: 12px; --text-small-strong-line: 48px; --text-small-strong-weight: 700;
+
+  /* mobile type scale */
+  --text-mobile-h2-size: 16px; --text-mobile-h2-line: 24px;
+  --text-mobile-title-size: 14px; --text-mobile-title-line: 21px;
+  --text-mobile-texttitle-size: 12px; --text-mobile-texttitle-line: 18px;
+  --text-mobile-body-size: 12px; --text-mobile-body-line: 18px;
+
+  /* eyebrow / caption label used across spec pages */
+  --text-eyebrow-size: 12px; --text-eyebrow-weight: 600; --text-eyebrow-tracking: 0;
+}

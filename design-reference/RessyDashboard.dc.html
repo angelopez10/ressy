@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/colors.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/typography.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/effects.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/brief.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{margin:0;background:var(--color-surface-alt);color:var(--color-ink);font-family:var(--font-brand);}
+  *{box-sizing:border-box;}
+  .btn{font-family:var(--font-brand);border-radius:var(--radius-button);font-weight:600;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;justify-content:center;transition:transform .15s,background .15s,border-color .15s;white-space:nowrap;}
+  .btn:active{transform:scale(.98);}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--color-ink-secondary);font-size:15px;cursor:pointer;transition:background .15s;}
+  .nav-item:hover{background:var(--color-surface-alt);}
+  .nav-item.active{background:var(--color-surface-alt);color:var(--color-ink);font-weight:600;}
+  .blk{position:absolute;left:5px;right:5px;border-radius:10px;padding:8px 10px;cursor:pointer;overflow:hidden;transition:transform .12s,box-shadow .12s;border-left:3px solid;}
+  .blk:hover{transform:scale(1.015);box-shadow:var(--shadow-card-elevated);z-index:5;}
+  .scr::-webkit-scrollbar{width:8px;}.scr::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:9999px;}
+</style>
+</helmet>
+<div style="display:flex;height:100vh;overflow:hidden;">
+  <!-- SIDEBAR -->
+  <aside style="width:240px;flex:0 0 auto;background:#fff;border-right:1px solid var(--color-border);padding:20px 14px;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:9px;padding:0 8px 22px;"><img src="assets/ressy-logo.png" alt="Ressy" style="width:30px;height:30px;border-radius:50%;" /><span style="font-weight:800;font-size:18px;letter-spacing:-.02em;">ressy</span></div>
+    <nav style="display:flex;flex-direction:column;gap:3px;flex:1;">
+      <div class="nav-item"><i data-lucide="home" style="width:19px;height:19px;"></i>{{ nvHome }}</div>
+      <div class="nav-item active"><i data-lucide="calendar" style="width:19px;height:19px;"></i>{{ nvCal }}</div>
+      <div class="nav-item"><i data-lucide="users" style="width:19px;height:19px;"></i>{{ nvClients }}</div>
+      <div class="nav-item"><i data-lucide="scissors" style="width:19px;height:19px;"></i>{{ nvServices }}</div>
+      <div class="nav-item"><i data-lucide="user-round" style="width:19px;height:19px;"></i>{{ nvTeam }}</div>
+      <div class="nav-item"><i data-lucide="bar-chart-3" style="width:19px;height:19px;"></i>{{ nvReports }}</div>
+      <div class="nav-item"><i data-lucide="settings" style="width:19px;height:19px;"></i>{{ nvSettings }}</div>
+    </nav>
+    <div style="border-top:1px solid var(--color-border);padding-top:14px;display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--color-ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">B</div>
+      <div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:14px;">Barbería Bravo</div><div style="color:var(--color-ink-secondary);font-size:12px;">Plan Pro</div></div>
+      <div style="display:inline-flex;background:var(--color-surface-alt);border-radius:9999px;padding:2px;">
+        <button onClick="{{ setEs }}" class="btn" style="{{ esStyle }}">ES</button>
+        <button onClick="{{ setEn }}" class="btn" style="{{ enStyle }}">EN</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <!-- top bar -->
+    <header style="background:#fff;border-bottom:1px solid var(--color-border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <h1 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;">{{ dateTitle }}</h1>
+        <div style="display:flex;gap:4px;">
+          <button class="btn" style="background:var(--color-surface-alt);width:34px;height:34px;padding:0;"><i data-lucide="chevron-left" style="width:18px;height:18px;"></i></button>
+          <button onClick="{{ today }}" class="btn" style="background:var(--color-surface-alt);color:var(--color-ink);padding:0 14px;height:34px;font-size:14px;">{{ todayLabel }}</button>
+          <button class="btn" style="background:var(--color-surface-alt);width:34px;height:34px;padding:0;"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:inline-flex;background:var(--color-surface-alt);border-radius:9999px;padding:3px;">
+          <button onClick="{{ setDay }}" class="btn" style="{{ dayStyle }}">{{ dayLabel }}</button>
+          <button onClick="{{ setWeek }}" class="btn" style="{{ weekStyle }}">{{ weekLabel }}</button>
+          <button onClick="{{ setMonth }}" class="btn" style="{{ monthStyle }}">{{ monthLabel }}</button>
+        </div>
+        <button onClick="{{ toggleEmpty }}" class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink-secondary);padding:9px 14px;font-size:13px;"><i data-lucide="eye" style="width:15px;height:15px;"></i>{{ emptyToggleLabel }}</button>
+        <button class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:10px 16px;font-size:14px;"><i data-lucide="lock" style="width:16px;height:16px;"></i>{{ blockBtn }}</button>
+        <button class="btn" style="background:var(--color-accent);color:#fff;padding:10px 18px;font-size:14px;"><i data-lucide="plus" style="width:16px;height:16px;"></i>{{ addBtn }}</button>
+      </div>
+    </header>
+
+    <!-- calendar area + detail -->
+    <div style="flex:1;display:flex;min-height:0;">
+      <div class="scr" id="calwrap" style="flex:1;overflow:auto;position:relative;"></div>
+      <aside id="detail" style="width:0;flex:0 0 auto;background:#fff;border-left:1px solid var(--color-border);overflow:hidden;transition:width .2s ease;"></aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  HOURS=[9,10,11,12,13,14,15,16,17,18,19];
+  ROW=64; TOP=44;
+  state={ lang:"es", view:"day", empty:false, sel:null };
+
+  pros(){ return [
+    {id:"franco",name:"Franco M.",role:this.t("Barbero senior","Senior barber")},
+    {id:"diego",name:"Diego S.",role:this.t("Barbero","Barber")},
+    {id:"cami",name:"Camila R.",role:this.t("Estilista","Stylist")},
+  ];}
+
+  data(){ return [
+    {pro:"franco",start:9,dur:0.75,client:"Camila Ruiz",svc:this.t("Corte de pelo","Haircut"),status:"confirmed",phone:"+56 9 8123 4567"},
+    {pro:"franco",start:10.5,dur:1,client:"Diego Salas",svc:this.t("Corte + barba","Cut + beard"),status:"confirmed",phone:"+56 9 7654 3210"},
+    {pro:"franco",start:12.5,dur:0.5,client:"Tomás Vera",svc:this.t("Arreglo de barba","Beard trim"),status:"pending",phone:"+56 9 5555 1212"},
+    {pro:"franco",start:15,dur:0.75,client:"Ignacio Rojas",svc:this.t("Corte de pelo","Haircut"),status:"confirmed",phone:"+56 9 4444 8899"},
+    {pro:"diego",start:9.5,dur:1,client:"Valentina Paz",svc:this.t("Coloración","Color"),status:"confirmed",phone:"+56 9 3322 1100"},
+    {pro:"diego",start:11,dur:0.5,client:"Pedro Lagos",svc:this.t("Corte de pelo","Haircut"),status:"cancelled",phone:"+56 9 2211 3344"},
+    {pro:"diego",start:13,dur:0.75,client:"Sofía Núñez",svc:this.t("Corte de pelo","Haircut"),status:"confirmed",phone:"+56 9 9090 1010"},
+    {pro:"diego",start:16,dur:1,client:"Andrés Mora",svc:this.t("Corte + barba","Cut + beard"),status:"noshow",phone:"+56 9 1234 9876"},
+    {pro:"cami",start:10,dur:1.5,client:"Fernanda Gil",svc:this.t("Coloración","Color"),status:"confirmed",phone:"+56 9 6677 8899"},
+    {pro:"cami",start:12.5,dur:0.75,client:"Laura Díaz",svc:this.t("Corte de pelo","Haircut"),status:"pending",phone:"+56 9 5566 7788"},
+    {pro:"cami",start:15.5,dur:1,client:"Josefa Soto",svc:this.t("Peinado","Styling"),status:"confirmed",phone:"+56 9 4455 6677"},
+  ];}
+
+  STATUS(){ return {
+    confirmed:{bg:"rgba(0,138,5,.08)",bar:"var(--color-success)",label:this.t("Confirmada","Confirmed"),color:"var(--color-success)"},
+    pending:{bg:"var(--color-accent-soft)",bar:"var(--color-accent)",label:this.t("Pendiente","Pending"),color:"var(--color-accent-hover)"},
+    cancelled:{bg:"rgba(193,53,21,.07)",bar:"var(--color-warning)",label:this.t("Cancelada","Cancelled"),color:"var(--color-warning)"},
+    noshow:{bg:"var(--color-surface-alt)",bar:"var(--color-ink-tertiary)",label:"No-show",color:"var(--color-ink-secondary)"},
+  };}
+
+  componentDidMount(){ this.build(); this.icons(); }
+  componentDidUpdate(){ this.build(); this.icons(); }
+  icons(){ if(window.lucide) window.lucide.createIcons(); }
+  t(es,en){ return this.state.lang==="es"?es:en; }
+
+  build(){ this.buildCal(); this.buildDetail(); }
+
+  buildCal(){
+    const el=document.getElementById("calwrap"); if(!el) return;
+    if(this.state.empty){ el.innerHTML=this.emptyState(); this.wireEmpty(el); return; }
+    if(this.state.view==="month"){ this.buildMonth(el); return; }
+    const cols = this.state.view==="day" ? this.pros() : this.weekCols();
+    const gridH = this.TOP + this.HOURS.length*this.ROW;
+    const colTpl = `70px repeat(${cols.length},1fr)`;
+    let head=`<div style="position:sticky;top:0;z-index:6;display:grid;grid-template-columns:${colTpl};background:#fff;border-bottom:1px solid var(--color-border);">`;
+    head+=`<div></div>`;
+    cols.forEach(c=>{ head+=`<div style="padding:10px 12px;text-align:center;border-left:1px solid var(--color-border);"><div style="font-weight:600;font-size:14px;">${c.name}</div>${c.role?`<div style="font-size:12px;color:var(--color-ink-secondary);">${c.role}</div>`:""}</div>`; });
+    head+=`</div>`;
+
+    let body=`<div style="display:grid;grid-template-columns:${colTpl};position:relative;">`;
+    // time gutter
+    body+=`<div style="position:relative;">`;
+    this.HOURS.forEach((h,i)=>{ body+=`<div style="height:${this.ROW}px;position:relative;"><span style="position:absolute;top:-8px;right:8px;font-size:12px;color:var(--color-ink-tertiary);">${h}:00</span></div>`; });
+    body+=`</div>`;
+    // columns
+    cols.forEach(col=>{
+      body+=`<div style="position:relative;border-left:1px solid var(--color-border);">`;
+      this.HOURS.forEach(()=>{ body+=`<div style="height:${this.ROW}px;border-bottom:1px solid var(--color-border);"></div>`; });
+      const items = this.state.view==="day" ? this.data().filter(d=>d.pro===col.id) : col.items;
+      items.forEach((d,idx)=>{
+        const st=this.STATUS()[d.status];
+        const top=(d.start-9)*this.ROW;
+        const h=d.dur*this.ROW-6;
+        const gi=this.data().indexOf(d);
+        const canc=d.status==="cancelled"||d.status==="noshow";
+        const compact=d.dur<=0.5;
+        const inner=compact
+          ? `<div style="font-size:12px;color:var(--color-ink);${canc?'text-decoration:line-through;':''}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"><b style="font-weight:600;">${d.client}</b> · ${this.fmt(d.start)}</div>`
+          : `<div style="font-weight:600;font-size:13px;color:var(--color-ink);${canc?'text-decoration:line-through;':''}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.client}</div>
+             <div style="font-size:12px;color:var(--color-ink-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this.fmt(d.start)} · ${d.svc}</div>`;
+        body+=`<div class="blk" data-idx="${gi}" style="top:${top}px;height:${h}px;padding:${compact?'5px 10px':'8px 10px'};background:${st.bg};border-left-color:${st.bar};${canc?'opacity:.7;':''}">${inner}</div>`;
+      });
+      body+=`</div>`;
+    });
+    body+=`</div>`;
+    el.innerHTML=head+body;
+    el.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>this.setState({sel:+b.getAttribute("data-idx")}));
+  }
+
+  weekCols(){
+    const days=this.t(["Lun 14","Mar 15","Mié 16","Jue 17","Vie 18","Sáb 19"],["Mon 14","Tue 15","Wed 16","Thu 17","Fri 18","Sat 19"]);
+    const all=this.data();
+    return days.map((name,i)=>{
+      const items = all.filter((_,j)=> j%6===i || (i<3 && j%3===i)).slice(0,3).map((d,k)=>({...d,start:9+k*2.5,dur:0.75}));
+      return {id:"d"+i,name,role:null,items};
+    });
+  }
+
+  fmt(t){ const h=Math.floor(t), m=Math.round((t-h)*60); return `${h}:${m===0?"00":m}`; }
+
+  buildMonth(el){
+    const dow=this.t(["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"],["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]);
+    const dis=[5,6,12,13,19,20,26,27]; // sundays/mondays closed pattern
+    // July 2026 starts Wednesday -> Mon-start offset 2
+    let seed=3; const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+    let cells="";
+    for(let i=0;i<2;i++) cells+=`<div style="background:var(--color-surface-alt);"></div>`;
+    for(let d=1;d<=31;d++){
+      const closed=dis.includes(d), today=d===14;
+      let count = closed?0:Math.floor(rnd()*8);
+      if(today) count=11;
+      const dots = count===0?"" : `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;">${Array.from({length:Math.min(count,5)}).map((_,k)=>`<span style="width:6px;height:6px;border-radius:50%;background:${k%3===2?'var(--color-accent)':'var(--color-success)'};"></span>`).join("")}${count>5?`<span style="font-size:10px;color:var(--color-ink-secondary);font-weight:600;">+${count-5}</span>`:""}</div>`;
+      cells+=`<div data-day="${d}" style="background:#fff;min-height:104px;padding:8px 10px;cursor:${closed?'default':'pointer'};position:relative;transition:background .12s;${closed?'background:var(--color-surface-alt);':''}" ${closed?'':'onmouseover="this.style.background=\'var(--color-surface-alt)\'" onmouseout="this.style.background=\'#fff\'"'}>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;font-weight:${today?'700':'500'};color:${closed?'var(--color-ink-tertiary)':'var(--color-ink)'};${today?'background:var(--color-accent);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;':''}">${d}</span>
+          ${count>0?`<span style="font-size:11px;color:var(--color-ink-secondary);font-weight:600;">${count}</span>`:closed?`<span style="font-size:10px;color:var(--color-ink-tertiary);">${this.t("Cerrado","Closed")}</span>`:""}
+        </div>
+        ${dots}
+      </div>`;
+    }
+    el.innerHTML=`<div style="padding:0;">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);position:sticky;top:0;background:#fff;z-index:6;border-bottom:1px solid var(--color-border);">
+        ${dow.map(d=>`<div style="padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--color-ink-secondary);">${d}</div>`).join("")}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--color-border);border-bottom:1px solid var(--color-border);">${cells}</div>
+    </div>`;
+    el.querySelectorAll("[data-day]").forEach(c=>c.onclick=()=>{ if(!dis.includes(+c.getAttribute("data-day"))) this.setState({view:"day"}); });
+  }
+
+  buildDetail(){
+    const el=document.getElementById("detail"); if(!el) return;
+    if(this.state.sel==null || this.state.empty){ el.style.width="0"; el.innerHTML=""; return; }
+    el.style.width="340px";
+    const d=this.data()[this.state.sel]; const st=this.STATUS()[d.status];
+    el.innerHTML=`<div style="width:340px;padding:24px;height:100%;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;font-size:12px;font-weight:600;background:${st.bg};color:${st.color};"><span style="width:6px;height:6px;border-radius:50%;background:${st.bar};"></span>${st.label}</span>
+        <button data-close class="btn" style="background:var(--color-surface-alt);width:32px;height:32px;padding:0;color:var(--color-ink-secondary);"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--color-surface-alt);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;color:var(--color-ink-secondary);">${d.client[0]}</div>
+        <div><div style="font-weight:700;font-size:18px;">${d.client}</div><div style="color:var(--color-ink-secondary);font-size:13px;">${d.phone}</div></div>
+      </div>
+      <div style="border:1px solid var(--color-border);border-radius:14px;overflow:hidden;margin-bottom:20px;">
+        ${this.dRow("scissors",this.t("Servicio","Service"),d.svc)}
+        ${this.dRow("clock",this.t("Horario","Time"),`${this.fmt(d.start)}–${this.fmt(d.start+d.dur)} · ${Math.round(d.dur*60)} min`)}
+        ${this.dRow("calendar",this.t("Fecha","Date"),this.t("Lun 14 de julio","Mon Jul 14"))}
+        ${this.dRow("user",this.t("Profesional","Professional"),this.pros().find(p=>p.id===d.pro)?.name||"—")}
+      </div>
+      <div style="font-size:12px;color:var(--color-ink-tertiary);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:10px;">${this.t("Historial","History")}</div>
+      <div style="display:flex;gap:16px;margin-bottom:24px;">
+        <div><div style="font-size:22px;font-weight:700;">12</div><div style="font-size:12px;color:var(--color-ink-secondary);">${this.t("visitas","visits")}</div></div>
+        <div><div style="font-size:22px;font-weight:700;">1</div><div style="font-size:12px;color:var(--color-ink-secondary);">no-show</div></div>
+        <div><div style="font-size:22px;font-weight:700;">$168k</div><div style="font-size:12px;color:var(--color-ink-secondary);">${this.t("gastado","spent")}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="btn" style="background:var(--color-accent);color:#fff;padding:12px;font-size:14px;"><i data-lucide="check" style="width:16px;height:16px;"></i>${this.t("Completar","Complete")}</button>
+        <button class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:12px;font-size:14px;"><i data-lucide="calendar-clock" style="width:16px;height:16px;"></i>${this.t("Reagendar","Reschedule")}</button>
+        <button class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:12px;font-size:14px;"><i data-lucide="user-x" style="width:16px;height:16px;"></i>No-show</button>
+        <button class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-warning);padding:12px;font-size:14px;"><i data-lucide="x-circle" style="width:16px;height:16px;"></i>${this.t("Cancelar","Cancel")}</button>
+      </div>
+    </div>`;
+    el.querySelector("[data-close]")?.addEventListener("click",()=>this.setState({sel:null}));
+  }
+  dRow(ic,k,v){ return `<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--color-border);"><i data-lucide="${ic}" style="width:17px;height:17px;color:var(--color-ink-secondary);flex:0 0 auto;"></i><span style="flex:1;color:var(--color-ink-secondary);font-size:13px;">${k}</span><span style="font-weight:600;font-size:13px;text-align:right;">${v}</span></div>`; }
+
+  emptyState(){
+    return `<div style="height:100%;display:flex;align-items:center;justify-content:center;padding:40px;">
+      <div style="text-align:center;max-width:400px;">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--color-surface-alt);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--color-ink-tertiary);"><i data-lucide="calendar-plus" style="width:34px;height:34px;"></i></div>
+        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.02em;">${this.t("Aún no tienes reservas hoy","No bookings yet today")}</h2>
+        <p style="margin:0 auto 24px;color:var(--color-ink-secondary);font-size:15px;">${this.t("Comparte tu link para recibir tu primera reserva. Cada cita aparecerá aquí automáticamente.","Share your link to get your first booking. Every appointment shows up here automatically.")}</p>
+        <div style="padding:14px;background:#fff;border:1px solid var(--color-border);border-radius:16px;display:inline-block;margin-bottom:20px;"><canvas id="qr2" width="130" height="130" style="display:block;"></canvas></div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn" style="background:var(--color-accent);color:#fff;padding:12px 20px;font-size:15px;"><i data-lucide="share-2" style="width:17px;height:17px;"></i>${this.t("Compartir mi página","Share my page")}</button>
+          <button data-back class="btn" style="background:#fff;border:1px solid var(--color-border);color:var(--color-ink);padding:12px 20px;font-size:15px;">${this.t("Ver reservas de ejemplo","See sample bookings")}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  wireEmpty(el){
+    el.querySelector("[data-back]")?.addEventListener("click",()=>this.setState({empty:false}));
+    const c=el.querySelector("#qr2"); if(c){const ctx=c.getContext("2d"),n=21,s=130/n;ctx.fillStyle="#222";let seed=11;const r=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(r()>.5)ctx.fillRect(x*s,y*s,s,s);const f=(ox,oy)=>{ctx.fillStyle="#222";ctx.fillRect(ox*s,oy*s,7*s,7*s);ctx.fillStyle="#fff";ctx.fillRect((ox+1)*s,(oy+1)*s,5*s,5*s);ctx.fillStyle="#222";ctx.fillRect((ox+2)*s,(oy+2)*s,3*s,3*s);};f(0,0);f(n-7,0);f(0,n-7);}
+  }
+
+  renderVals(){
+    const es=this.state.lang==="es", day=this.state.view==="day";
+    const a="background:var(--color-ink);color:#fff;padding:5px 12px;font-size:12px;border:none;";
+    const i="background:transparent;color:var(--color-ink-secondary);padding:5px 12px;font-size:12px;border:none;";
+    const va="background:#fff;color:var(--color-ink);padding:7px 16px;font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,.1);";
+    const vi="background:transparent;color:var(--color-ink-secondary);padding:7px 16px;font-size:13px;";
+    return {
+      setEs:()=>this.setState({lang:"es"}), setEn:()=>this.setState({lang:"en"}),
+      esStyle:es?a:i, enStyle:es?i:a,
+      setDay:()=>this.setState({view:"day",sel:null}), setWeek:()=>this.setState({view:"week",sel:null}), setMonth:()=>this.setState({view:"month",sel:null}),
+      dayStyle:this.state.view==="day"?va:vi, weekStyle:this.state.view==="week"?va:vi, monthStyle:this.state.view==="month"?va:vi,
+      dayLabel:this.t("Día","Day"), weekLabel:this.t("Semana","Week"), monthLabel:this.t("Mes","Month"),
+      toggleEmpty:()=>this.setState(s=>({empty:!s.empty,sel:null})),
+      emptyToggleLabel:this.state.empty?this.t("Ver agenda","View calendar"):this.t("Ver primer día","See first day"),
+      today:()=>{}, todayLabel:this.t("Hoy","Today"),
+      dateTitle:this.state.view==="day"?this.t("Lunes 14 de julio","Monday, July 14"):this.state.view==="week"?this.t("14 – 19 de julio","July 14 – 19"):this.t("Julio 2026","July 2026"),
+      blockBtn:this.t("Bloquear horario","Block time"), addBtn:this.t("Reserva manual","Manual booking"),
+      nvHome:this.t("Inicio","Home"), nvCal:this.t("Calendario","Calendar"), nvClients:this.t("Clientes","Clients"),
+      nvServices:this.t("Servicios","Services"), nvTeam:this.t("Equipo","Team"), nvReports:this.t("Reportes","Reports"), nvSettings:this.t("Ajustes","Settings"),
+    };
+  }
+}
+</script>
+</body>
+</html>

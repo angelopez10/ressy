@@ -1,0 +1,7 @@
+:root{
+  --shadow-card: 0px 3px 50px 0px rgba(0,0,0,0.07);
+  --shadow-scrim: rgba(0,0,0,0.3);
+  --shadow-hairline-dark: inset 0 0 0 1px rgb(47,47,47);
+  --shadow-hairline-light: inset 0 0 0 1px var(--colors-neutral-200);
+  --shadow-toggle-ring: inset 0 0 0 2px rgba(255,255,255,0.25);
+}

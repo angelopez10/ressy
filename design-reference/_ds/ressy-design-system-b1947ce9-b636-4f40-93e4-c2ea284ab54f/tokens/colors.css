@@ -1,0 +1,39 @@
+/* Semantic aliases layered on the Figma primitives in fig-tokens.css */
+:root{
+  /* surfaces */
+  --surface-page: var(--colors-background);
+  --surface-canvas: #f8f8f8;
+  --surface-card: var(--colors-neutral-100);
+  --surface-inverse: var(--colors-neutral-900);
+  --surface-sunken: var(--colors-neutral-200);
+
+  /* text */
+  --text-primary: var(--colors-text-black);
+  --text-secondary: rgb(73,73,73);
+  --text-muted: var(--colors-neutral-500);
+  --text-inverse: var(--colors-text-white);
+  --text-placeholder: var(--colors-neutral-400);
+
+  /* borders */
+  --border-default: var(--colors-neutral-200);
+  --border-strong: var(--colors-neutral-900);
+  --border-focus: var(--colors-blue-300);
+
+  /* action / brand */
+  --action-primary: var(--colors-neutral-900);
+  --action-primary-disabled: var(--colors-neutral-200);
+  --action-accent: var(--colors-yellow-300);
+
+  /* semantic feedback */
+  --feedback-success: var(--colors-alerts-green);
+  --feedback-error: var(--colors-alerts-red);
+  --feedback-warning: var(--colors-alerts-yellow);
+
+  /* category / tag palette — used for service & calendar color-coding, not brand identity */
+  --category-blue: var(--colors-blue-300);
+  --category-green: var(--colors-green-300);
+  --category-red: var(--colors-red-300);
+  --category-yellow: var(--colors-yellow-300);
+  --category-electric-green: var(--colors-electric-green-300);
+  --category-purple: var(--colors-purple-300);
+}

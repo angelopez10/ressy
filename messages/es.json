@@ -1,0 +1,97 @@
+{
+  "common": {
+    "brand": "Ressy",
+    "localeSwitcher": {
+      "label": "Cambiar idioma",
+      "es": "Español",
+      "en": "English"
+    }
+  },
+  "nav": {
+    "product": "Producto",
+    "pricing": "Precios",
+    "styleguide": "Guía de estilos",
+    "dashboard": "Panel",
+    "login": "Iniciar sesión",
+    "cta": "Empezar gratis"
+  },
+  "marketing": {
+    "badge": "Próximamente",
+    "title": "Reservas sin fricción para tu negocio",
+    "subtitle": "Ressy le da a tu negocio una página de reservas propia donde tus clientes agendan solos, 24/7, con recordatorios automáticos y cobro de anticipos.",
+    "cta": "Quiero mi página de reservas",
+    "secondaryCta": "Ver la guía de estilos",
+    "comingSoon": "Ressy — muy pronto"
+  },
+  "booking": {
+    "placeholderTitle": "Página de reservas",
+    "placeholderSubtitle": "Aquí vivirá la página pública de reservas del negocio.",
+    "slugLabel": "Slug del negocio",
+    "notReady": "Esta pantalla todavía no está construida. Llega en la sesión 2 junto al motor de disponibilidad."
+  },
+  "dashboard": {
+    "title": "Panel",
+    "welcome": "Hola de nuevo",
+    "subtitle": "Este es el esqueleto del panel. Todavía no hay autenticación ni datos reales conectados.",
+    "nav": {
+      "agenda": "Agenda",
+      "services": "Servicios",
+      "staff": "Equipo",
+      "customers": "Clientes",
+      "reports": "Reportes",
+      "settings": "Ajustes"
+    },
+    "placeholderCard": {
+      "title": "Sin datos todavía",
+      "body": "Cuando conectemos Supabase, aquí verás las reservas del día."
+    }
+  },
+  "styleguide": {
+    "title": "Guía de estilos",
+    "subtitle": "Los primitivos de Ressy con los tokens del design system aprobado.",
+    "sections": {
+      "typography": "Tipografía",
+      "buttons": "Botones",
+      "inputs": "Campos de formulario",
+      "card": "Card",
+      "badges": "Estados de reserva",
+      "colors": "Color"
+    },
+    "typography": {
+      "display": "Reserva en segundos",
+      "h2": "Elige tu servicio",
+      "h3": "Corte de cabello",
+      "body": "Texto de cuerpo a 16px con altura de línea de 1.6. El español ocupa cerca de un 25% más que el inglés, así que los layouts tienen que aguantar frases largas sin romperse.",
+      "small": "Texto pequeño para metadatos y notas al pie."
+    },
+    "buttons": {
+      "primary": "Confirmar reserva",
+      "secondary": "Cambiar horario",
+      "ghost": "Cancelar",
+      "loading": "Procesando",
+      "disabled": "No disponible",
+      "loadingHint": "Pulsa el botón principal para ver el estado de carga."
+    },
+    "inputs": {
+      "nameLabel": "Nombre completo",
+      "namePlaceholder": "María González",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "maria@ejemplo.com",
+      "errorLabel": "Teléfono",
+      "errorPlaceholder": "+56 9 1234 5678",
+      "errorMessage": "Necesitamos un teléfono válido para enviarte el recordatorio."
+    },
+    "card": {
+      "title": "Corte y barba",
+      "duration": "45 min",
+      "price": "$18.000",
+      "body": "Las cards son la unidad base del producto: borde en reposo, sombra solo al elevarse."
+    },
+    "badges": {
+      "confirmed": "Confirmada",
+      "pending": "Pago pendiente",
+      "cancelled": "Cancelada",
+      "completed": "Completada"
+    }
+  }
+}

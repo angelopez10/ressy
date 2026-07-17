@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/colors.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/typography.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/effects.css">
+<link rel="stylesheet" href="_ds/ressy-design-system-b1947ce9-b636-4f40-93e4-c2ea284ab54f/tokens/brief.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{margin:0;background:var(--color-surface);color:var(--color-ink);font-family:var(--font-brand);}
+  a{color:var(--color-ink);text-decoration:none;}
+  a:hover{color:var(--color-accent);}
+  *{box-sizing:border-box;}
+  .btn{font-family:var(--font-brand);border-radius:var(--radius-button);font-weight:600;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .15s, background .15s, box-shadow .15s, border-color .15s;white-space:nowrap;text-decoration:none;}
+  .btn:active{transform:scale(.98);}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);transition:transform .18s, box-shadow .18s;}
+  .lift:hover{transform:translateY(-4px);box-shadow:var(--shadow-card-elevated);border-color:transparent;}
+  .sec{max-width:1120px;margin:0 auto;padding:0 24px;}
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);}
+  .h2{font-size:clamp(28px,4vw,38px);font-weight:600;letter-spacing:-.015em;line-height:1.1;margin:10px 0 0;}
+  .faqbody{overflow:hidden;transition:max-height .25s ease;}
+</style>
+</helmet>
+<div>
+  <!-- NAVBAR -->
+  <header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-border);">
+    <nav class="sec" style="display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <img src="assets/ressy-logo.png" alt="Ressy" style="width:34px;height:34px;border-radius:50%;display:block;" />
+        <span style="font-weight:800;font-size:20px;letter-spacing:-.02em;">ressy</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:26px;font-size:15px;">
+        <a href="#features" style="color:var(--color-ink-secondary);">{{ navFeatures }}</a>
+        <a href="#pricing" style="color:var(--color-ink-secondary);">{{ navPricing }}</a>
+        <div style="display:inline-flex;background:var(--color-surface-alt);border-radius:9999px;padding:3px;">
+          <button onClick="{{ setEs }}" class="btn" style="{{ esStyle }}">ES</button>
+          <button onClick="{{ setEn }}" class="btn" style="{{ enStyle }}">EN</button>
+        </div>
+        <a href="#" style="color:var(--color-ink-secondary);">{{ navLogin }}</a>
+        <a href="#" class="btn" style="background:var(--color-accent);color:#fff;padding:10px 20px;" style-hover="background:var(--color-accent-hover);">{{ navCta }}</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="sec" style="padding-top:72px;padding-bottom:72px;display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--color-accent-soft);color:var(--color-accent-hover);padding:7px 14px;border-radius:9999px;font-size:13px;font-weight:600;margin-bottom:22px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--color-accent);"></span>{{ heroPill }}</div>
+      <h1 style="font-size:clamp(40px,5.5vw,60px);font-weight:700;letter-spacing:-.025em;line-height:1.02;margin:0;">{{ heroTitle }}</h1>
+      <p style="font-size:19px;line-height:1.6;color:var(--color-ink-secondary);margin:22px 0 0;max-width:520px;">{{ heroSub }}</p>
+      <div style="display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;">
+        <a href="#" class="btn" style="background:var(--color-accent);color:#fff;padding:16px 30px;font-size:17px;" style-hover="background:var(--color-accent-hover);">{{ heroCta }}</a>
+        <a href="#" class="btn" style="background:var(--color-surface);border-color:var(--color-border);color:var(--color-ink);padding:16px 26px;font-size:17px;" style-hover="border-color:var(--color-ink);"><i data-lucide="play-circle" style="width:19px;height:19px;"></i>{{ heroCta2 }}</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:18px;color:var(--color-ink-tertiary);font-size:14px;"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:var(--color-success);"></i>{{ heroMicro }}</div>
+    </div>
+    <div style="position:relative;">
+      <div style="border-radius:20px;overflow:hidden;box-shadow:var(--shadow-card-elevated);aspect-ratio:4/3;">
+        <image-slot id="hero-photo" shape="rect" placeholder="Foto real: persona recibiendo un servicio (corte, masaje, consulta)"></image-slot>
+      </div>
+      <div class="card" style="position:absolute;bottom:-22px;left:-22px;padding:16px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-card-elevated);border-color:transparent;background:#fff;">
+        <div style="width:38px;height:38px;border-radius:50%;background:rgba(0,138,5,.12);display:flex;align-items:center;justify-content:center;color:var(--color-success);"><i data-lucide="calendar-check" style="width:20px;height:20px;"></i></div>
+        <div><div style="font-weight:700;font-size:15px;">{{ heroCardTitle }}</div><div style="color:var(--color-ink-secondary);font-size:13px;">{{ heroCardSub }}</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <section style="background:var(--color-surface-alt);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);padding:36px 0;">
+    <div class="sec" style="text-align:center;">
+      <div style="font-size:14px;color:var(--color-ink-secondary);margin-bottom:22px;font-weight:600;">{{ trustLabel }}</div>
+      <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;color:var(--color-ink);">
+        <div style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;"><i data-lucide="scissors" style="width:20px;height:20px;color:var(--color-ink-secondary);"></i>{{ vBarber }}</div>
+        <div style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;"><i data-lucide="flower-2" style="width:20px;height:20px;color:var(--color-ink-secondary);"></i>{{ vSpa }}</div>
+        <div style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;"><i data-lucide="stethoscope" style="width:20px;height:20px;color:var(--color-ink-secondary);"></i>{{ vClinic }}</div>
+        <div style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;"><i data-lucide="dumbbell" style="width:20px;height:20px;color:var(--color-ink-secondary);"></i>{{ vFitness }}</div>
+        <div style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;"><i data-lucide="scale" style="width:20px;height:20px;color:var(--color-ink-secondary);"></i>{{ vLegal }}</div>
+        <div style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;"><i data-lucide="pen-tool" style="width:20px;height:20px;color:var(--color-ink-secondary);"></i>{{ vTattoo }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN -> SOLUTION -->
+  <section class="sec" style="padding:88px 24px;">
+    <div style="text-align:center;max-width:640px;margin:0 auto 48px;">
+      <div class="eyebrow">{{ painEyebrow }}</div>
+      <h2 class="h2">{{ painTitle }}</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch;">
+      <div class="card" style="padding:26px;background:var(--color-surface-alt);">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--color-warning);font-weight:700;font-size:14px;margin-bottom:16px;"><i data-lucide="message-square-x" style="width:18px;height:18px;"></i>{{ beforeTag }}</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:14px;color:var(--color-ink-secondary);max-width:80%;">{{ chat1 }}</div>
+          <div style="background:var(--color-accent-soft);border-radius:14px 14px 4px 14px;padding:12px 14px;font-size:14px;color:var(--color-ink);max-width:80%;align-self:flex-end;">{{ chat2 }}</div>
+          <div style="background:#fff;border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:14px;color:var(--color-ink-secondary);max-width:80%;">{{ chat3 }}</div>
+          <div style="background:#fff;border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:14px;color:var(--color-ink-secondary);max-width:80%;">{{ chat4 }}</div>
+        </div>
+      </div>
+      <div class="card" style="padding:26px;">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--color-success);font-weight:700;font-size:14px;margin-bottom:16px;"><i data-lucide="calendar-check" style="width:18px;height:18px;"></i>{{ afterTag }}</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--color-border);border-radius:12px;padding:12px 14px;"><span style="width:4px;height:34px;border-radius:9999px;background:var(--color-success);"></span><div style="flex:1;"><div style="font-weight:600;font-size:14px;">09:00 · {{ ex1 }}</div><div style="font-size:12px;color:var(--color-ink-secondary);">Camila R.</div></div><span style="font-size:12px;font-weight:600;color:var(--color-success);">{{ exConf }}</span></div>
+          <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--color-border);border-radius:12px;padding:12px 14px;"><span style="width:4px;height:34px;border-radius:9999px;background:var(--color-accent);"></span><div style="flex:1;"><div style="font-weight:600;font-size:14px;">10:30 · {{ ex2 }}</div><div style="font-size:12px;color:var(--color-ink-secondary);">Diego S.</div></div><span style="font-size:12px;font-weight:600;color:var(--color-accent-hover);">{{ exConf }}</span></div>
+          <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--color-border);border-radius:12px;padding:12px 14px;"><span style="width:4px;height:34px;border-radius:9999px;background:var(--color-success);"></span><div style="flex:1;"><div style="font-weight:600;font-size:14px;">12:00 · {{ ex3 }}</div><div style="font-size:12px;color:var(--color-ink-secondary);">Valentina P.</div></div><span style="font-size:12px;font-weight:600;color:var(--color-success);">{{ exConf }}</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section style="background:var(--color-surface-alt);padding:88px 0;">
+    <div class="sec">
+      <div style="text-align:center;max-width:640px;margin:0 auto 48px;">
+        <div class="eyebrow">{{ howEyebrow }}</div>
+        <h2 class="h2">{{ howTitle }}</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        <div class="card lift" style="padding:30px;background:#fff;">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--color-accent-soft);color:var(--color-accent-hover);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin-bottom:20px;">1</div>
+          <h3 style="margin:0 0 8px;font-size:20px;font-weight:600;">{{ how1t }}</h3>
+          <p style="margin:0;color:var(--color-ink-secondary);font-size:15px;line-height:1.6;">{{ how1b }}</p>
+        </div>
+        <div class="card lift" style="padding:30px;background:#fff;">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--color-accent-soft);color:var(--color-accent-hover);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin-bottom:20px;">2</div>
+          <h3 style="margin:0 0 8px;font-size:20px;font-weight:600;">{{ how2t }}</h3>
+          <p style="margin:0;color:var(--color-ink-secondary);font-size:15px;line-height:1.6;">{{ how2b }}</p>
+        </div>
+        <div class="card lift" style="padding:30px;background:#fff;">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--color-accent-soft);color:var(--color-accent-hover);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin-bottom:20px;">3</div>
+          <h3 style="margin:0 0 8px;font-size:20px;font-weight:600;">{{ how3t }}</h3>
+          <p style="margin:0;color:var(--color-ink-secondary);font-size:15px;line-height:1.6;">{{ how3b }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="sec" style="padding:88px 24px;">
+    <div style="text-align:center;max-width:640px;margin:0 auto 48px;">
+      <div class="eyebrow">{{ featEyebrow }}</div>
+      <h2 class="h2">{{ featTitle }}</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;" id="feat-grid"></div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" style="background:var(--color-surface-alt);padding:88px 0;">
+    <div class="sec">
+      <div style="text-align:center;max-width:640px;margin:0 auto 28px;">
+        <div class="eyebrow">{{ priceEyebrow }}</div>
+        <h2 class="h2">{{ priceTitle }}</h2>
+      </div>
+      <div style="display:flex;justify-content:center;margin-bottom:44px;">
+        <div style="display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--color-border);border-radius:9999px;padding:4px;">
+          <button onClick="{{ setMonthly }}" class="btn" style="{{ monthlyStyle }}">{{ monthlyLabel }}</button>
+          <button onClick="{{ setYearly }}" class="btn" style="{{ yearlyStyle }}">{{ yearlyLabel }}</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:start;" id="price-grid"></div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="sec" style="padding:88px 24px;">
+    <div style="text-align:center;max-width:640px;margin:0 auto 48px;">
+      <div class="eyebrow">{{ testEyebrow }}</div>
+      <h2 class="h2">{{ testTitle }}</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;" id="test-grid"></div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="background:var(--color-surface-alt);padding:88px 0;">
+    <div class="sec" style="max-width:760px;">
+      <div style="text-align:center;margin:0 auto 44px;">
+        <div class="eyebrow">FAQ</div>
+        <h2 class="h2">{{ faqTitle }}</h2>
+      </div>
+      <div id="faq-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="sec" style="padding:96px 24px;">
+    <div style="background:var(--color-ink);border-radius:28px;padding:64px 40px;text-align:center;color:#fff;">
+      <h2 style="margin:0 auto;font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.02em;max-width:640px;line-height:1.15;">{{ ctaTitle }}</h2>
+      <a href="#" class="btn" style="background:var(--color-accent);color:#fff;padding:17px 34px;font-size:18px;margin-top:32px;" style-hover="background:var(--color-accent-hover);">{{ ctaBtn }}</a>
+      <div style="margin-top:16px;color:rgba(255,255,255,.6);font-size:14px;">{{ heroMicro }}</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid var(--color-border);padding:40px 0;">
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;">
+      <div style="display:flex;align-items:center;gap:9px;"><img src="assets/ressy-logo.png" alt="Ressy" style="width:30px;height:30px;border-radius:50%;" /><span style="font-weight:800;font-size:18px;letter-spacing:-.02em;">ressy</span></div>
+      <div style="color:var(--color-ink-tertiary);font-size:14px;">© 2026 Ressy · {{ footerTag }}</div>
+      <div style="display:inline-flex;background:var(--color-surface-alt);border-radius:9999px;padding:3px;">
+        <button onClick="{{ setEs }}" class="btn" style="{{ esStyle }}">ES</button>
+        <button onClick="{{ setEn }}" class="btn" style="{{ enStyle }}">EN</button>
+      </div>
+    </div>
+  </footer>
+
+  <x-import component-from-global-scope="image-slot" from="./image-slot.js" hint-size="0,0"></x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang:"es", period:"monthly", open:0 };
+
+  componentDidMount(){ this.renderDyn(); this.icons(); }
+  componentDidUpdate(){ this.renderDyn(); this.icons(); }
+  icons(){ if(window.lucide) window.lucide.createIcons(); }
+  t(es,en){ return this.state.lang==="es"?es:en; }
+
+  renderDyn(){
+    this.buildFeatures(); this.buildPricing(); this.buildTests(); this.buildFaq();
+  }
+
+  buildFeatures(){
+    const g=document.getElementById("feat-grid"); if(!g) return;
+    const data=[
+      ["message-circle", this.t("Recordatorios que sí funcionan","Reminders that actually work"), this.t("WhatsApp y email antes de cada cita. Adiós no-shows.","WhatsApp and email before every appointment. Goodbye no-shows.")],
+      ["credit-card", this.t("Cobra anticipos","Take deposits"), this.t("Asegura cada reserva con un pago por adelantado.","Secure every booking with an upfront payment.")],
+      ["palette", this.t("Tu página, tu marca","Your page, your brand"), this.t("Un link propio con tus colores y tu logo.","Your own link, your colors, your logo.")],
+      ["users", this.t("Agenda de todo tu equipo","Your whole team's schedule"), this.t("Cada profesional con su horario, todo en un calendario.","Every pro, every shift, one calendar.")],
+      ["contact", this.t("Conoce a tus clientes","Know your clients"), this.t("Historial, notas y quién falta a las citas.","History, notes, and who keeps missing appointments.")],
+      ["bar-chart-3", this.t("Números claros","Clear numbers"), this.t("Ingresos, ocupación y servicios top de un vistazo.","Revenue, occupancy, and top services at a glance.")],
+    ];
+    g.innerHTML = data.map(([ic,t,b])=>`<div class="card lift" style="padding:28px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--color-accent-soft);color:var(--color-accent-hover);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><i data-lucide="${ic}" style="width:22px;height:22px;"></i></div><h3 style="margin:0 0 8px;font-size:19px;font-weight:600;">${t}</h3><p style="margin:0;color:var(--color-ink-secondary);font-size:15px;line-height:1.6;">${b}</p></div>`).join("");
+  }
+
+  buildPricing(){
+    const g=document.getElementById("price-grid"); if(!g) return;
+    const yr=this.state.period==="yearly";
+    const mo=this.t("/mes","/mo"), popular=this.t("Más popular","Most popular");
+    const price=(m)=> m===0 ? "$0" : "$"+(yr?Math.round(m*10):m);
+    const suffix=(m)=> m===0 ? "" : (yr?this.t("/año","/yr"):mo);
+    const cta=this.t("Empezar","Get started");
+    const tiers=[
+      ["Free", this.t("Para partir","To get started"),0,[this.t("1 profesional","1 pro"),this.t("Booking page propia","Your own booking page"),this.t("Recordatorios por email","Email reminders")],false],
+      ["Starter", this.t("Para independientes","For solo pros"),12,[this.t("1 profesional","1 pro"),this.t("Recordatorios WhatsApp","WhatsApp reminders"),this.t("Cobro de anticipos","Deposits")],false],
+      ["Pro", this.t("Para equipos pequeños","For small teams"),29,[this.t("Hasta 5 profesionales","Up to 5 pros"),this.t("Mini-CRM y notas","Mini-CRM & notes"),this.t("Reportes","Reports")],true],
+      ["Business", this.t("Para crecer en serio","For serious growth"),69,[this.t("Profesionales ilimitados","Unlimited pros"),this.t("Google Calendar 2 vías","2-way Google Calendar"),this.t("Soporte prioritario","Priority support")],false],
+    ];
+    g.innerHTML = tiers.map(([name,sub,m,feats,pop])=>`
+      <div class="card" style="padding:28px;position:relative;${pop?"border:2px solid var(--color-accent);box-shadow:var(--shadow-card-elevated);":""}">
+        ${pop?`<div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--color-accent);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:9999px;white-space:nowrap;">${popular}</div>`:""}
+        <div style="font-size:18px;font-weight:700;">${name}</div>
+        <div style="color:var(--color-ink-secondary);font-size:13px;margin-bottom:16px;">${sub}</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:20px;"><span style="font-size:38px;font-weight:700;letter-spacing:-.02em;">${price(m)}</span><span style="color:var(--color-ink-secondary);font-size:14px;">${suffix(m)}</span></div>
+        <a href="#" class="btn" style="width:100%;padding:12px;font-size:15px;margin-bottom:20px;${pop?"background:var(--color-accent);color:#fff;":"background:var(--color-surface);border-color:var(--color-border);color:var(--color-ink);"}">${cta}</a>
+        <div style="display:flex;flex-direction:column;gap:10px;">${feats.map(f=>`<div style="display:flex;align-items:flex-start;gap:9px;font-size:14px;color:var(--color-ink);"><i data-lucide="check" style="width:16px;height:16px;color:var(--color-accent);flex:0 0 auto;margin-top:2px;"></i>${f}</div>`).join("")}</div>
+      </div>`).join("");
+  }
+
+  buildTests(){
+    const g=document.getElementById("test-grid"); if(!g) return;
+    const data=[
+      [this.t("Bajé los no-shows de 8 a 1 por semana. Los recordatorios solos ya pagan el plan.","I cut no-shows from 8 to 1 a week. The reminders alone pay for the plan."),"Camila R.",this.t("Barbería · Santiago","Barbershop · Santiago")],
+      [this.t("Mis clientas reservan de noche por Instagram. Antes perdía todas esas citas.","My clients book at night from Instagram. I used to lose all those appointments."),"Valentina P.",this.t("Spa & uñas · CDMX","Spa & nails · Mexico City")],
+      [this.t("Configurarlo me tomó 10 minutos. En serio.","It took me 10 minutes to set up. Seriously."),"Diego S.",this.t("Entrenador personal · Bogotá","Personal trainer · Bogotá")],
+    ];
+    g.innerHTML = data.map(([q,n,r])=>`
+      <div class="card" style="padding:28px;">
+        <div style="display:flex;gap:2px;margin-bottom:16px;">${'<i data-lucide="star" style="width:16px;height:16px;fill:var(--color-accent);stroke:var(--color-accent);"></i>'.repeat(5)}</div>
+        <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:var(--color-ink);">“${q}”</p>
+        <div style="display:flex;align-items:center;gap:12px;"><div style="width:42px;height:42px;border-radius:50%;background:var(--color-surface-alt);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--color-ink-secondary);">${n[0]}</div><div><div style="font-weight:600;font-size:14px;">${n}</div><div style="color:var(--color-ink-secondary);font-size:13px;">${r}</div></div></div>
+      </div>`).join("");
+  }
+
+  buildFaq(){
+    const g=document.getElementById("faq-list"); if(!g) return;
+    const data=[
+      [this.t("¿Mis clientes necesitan crear una cuenta?","Do my clients need an account?"), this.t("No. Reservan como invitados en unos pocos toques, sin registro ni descargas.","No. They book as guests in a few taps — no sign-up, no downloads.")],
+      [this.t("¿Puedo cobrar anticipos?","Can I charge deposits?"), this.t("Sí, con Stripe o Mercado Pago según tu país. Tú defines el monto o el porcentaje.","Yes, with Stripe or Mercado Pago depending on your country. You set the amount or percentage.")],
+      [this.t("¿Funciona en mi país?","Does it work in my country?"), this.t("Sí: cualquier zona horaria y moneda. Ressy es worldwide desde el día uno.","Yes: any timezone and currency. Ressy is worldwide from day one.")],
+      [this.t("¿Puedo cambiar de plan cuando quiera?","Can I change plans anytime?"), this.t("Sí, upgrade o downgrade sin permanencia, cuando lo necesites.","Yes, upgrade or downgrade anytime — no lock-in.")],
+      [this.t("¿Qué pasa si me paso del plan Free?","What if I outgrow the Free plan?"), this.t("Te avisamos antes de llegar al límite; nunca perdemos tus reservas.","We warn you before you hit the limit — we never lose your bookings.")],
+      [this.t("¿Sincroniza con Google Calendar?","Does it sync with Google Calendar?"), this.t("Sí, en dos direcciones: lo que agendes en Ressy aparece en Google y viceversa.","Yes, two-way: what you book in Ressy shows in Google and vice versa.")],
+    ];
+    const open=this.state.open;
+    g.innerHTML = data.map(([q,a],i)=>`
+      <div class="card" style="padding:0;overflow:hidden;background:#fff;">
+        <button data-faq="${i}" style="width:100%;text-align:left;background:none;border:none;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;font-family:var(--font-brand);font-size:16px;font-weight:600;color:var(--color-ink);">${q}<i data-lucide="${open===i?'minus':'plus'}" style="width:20px;height:20px;color:var(--color-ink-secondary);flex:0 0 auto;"></i></button>
+        <div class="faqbody" style="max-height:${open===i?'200px':'0'};"><p style="margin:0;padding:0 22px 20px;color:var(--color-ink-secondary);font-size:15px;line-height:1.6;">${a}</p></div>
+      </div>`).join("");
+    g.querySelectorAll("[data-faq]").forEach(b=>b.onclick=()=>{
+      const i=+b.getAttribute("data-faq"); this.setState(s=>({open:s.open===i?-1:i}));
+    });
+  }
+
+  renderVals(){
+    const es=this.state.lang==="es";
+    const active="background:#fff;color:var(--color-ink);padding:6px 14px;font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,.1);";
+    const inactive="background:transparent;color:var(--color-ink-secondary);padding:6px 14px;font-size:13px;";
+    const yr=this.state.period==="yearly";
+    const pActive="background:var(--color-ink);color:#fff;padding:9px 20px;font-size:14px;";
+    const pInactive="background:transparent;color:var(--color-ink-secondary);padding:9px 20px;font-size:14px;";
+    return {
+      setEs:()=>this.setState({lang:"es"}), setEn:()=>this.setState({lang:"en"}),
+      esStyle:es?active:inactive, enStyle:es?inactive:active,
+      setMonthly:()=>this.setState({period:"monthly"}), setYearly:()=>this.setState({period:"yearly"}),
+      monthlyStyle:yr?pInactive:pActive, yearlyStyle:yr?pActive:pInactive,
+      monthlyLabel:this.t("Mensual","Monthly"), yearlyLabel:this.t("Anual · 2 meses gratis","Yearly · 2 months free"),
+
+      navFeatures:this.t("Funciones","Features"), navPricing:this.t("Precios","Pricing"),
+      navLogin:this.t("Iniciar sesión","Log in"), navCta:this.t("Empieza gratis","Start for free"),
+
+      heroPill:this.t("Nuevo · Booking page + recordatorios","New · Booking page + reminders"),
+      heroTitle:this.t("Tu agenda llena. Tus no-shows en cero.","A full calendar. Zero no-shows."),
+      heroSub:this.t("Ressy le da a tu negocio una página de reservas propia, recordatorios automáticos por WhatsApp y cobro de anticipos. Configúralo en 10 minutos, gratis.","Ressy gives your business its own booking page, automatic WhatsApp reminders, and upfront payments. Set up in 10 minutes, free."),
+      heroCta:this.t("Empieza gratis","Start for free"), heroCta2:this.t("Ver demo","See it in action"),
+      heroMicro:this.t("Sin tarjeta de crédito · Plan gratis para siempre","No credit card · Free plan forever"),
+      heroCardTitle:this.t("Nueva reserva","New booking"), heroCardSub:this.t("Hoy 10:30 · confirmada","Today 10:30 · confirmed"),
+
+      trustLabel:this.t("Pensado para negocios de servicios de todo tipo","Built for every kind of service business"),
+      vBarber:this.t("Barbería","Barbershop"), vSpa:"Spa", vClinic:this.t("Clínica","Clinic"),
+      vFitness:"Fitness", vLegal:this.t("Legal","Legal"), vTattoo:"Tattoo",
+
+      painEyebrow:this.t("El problema","The problem"),
+      painTitle:this.t("Del caos de WhatsApp a una agenda que se llena sola","From WhatsApp chaos to a calendar that fills itself"),
+      beforeTag:this.t("Antes","Before"), afterTag:this.t("Con Ressy","With Ressy"),
+      chat1:this.t("Hola! tienen hora el sábado?","Hi! any slots on Saturday?"),
+      chat2:this.t("Déjame reviso y te aviso 🙏","Let me check and get back to you 🙏"),
+      chat3:this.t("Sigue ahí la hora??","Is the slot still open??"),
+      chat4:this.t("Al final no puedo ir 😅","Can't make it after all 😅"),
+      ex1:this.t("Corte + barba","Cut + beard"), ex2:this.t("Coloración","Color"), ex3:this.t("Corte","Haircut"),
+      exConf:this.t("Confirmada","Confirmed"),
+
+      howEyebrow:this.t("Cómo funciona","How it works"),
+      howTitle:this.t("Listo en tres pasos","Live in three steps"),
+      how1t:this.t("Crea tu página","Create your page"), how1b:this.t("Servicios, horarios y tu marca. Listo en minutos.","Your services, hours, and brand. Ready in minutes."),
+      how2t:this.t("Comparte tu link","Share your link"), how2b:this.t("En Instagram, WhatsApp o con un QR en tu local.","On Instagram, WhatsApp, or a QR at your counter."),
+      how3t:this.t("Recibe reservas","Get booked"), how3b:this.t("Confirmaciones y recordatorios automáticos. Tú solo atiende.","Automatic confirmations and reminders. You just show up."),
+
+      featEyebrow:this.t("Funciones","Features"),
+      featTitle:this.t("Todo lo que tu negocio necesita para reservar","Everything your business needs to get booked"),
+      priceEyebrow:this.t("Precios","Pricing"),
+      priceTitle:this.t("Un plan para cada etapa","A plan for every stage"),
+      testEyebrow:this.t("Historias reales","Real stories"),
+      testTitle:this.t("Negocios que ya llenan su agenda","Businesses already filling their calendar"),
+      faqTitle:this.t("Preguntas frecuentes","Frequently asked questions"),
+      ctaTitle:this.t("Tu próxima reserva podría llegar hoy. Crea tu página gratis en 10 minutos.","Your next booking could come in today. Create your free page in 10 minutes."),
+      ctaBtn:this.t("Empieza gratis","Start for free"),
+      footerTag:this.t("Reservas para negocios de servicios","Bookings for service businesses"),
+    };
+  }
+}
+</script>
+</body>
+</html>

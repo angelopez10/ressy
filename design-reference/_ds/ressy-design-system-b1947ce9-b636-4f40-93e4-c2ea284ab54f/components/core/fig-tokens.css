@@ -1,0 +1,75 @@
+/* Generated from Figma Variables. First mode = :root default.
+   FLOAT tokens are unitless — multiply by 1px in calc() where a length is needed. */
+
+:root {
+  --colors-alerts-green: rgb(31,193,107); /* @kind color */
+  --colors-alerts-red: rgb(208,4,22); /* @kind color */
+  --colors-alerts-yellow: rgb(255,219,67); /* @kind color */
+  --colors-background: rgb(237,237,237); /* @kind color */
+  --colors-blue-100: rgb(170,181,255); /* @kind color */
+  --colors-blue-200: rgb(85,108,255); /* @kind color */
+  --colors-blue-300: rgb(0,34,255); /* @kind color */
+  --colors-blue-400: rgb(0,26,198); /* @kind color */
+  --colors-blue-500: rgb(0,19,140); /* @kind color */
+  --colors-electric-green-100: rgb(245,255,166); /* @kind color */
+  --colors-electric-green-200: rgb(236,255,78); /* @kind color */
+  --colors-electric-green-300: rgb(229,255,16); /* @kind color */
+  --colors-electric-green-400: rgb(187,210,0); /* @kind color */
+  --colors-electric-green-500: rgb(133,149,0); /* @kind color */
+  --colors-green-100: rgb(168,214,183); /* @kind color */
+  --colors-green-200: rgb(125,193,147); /* @kind color */
+  --colors-green-300: rgb(82,172,111); /* @kind color */
+  --colors-green-400: rgb(61,129,83); /* @kind color */
+  --colors-green-500: rgb(35,73,47); /* @kind color */
+  --colors-neutral-1000: rgb(0,0,0); /* @kind color */
+  --colors-neutral-100: rgb(255,255,255); /* @kind color */
+  --colors-neutral-200: rgb(227,227,227); /* @kind color */
+  --colors-neutral-300: rgb(198,198,198); /* @kind color */
+  --colors-neutral-400: rgb(170,170,170); /* @kind color */
+  --colors-neutral-500: rgb(142,142,142); /* @kind color */
+  --colors-neutral-600: rgb(113,113,113); /* @kind color */
+  --colors-neutral-700: rgb(85,85,85); /* @kind color */
+  --colors-neutral-800: rgb(57,57,57); /* @kind color */
+  --colors-neutral-900: rgb(28,28,28); /* @kind color */
+  --colors-purple-100: rgb(220,185,255); /* @kind color */
+  --colors-purple-200: rgb(186,115,255); /* @kind color */
+  --colors-purple-300: rgb(152,46,255); /* @kind color */
+  --colors-purple-400: rgb(118,0,232); /* @kind color */
+  --colors-purple-500: rgb(83,0,163); /* @kind color */
+  --colors-red-100: rgb(255,169,164); /* @kind color */
+  --colors-red-200: rgb(255,82,72); /* @kind color */
+  --colors-red-300: rgb(255,25,12); /* @kind color */
+  --colors-red-400: rgb(206,11,0); /* @kind color */
+  --colors-red-500: rgb(146,8,0); /* @kind color */
+  --colors-text-black: rgb(28,28,28); /* @kind color */
+  --colors-text-white: rgb(255,255,255); /* @kind color */
+  --colors-yellow-100: rgb(255,230,171); /* @kind color */
+  --colors-yellow-200: rgb(255,206,86); /* @kind color */
+  --colors-yellow-300: rgb(255,181,2); /* @kind color */
+  --colors-yellow-400: rgb(199,141,0); /* @kind color */
+  --colors-yellow-500: rgb(141,100,0); /* @kind color */
+  --radius-1: 2;
+  --radius-2: 4;
+  --radius-3: 6;
+  --radius-4: 8;
+  --radius-5: 10;
+  --radius-6: 12;
+  --radius-7: 16;
+  --radius-full: 999;
+  --radius-none: 0;
+  --spacing-0: 2;
+  --spacing-10: 56;
+  --spacing-1: 4;
+  --spacing-2: 8;
+  --spacing-3: 12;
+  --spacing-4: 16;
+  --spacing-5: 20;
+  --spacing-6: 24;
+  --spacing-7: 32;
+  --spacing-8: 40;
+  --spacing-9: 48;
+  --stroke-0: 1;
+  --stroke-1: 2;
+  --stroke-2: 4;
+  --stroke-3: 6;
+}

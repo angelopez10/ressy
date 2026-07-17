@@ -1,0 +1,97 @@
+{
+  "common": {
+    "brand": "Ressy",
+    "localeSwitcher": {
+      "label": "Change language",
+      "es": "Español",
+      "en": "English"
+    }
+  },
+  "nav": {
+    "product": "Product",
+    "pricing": "Pricing",
+    "styleguide": "Styleguide",
+    "dashboard": "Dashboard",
+    "login": "Log in",
+    "cta": "Start free"
+  },
+  "marketing": {
+    "badge": "Coming soon",
+    "title": "Frictionless booking for your business",
+    "subtitle": "Ressy gives your business its own booking page where clients book themselves, 24/7, with automatic reminders and upfront deposits.",
+    "cta": "Get my booking page",
+    "secondaryCta": "See the styleguide",
+    "comingSoon": "Ressy — coming soon"
+  },
+  "booking": {
+    "placeholderTitle": "Booking page",
+    "placeholderSubtitle": "The public booking page for this business will live here.",
+    "slugLabel": "Business slug",
+    "notReady": "This screen isn't built yet. It ships in session 2 along with the availability engine."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "subtitle": "This is the dashboard shell. No authentication or real data is wired up yet.",
+    "nav": {
+      "agenda": "Agenda",
+      "services": "Services",
+      "staff": "Staff",
+      "customers": "Customers",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "placeholderCard": {
+      "title": "No data yet",
+      "body": "Once Supabase is wired up, today's bookings will show up here."
+    }
+  },
+  "styleguide": {
+    "title": "Styleguide",
+    "subtitle": "Ressy primitives using the approved design system tokens.",
+    "sections": {
+      "typography": "Typography",
+      "buttons": "Buttons",
+      "inputs": "Form fields",
+      "card": "Card",
+      "badges": "Booking states",
+      "colors": "Color"
+    },
+    "typography": {
+      "display": "Book in seconds",
+      "h2": "Choose your service",
+      "h3": "Haircut",
+      "body": "Body copy at 16px with a 1.6 line height. Spanish runs about 25% longer than English, so layouts have to absorb long strings without breaking.",
+      "small": "Small text for metadata and footnotes."
+    },
+    "buttons": {
+      "primary": "Confirm booking",
+      "secondary": "Change time",
+      "ghost": "Cancel",
+      "loading": "Processing",
+      "disabled": "Unavailable",
+      "loadingHint": "Press the primary button to see the loading state."
+    },
+    "inputs": {
+      "nameLabel": "Full name",
+      "namePlaceholder": "Maria Gonzalez",
+      "emailLabel": "Email",
+      "emailPlaceholder": "maria@example.com",
+      "errorLabel": "Phone",
+      "errorPlaceholder": "+1 555 123 4567",
+      "errorMessage": "We need a valid phone number to send you the reminder."
+    },
+    "card": {
+      "title": "Haircut & beard",
+      "duration": "45 min",
+      "price": "$24.00",
+      "body": "Cards are the base unit of the product: border at rest, shadow only on elevation."
+    },
+    "badges": {
+      "confirmed": "Confirmed",
+      "pending": "Pending payment",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    }
+  }
+}
