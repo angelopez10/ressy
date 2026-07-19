@@ -16,34 +16,898 @@
     "cta": "Empezar gratis"
   },
   "marketing": {
-    "badge": "Próximamente",
-    "title": "Reservas sin fricción para tu negocio",
-    "subtitle": "Ressy le da a tu negocio una página de reservas propia donde tus clientes agendan solos, 24/7, con recordatorios automáticos y cobro de anticipos.",
-    "cta": "Quiero mi página de reservas",
-    "secondaryCta": "Ver la guía de estilos",
-    "comingSoon": "Ressy — muy pronto"
+    "meta": {
+      "title": "Ressy — Tu agenda llena, tus no-shows en cero",
+      "description": "Ordena tu negocio de servicios con Ressy: tu propia página de reservas, recordatorios automáticos por WhatsApp y cobro de anticipos. Cualquier zona horaria, cualquier moneda. Configúralo gratis en 10 minutos."
+    },
+    "nav": {
+      "features": "Funciones",
+      "pricing": "Precios",
+      "login": "Iniciar sesión",
+      "cta": "Empieza gratis",
+      "menu": "Menú"
+    },
+    "hero": {
+      "pill": "Nuevo · Booking page + recordatorios",
+      "title": "Tu agenda llena. Tus no-shows en cero.",
+      "subtitle": "Ressy le da a tu negocio una página de reservas propia, recordatorios automáticos por WhatsApp y cobro de anticipos. Configúralo en 10 minutos, gratis.",
+      "cta": "Empieza gratis",
+      "secondaryCta": "Ver demo",
+      "micro": "Sin tarjeta de crédito · Plan gratis para siempre",
+      "cardTitle": "Nueva reserva",
+      "cardSub": "Hoy 10:30 · confirmada",
+      "imageAlt": "Página de reservas de Ressy en un teléfono"
+    },
+    "trust": {
+      "label": "Pensado para negocios de servicios de todo tipo",
+      "verticals": {
+        "barber": "Barbería",
+        "spa": "Spa",
+        "clinic": "Clínica",
+        "fitness": "Fitness",
+        "legal": "Legal",
+        "tattoo": "Tattoo"
+      }
+    },
+    "pain": {
+      "eyebrow": "El problema",
+      "title": "Del caos de WhatsApp a una agenda que se llena sola",
+      "beforeTag": "Antes",
+      "afterTag": "Con Ressy",
+      "confirmed": "Confirmada",
+      "chat": [
+        "Hola! tienen hora el sábado?",
+        "Déjame reviso y te aviso 🙏",
+        "Sigue ahí la hora??",
+        "Al final no puedo ir 😅"
+      ],
+      "slots": [
+        {
+          "time": "09:00",
+          "service": "Corte + barba",
+          "client": "Camila R."
+        },
+        {
+          "time": "10:30",
+          "service": "Coloración",
+          "client": "Diego S."
+        },
+        {
+          "time": "12:00",
+          "service": "Corte",
+          "client": "Valentina P."
+        }
+      ]
+    },
+    "how": {
+      "eyebrow": "Cómo funciona",
+      "title": "Listo en tres pasos",
+      "steps": [
+        {
+          "title": "Crea tu página",
+          "body": "Servicios, horarios y tu marca. Listo en minutos."
+        },
+        {
+          "title": "Comparte tu link",
+          "body": "En Instagram, WhatsApp o con un QR en tu local."
+        },
+        {
+          "title": "Recibe reservas",
+          "body": "Confirmaciones y recordatorios automáticos. Tú solo atiende."
+        }
+      ]
+    },
+    "features": {
+      "eyebrow": "Funciones",
+      "title": "Todo lo que tu negocio necesita para reservar",
+      "items": [
+        {
+          "title": "Recordatorios que sí funcionan",
+          "body": "WhatsApp y email antes de cada cita. Adiós no-shows."
+        },
+        {
+          "title": "Cobra anticipos",
+          "body": "Asegura cada reserva con un pago por adelantado."
+        },
+        {
+          "title": "Tu página, tu marca",
+          "body": "Un link propio con tus colores y tu logo."
+        },
+        {
+          "title": "Agenda de todo tu equipo",
+          "body": "Cada profesional con su horario, todo en un calendario."
+        },
+        {
+          "title": "Conoce a tus clientes",
+          "body": "Historial, notas y quién falta a las citas."
+        },
+        {
+          "title": "Números claros",
+          "body": "Ingresos, ocupación y servicios top de un vistazo."
+        }
+      ]
+    },
+    "pricing": {
+      "eyebrow": "Precios",
+      "title": "Un plan para cada etapa",
+      "monthly": "Mensual",
+      "yearly": "Anual · 2 meses gratis",
+      "perMonth": "/mes",
+      "perYear": "/año",
+      "popular": "Más popular",
+      "cta": "Empezar",
+      "tiers": [
+        {
+          "name": "Free",
+          "tagline": "Para partir",
+          "features": [
+            "1 profesional",
+            "Booking page propia",
+            "Recordatorios por email"
+          ]
+        },
+        {
+          "name": "Starter",
+          "tagline": "Para independientes",
+          "features": [
+            "1 profesional",
+            "Recordatorios WhatsApp",
+            "Cobro de anticipos"
+          ]
+        },
+        {
+          "name": "Pro",
+          "tagline": "Para equipos pequeños",
+          "features": [
+            "Hasta 5 profesionales",
+            "Mini-CRM y notas",
+            "Reportes"
+          ]
+        },
+        {
+          "name": "Business",
+          "tagline": "Para crecer en serio",
+          "features": [
+            "Profesionales ilimitados",
+            "Google Calendar 2 vías",
+            "Soporte prioritario"
+          ]
+        }
+      ]
+    },
+    "testimonials": {
+      "eyebrow": "Historias reales",
+      "title": "Negocios que ya llenan su agenda",
+      "items": [
+        {
+          "quote": "Bajé los no-shows de 8 a 1 por semana. Los recordatorios solos ya pagan el plan.",
+          "name": "Camila R.",
+          "role": "Barbería · Santiago"
+        },
+        {
+          "quote": "Mis clientas reservan de noche por Instagram. Antes perdía todas esas citas.",
+          "name": "Valentina P.",
+          "role": "Spa & uñas · CDMX"
+        },
+        {
+          "quote": "Configurarlo me tomó 10 minutos. En serio.",
+          "name": "Diego S.",
+          "role": "Entrenador personal · Bogotá"
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Mis clientes necesitan crear una cuenta?",
+          "a": "No. Reservan como invitados en unos pocos toques, sin registro ni descargas."
+        },
+        {
+          "q": "¿Puedo cobrar anticipos?",
+          "a": "Sí, con Stripe o Mercado Pago según tu país. Tú defines el monto o el porcentaje."
+        },
+        {
+          "q": "¿Funciona en mi país?",
+          "a": "Sí: cualquier zona horaria y moneda. Ressy es worldwide desde el día uno."
+        },
+        {
+          "q": "¿Puedo cambiar de plan cuando quiera?",
+          "a": "Sí, upgrade o downgrade sin permanencia, cuando lo necesites."
+        },
+        {
+          "q": "¿Qué pasa si me paso del plan Free?",
+          "a": "Te avisamos antes de llegar al límite; nunca perdemos tus reservas."
+        },
+        {
+          "q": "¿Sincroniza con Google Calendar?",
+          "a": "Sí, en dos direcciones: lo que agendes en Ressy aparece en Google y viceversa."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Tu próxima reserva podría llegar hoy. Crea tu página gratis en 10 minutos.",
+      "cta": "Empieza gratis"
+    },
+    "footer": {
+      "tagline": "Reservas para negocios de servicios",
+      "product": "Producto",
+      "rights": "© {year} Ressy",
+      "social": {
+        "instagram": "Instagram",
+        "x": "X",
+        "linkedin": "LinkedIn"
+      }
+    }
   },
   "booking": {
-    "placeholderTitle": "Página de reservas",
-    "placeholderSubtitle": "Aquí vivirá la página pública de reservas del negocio.",
-    "slugLabel": "Slug del negocio",
-    "notReady": "Esta pantalla todavía no está construida. Llega en la sesión 2 junto al motor de disponibilidad."
+    "poweredBy": "Con tecnología de",
+    "back": "Atrás",
+    "secure": "Reserva segura",
+    "steps": {
+      "service": "Servicio",
+      "professional": "Profesional",
+      "datetime": "Fecha y hora",
+      "details": "Tus datos",
+      "done": "Listo"
+    },
+    "summary": {
+      "title": "Tu reserva",
+      "total": "Total",
+      "depositToday": "Anticipo hoy ({percent}%)",
+      "depositFixed": "Anticipo hoy",
+      "restNote": "El resto se paga en el local."
+    },
+    "notFound": {
+      "title": "Negocio no encontrado",
+      "body": "Este link de reserva no existe, o el negocio todavía no está publicado.",
+      "cta": "Ir a Ressy"
+    },
+    "profile": {
+      "chooseService": "Elige un servicio",
+      "subtitle": "¿Qué te gustaría reservar hoy?",
+      "noServices": "Este negocio no tiene servicios disponibles por ahora.",
+      "book": "Reservar",
+      "continue": "Continuar",
+      "minutes": "{count} min"
+    },
+    "staff": {
+      "title": "¿Con quién quieres tu cita?",
+      "any": "Cualquier profesional",
+      "anyHint": "El primero disponible",
+      "serviceSummary": "{service} · {duration} min"
+    },
+    "datetime": {
+      "title": "Elige fecha y hora",
+      "available": "Horas disponibles",
+      "none": "No hay horas disponibles esta semana.",
+      "nextWeek": "Próxima semana",
+      "prevWeek": "Semana anterior",
+      "continue": "Continuar",
+      "pickTime": "Elige una hora",
+      "taken": "Agotado"
+    },
+    "details": {
+      "title": "Completa tus datos",
+      "guestHint": "Reservas como invitado, sin crear cuenta.",
+      "name": "Nombre completo",
+      "namePlaceholder": "¿Cómo te llamas?",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "note": "Nota (opcional)",
+      "notePlaceholder": "¿Algo que el negocio deba saber?",
+      "summaryService": "{service} · {duration} min",
+      "deposit": "Anticipo ({percent}%)",
+      "depositFixed": "Anticipo",
+      "payToday": "Pagas hoy",
+      "noDeposit": "Sin anticipo — pagas en el local.",
+      "confirm": "Confirmar reserva",
+      "paymentPlaceholder": "El pago en línea llega pronto; por ahora el negocio cobra el anticipo directamente."
+    },
+    "errors": {
+      "nameRequired": "Ingresa tu nombre.",
+      "emailInvalid": "Ingresa un correo válido.",
+      "phoneInvalid": "Ingresa un teléfono válido.",
+      "contactRequired": "Agrega un correo o teléfono para enviarte el recordatorio.",
+      "slotTaken": "Ese horario acaba de ocuparse — elige otro.",
+      "slotUnavailable": "Ese horario ya no está disponible. Elige otro.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "confirm": {
+      "title": "¡Reserva confirmada!",
+      "pendingTitle": "¡Casi listo!",
+      "body": "Te enviamos los detalles a tu correo y un recordatorio por WhatsApp.",
+      "pendingBody": "Tu hora está reservada. Completa el anticipo para confirmarla.",
+      "service": "Servicio",
+      "professional": "Profesional",
+      "date": "Fecha",
+      "time": "Hora",
+      "addToCalendar": "Agregar al calendario",
+      "manage": "Reagendar o cancelar",
+      "bookAnother": "Reservar otra"
+    },
+    "manage": {
+      "title": "Gestiona tu reserva",
+      "notFound": "No encontramos esta reserva — el link podría ser inválido.",
+      "reschedule": "Reagendar",
+      "cancel": "Cancelar reserva",
+      "keep": "Mantenerla",
+      "confirmCancelTitle": "¿Cancelar esta reserva?",
+      "confirmCancelBody": "No se puede deshacer. El horario quedará libre.",
+      "cancelReason": "Motivo (opcional)",
+      "outsideWindow": "La ventana de cancelación gratuita ({hours}h antes) ya pasó. Contacta al negocio para hacer cambios.",
+      "rescheduleTitle": "Elige un nuevo horario",
+      "saveReschedule": "Confirmar nuevo horario",
+      "rescheduledOk": "Tu reserva fue movida.",
+      "cancelledOk": "Tu reserva fue cancelada.",
+      "status": {
+        "confirmed": "Confirmada",
+        "pending_payment": "Pago pendiente",
+        "rescheduled": "Reagendada",
+        "completed": "Completada",
+        "cancelled_by_client": "Cancelada",
+        "cancelled_by_business": "Cancelada por el negocio",
+        "no_show": "No se presentó"
+      }
+    }
+  },
+  "auth": {
+    "title": "Entra a Ressy",
+    "subtitle": "Crea tu cuenta o inicia sesión para configurar tu negocio.",
+    "email": "Correo electrónico",
+    "sendLink": "Enviar link de acceso",
+    "or": "o",
+    "google": "Continuar con Google",
+    "checkEmailTitle": "Revisa tu correo",
+    "checkEmailBody": "Te enviamos un link de acceso a {email}. Ábrelo para entrar.",
+    "errors": {
+      "invalidEmail": "Ingresa un correo válido.",
+      "sendFailed": "No pudimos enviar el link. Inténtalo de nuevo.",
+      "oauth": "No pudimos conectar con Google. Inténtalo de nuevo."
+    }
+  },
+  "onboarding": {
+    "back": "Atrás",
+    "continue": "Continuar",
+    "publish": "Publicar mi página",
+    "steps": {
+      "business": "Negocio",
+      "services": "Servicios",
+      "schedule": "Horario",
+      "page": "Página",
+      "done": "Listo"
+    },
+    "categories": {
+      "barbershop": "Barbería",
+      "hair_salon": "Peluquería / Salón",
+      "spa": "Spa",
+      "clinic": "Clínica / Estética",
+      "fitness": "Fitness",
+      "tattoo": "Tatuajes",
+      "legal": "Servicios legales",
+      "other": "Otro"
+    },
+    "days": {
+      "mon": "Lunes",
+      "tue": "Martes",
+      "wed": "Miércoles",
+      "thu": "Jueves",
+      "fri": "Viernes",
+      "sat": "Sábado",
+      "sun": "Domingo"
+    },
+    "step1": {
+      "title": "Cuéntanos de tu negocio",
+      "subtitle": "Con esto configuramos tu zona horaria y moneda automáticamente.",
+      "name": "Nombre del negocio",
+      "namePlaceholder": "Barbería Bravo",
+      "ownerName": "Tu nombre",
+      "ownerHint": "Así te verán tus clientes al reservar contigo.",
+      "ownerPlaceholder": "¿Cómo te llamas?",
+      "category": "Categoría",
+      "country": "País",
+      "timezone": "Zona horaria",
+      "currency": "Moneda",
+      "errors": {
+        "nameRequired": "Ingresa el nombre del negocio.",
+        "ownerRequired": "Ingresa tu nombre."
+      }
+    },
+    "step2": {
+      "title": "Agrega tus servicios",
+      "subtitle": "Los que tus clientes podrán reservar. Puedes editarlos después.",
+      "name": "Nombre del servicio",
+      "namePlaceholder": "Corte de pelo",
+      "duration": "Duración",
+      "price": "Precio",
+      "remove": "Eliminar",
+      "add": "Agregar servicio",
+      "errors": {
+        "atLeastOneService": "Agrega al menos un servicio.",
+        "serviceNameRequired": "Cada servicio necesita un nombre.",
+        "generic": "Revisa los datos e inténtalo de nuevo."
+      }
+    },
+    "step3": {
+      "title": "Define tu horario semanal",
+      "subtitle": "Configura un día y cópialo al resto en un clic.",
+      "copyMonday": "Copiar lunes a toda la semana",
+      "closed": "Cerrado",
+      "errors": {
+        "atLeastOneDay": "Abre al menos un día.",
+        "generic": "Revisa el horario e inténtalo de nuevo."
+      }
+    },
+    "step4": {
+      "title": "Personaliza tu página de reservas",
+      "subtitle": "Elige tu link. Así lo verán tus clientes.",
+      "slug": "Tu link de Ressy",
+      "logo": "Logo",
+      "uploadLogo": "Subir logo",
+      "accent": "Color de tu marca",
+      "language": "Idioma de la página",
+      "preview": "Vista previa en vivo",
+      "yourBusiness": "Tu negocio",
+      "errors": {
+        "slugTaken": "Ese link ya está tomado.",
+        "slugFormat": "Usa solo minúsculas, números y guiones.",
+        "slugTooShort": "El link es muy corto.",
+        "slugTooLong": "El link es muy largo."
+      }
+    },
+    "step5": {
+      "title": "¡Tu página está lista!",
+      "subtitle": "Comparte tu link o imprime el QR para tu local. Cada reserva llega directo a tu calendario.",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "shareWhatsapp": "Compartir en WhatsApp",
+      "downloadQr": "Descargar QR",
+      "goToDashboard": "Ir a mi dashboard",
+      "shareText": "Reserva tu hora aquí: {url}"
+    }
   },
   "dashboard": {
     "title": "Panel",
+    "signOut": "Cerrar sesión",
     "welcome": "Hola de nuevo",
     "subtitle": "Este es el esqueleto del panel. Todavía no hay autenticación ni datos reales conectados.",
     "nav": {
-      "agenda": "Agenda",
+      "home": "Inicio",
+      "calendar": "Agenda",
+      "clients": "Clientes",
       "services": "Servicios",
-      "staff": "Equipo",
-      "customers": "Clientes",
+      "team": "Equipo",
       "reports": "Reportes",
       "settings": "Ajustes"
+    },
+    "actions": {
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "create": "Crear",
+      "add": "Agregar",
+      "remove": "Quitar",
+      "search": "Buscar",
+      "confirm": "Confirmar",
+      "close": "Cerrar",
+      "back": "Atrás",
+      "deactivate": "Desactivar",
+      "activate": "Activar",
+      "retry": "Reintentar"
     },
     "placeholderCard": {
       "title": "Sin datos todavía",
       "body": "Cuando conectemos Supabase, aquí verás las reservas del día."
+    },
+    "calendar": {
+      "title": "Agenda",
+      "tzLabel": "Horas en {tz}",
+      "today": "Hoy",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "views": {
+        "day": "Día",
+        "week": "Semana"
+      },
+      "blockTime": "Bloquear horario",
+      "manualBooking": "Reserva manual",
+      "now": "Ahora",
+      "allStaff": "Todo el equipo",
+      "status": {
+        "pending_payment": "Pendiente de pago",
+        "confirmed": "Confirmada",
+        "rescheduled": "Reagendada",
+        "completed": "Completada",
+        "cancelled_by_client": "Cancelada por el cliente",
+        "cancelled_by_business": "Cancelada",
+        "no_show": "No-show"
+      },
+      "override": {
+        "blocked": "Bloqueado",
+        "defaultReason": "No disponible"
+      },
+      "detail": {
+        "service": "Servicio",
+        "time": "Horario",
+        "date": "Fecha",
+        "professional": "Profesional",
+        "duration": "{count} min",
+        "note": "Nota del cliente",
+        "history": "Historial",
+        "visits": "visitas",
+        "noShows": "no-shows",
+        "spent": "gastado",
+        "noContact": "Sin datos de contacto",
+        "close": "Cerrar",
+        "complete": "Completar",
+        "reschedule": "Reagendar",
+        "noShow": "No-show",
+        "cancel": "Cancelar"
+      },
+      "confirm": {
+        "cancelTitle": "¿Cancelar esta reserva?",
+        "cancelBody": "Esto libera el horario y marca la reserva como cancelada por el negocio. No se puede deshacer.",
+        "cancelReason": "Motivo (opcional)",
+        "noShowTitle": "¿Marcar como no-show?",
+        "noShowBody": "Úsalo cuando el cliente no se presentó. El horario queda libre.",
+        "confirm": "Confirmar",
+        "keep": "Mantener"
+      },
+      "empty": {
+        "title": "Aún no tienes reservas",
+        "body": "Comparte tu link para recibir tu primera reserva. Cada cita aparecerá aquí automáticamente.",
+        "share": "Compartir mi página",
+        "copy": "Copiar link",
+        "copied": "¡Copiado!"
+      },
+      "manual": {
+        "title": "Reserva manual",
+        "subtitle": "Para walk-ins y reservas por teléfono.",
+        "stepService": "Servicio",
+        "stepStaff": "Profesional",
+        "stepTime": "Fecha y hora",
+        "stepCustomer": "Cliente",
+        "selectService": "Elige un servicio",
+        "selectStaff": "Elige un profesional",
+        "pickDate": "Fecha",
+        "pickTime": "Hora",
+        "noSlots": "No hay horas libres ese día. Prueba otra fecha.",
+        "loadingSlots": "Cargando horas…",
+        "searchCustomer": "Buscar cliente",
+        "searchPlaceholder": "Nombre, email o teléfono",
+        "existingCustomer": "Cliente existente",
+        "newCustomer": "Cliente nuevo",
+        "name": "Nombre completo",
+        "namePlaceholder": "Nombre del cliente",
+        "email": "Email",
+        "phone": "Teléfono",
+        "note": "Nota (opcional)",
+        "notePlaceholder": "¿Algo para recordar?",
+        "back": "Atrás",
+        "next": "Siguiente",
+        "create": "Crear reserva",
+        "creating": "Creando…"
+      },
+      "block": {
+        "title": "Bloquear horario",
+        "subtitle": "Almuerzo, una cita, vacaciones. Ese tiempo deja de ser reservable de inmediato.",
+        "scope": "Aplica a",
+        "wholeBusiness": "Todo el negocio",
+        "allDay": "Todo el día",
+        "date": "Fecha",
+        "startTime": "Desde",
+        "endTime": "Hasta",
+        "reason": "Motivo (opcional)",
+        "reasonPlaceholder": "Almuerzo, día libre…",
+        "create": "Bloquear",
+        "creating": "Bloqueando…"
+      },
+      "errors": {
+        "slotTaken": "Ese horario se acaba de ocupar. Elige otro.",
+        "slotUnavailable": "Ese horario ya no está disponible.",
+        "contactRequired": "Agrega un email o teléfono del cliente.",
+        "invalidRange": "La hora de término debe ser posterior al inicio.",
+        "notAuthorized": "No tienes permiso para hacer eso.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "home": {
+      "greeting": "Hola, {name}",
+      "summary": "Así va tu día — {date}.",
+      "stats": {
+        "bookings": "Reservas hoy",
+        "revenue": "Ingresos estimados hoy",
+        "occupancy": "Ocupación",
+        "newClients": "Clientes nuevos esta semana"
+      },
+      "upcoming": "Próximas citas",
+      "viewCalendar": "Ver agenda",
+      "noUpcoming": "No queda nada más agendado hoy.",
+      "alerts": "Requiere atención",
+      "allGood": "Todo al día — nada pendiente por ahora.",
+      "pendingPayment": "{count, plural, one {# reserva pendiente de pago} other {# reservas pendientes de pago}}",
+      "recentNoShows": "{count, plural, one {# no-show reciente} other {# no-shows recientes}}",
+      "reviewInCalendar": "Revisar en la agenda"
+    },
+    "clients": {
+      "title": "Clientes",
+      "subtitle": "{count, plural, one {# cliente} other {# clientes}}",
+      "searchPlaceholder": "Busca por nombre, email o teléfono",
+      "newClient": "Agregar cliente",
+      "columns": {
+        "client": "Cliente",
+        "contact": "Contacto",
+        "lastVisit": "Última visita",
+        "visits": "Visitas",
+        "noShows": "No-shows",
+        "spent": "Gastado"
+      },
+      "never": "Nunca",
+      "empty": {
+        "title": "Aún no tienes clientes",
+        "body": "Aparecen aquí tras su primera reserva, o agrega uno manualmente.",
+        "noResults": "Ningún cliente coincide con tu búsqueda."
+      },
+      "riskFlag": "No-shows frecuentes",
+      "noContact": "Sin datos de contacto",
+      "detail": {
+        "notes": "Notas internas",
+        "notesPlaceholder": "Preferencias, recordatorios — solo tu equipo las ve.",
+        "saveNotes": "Guardar notas",
+        "tags": "Tags",
+        "history": "Historial de reservas",
+        "noHistory": "Sin reservas todavía.",
+        "memberSince": "Cliente desde {date}"
+      },
+      "form": {
+        "createTitle": "Cliente nuevo",
+        "editTitle": "Editar cliente",
+        "name": "Nombre completo",
+        "namePlaceholder": "Nombre del cliente",
+        "email": "Email",
+        "phone": "Teléfono"
+      },
+      "toast": {
+        "created": "Cliente creado.",
+        "updated": "Cliente actualizado.",
+        "noteSaved": "Notas guardadas."
+      },
+      "errors": {
+        "nameRequired": "Ingresa el nombre del cliente.",
+        "contactRequired": "Agrega un email o teléfono.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "services": {
+      "title": "Servicios",
+      "subtitle": "Lo que tus clientes pueden reservar.",
+      "newService": "Nuevo servicio",
+      "minutes": "{count} min",
+      "active": "Activo",
+      "hidden": "Oculto",
+      "empty": {
+        "title": "Aún no tienes servicios",
+        "body": "Agrega los servicios que tus clientes podrán reservar."
+      },
+      "staffCount": "{count, plural, one {# profesional} other {# profesionales}}",
+      "form": {
+        "createTitle": "Nuevo servicio",
+        "editTitle": "Editar servicio",
+        "name": "Nombre del servicio",
+        "namePlaceholder": "Corte de pelo",
+        "description": "Descripción",
+        "descriptionPlaceholder": "¿Qué incluye?",
+        "duration": "Duración (min)",
+        "price": "Precio",
+        "priceHint": "En {currency}.",
+        "bufferBefore": "Margen antes (min)",
+        "bufferAfter": "Margen después (min)",
+        "staff": "Quién lo realiza",
+        "active": "Reservable"
+      },
+      "confirm": {
+        "deactivateTitle": "¿Desactivar este servicio?",
+        "deactivateBody": "Deja de ser reservable, pero las reservas existentes lo conservan. Puedes reactivarlo cuando quieras."
+      },
+      "toast": {
+        "created": "Servicio creado.",
+        "updated": "Servicio actualizado.",
+        "deactivated": "Servicio desactivado.",
+        "activated": "Servicio activado.",
+        "reordered": "Orden guardado."
+      },
+      "errors": {
+        "nameRequired": "Ingresa el nombre del servicio.",
+        "durationRequired": "La duración debe ser de al menos 5 minutos.",
+        "priceInvalid": "Ingresa un precio válido.",
+        "staffRequired": "Asigna al menos un profesional.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "team": {
+      "title": "Equipo",
+      "subtitle": "Cada profesional con su horario y sus permisos.",
+      "addStaff": "Agregar profesional",
+      "services": "Servicios",
+      "viewsAll": "Ve toda la agenda",
+      "viewsOwn": "Ve solo sus reservas",
+      "noServices": "Sin servicios asignados",
+      "empty": {
+        "title": "Aún no tienes equipo",
+        "body": "Agrega a los profesionales que toman reservas."
+      },
+      "limit": {
+        "reached": "Alcanzaste el límite de tu plan ({limit}). Mejora tu plan para agregar más.",
+        "usage": "{used} de {limit} profesionales",
+        "upgrade": "Mejorar plan"
+      },
+      "form": {
+        "createTitle": "Nuevo profesional",
+        "editTitle": "Editar profesional",
+        "name": "Nombre",
+        "namePlaceholder": "Nombre completo",
+        "role": "Rol",
+        "rolePlaceholder": "Barbero, estilista…",
+        "permissions": "Permisos",
+        "canViewAll": "Puede ver la agenda de todo el negocio",
+        "canViewAllHint": "Apagado = solo ve sus propias reservas, en la app y vía la API.",
+        "services": "Servicios que realiza"
+      },
+      "confirm": {
+        "removeTitle": "¿Quitar a este profesional?",
+        "removeBody": "Se desactiva y deja de tomar nuevas reservas. Las existentes se conservan."
+      },
+      "toast": {
+        "created": "Profesional agregado.",
+        "updated": "Profesional actualizado.",
+        "removed": "Profesional quitado.",
+        "permissionsUpdated": "Permisos actualizados."
+      },
+      "errors": {
+        "nameRequired": "Ingresa un nombre.",
+        "planLimit": "Tu plan no permite más profesionales.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "settings": {
+      "title": "Ajustes",
+      "tabs": {
+        "business": "Negocio",
+        "hours": "Horario",
+        "policies": "Políticas",
+        "page": "Página de reservas",
+        "notifications": "Notificaciones",
+        "plan": "Plan",
+        "payments": "Pagos"
+      },
+      "notifications": {
+        "clientTitle": "A tus clientes",
+        "businessTitle": "A ti",
+        "confirmation": "Confirmación de reserva",
+        "reminders": "Recordatorios",
+        "reminder1": "Primer recordatorio",
+        "reminder2": "Segundo recordatorio",
+        "hoursBefore": "horas antes",
+        "singleReminderHint": "Apaga uno para enviar un solo recordatorio.",
+        "rescheduled": "Aviso de reagende",
+        "cancelled": "Aviso de cancelación",
+        "businessNew": "Aviso de nueva reserva",
+        "businessCancel": "Aviso de cancelación de un cliente",
+        "dailySummary": "Resumen diario de la agenda",
+        "summaryHour": "Enviar a las (hora)",
+        "channelsTitle": "Canales",
+        "whatsapp": "Enviar por WhatsApp cuando se pueda",
+        "whatsappHint": "Cae a email si WhatsApp no se puede entregar.",
+        "whatsappFree": "WhatsApp está disponible en los planes pagos. El plan Free envía solo email.",
+        "customMessage": "Nota personalizada que se anexa a los recordatorios",
+        "customPlaceholder": "Trae tu carnet · Llega 5 min antes"
+      },
+      "business": {
+        "name": "Nombre del negocio",
+        "category": "Categoría",
+        "timezone": "Zona horaria",
+        "currency": "Moneda",
+        "tzWarning": "Cambiar la zona horaria mueve cómo se muestra toda tu agenda.",
+        "currencyLocked": "La moneda se define al registrarte y no se cambia aquí.",
+        "address": "Dirección"
+      },
+      "hours": {
+        "title": "Horario de atención semanal",
+        "subtitle": "Cuándo pueden reservar los clientes. El horario de cada profesional vive en Equipo.",
+        "closed": "Cerrado",
+        "copyMonday": "Copiar lunes a la semana"
+      },
+      "policies": {
+        "minLead": "Anticipación mínima (min)",
+        "minLeadHint": "Con cuánto tiempo antes de un horario aún se puede reservar.",
+        "maxAdvance": "Horizonte de reserva (días)",
+        "cancelWindow": "Cancelación gratis hasta (horas antes)",
+        "deposit": "Anticipo",
+        "depositNone": "Sin anticipo",
+        "depositPercent": "Porcentaje",
+        "depositFixed": "Monto fijo",
+        "depositPercentValue": "Porcentaje (%)",
+        "depositFixedValue": "Monto",
+        "noShowFee": "Cargo por no-show",
+        "engineNote": "Esto alimenta el motor de disponibilidad — los cambios aparecen en tu página de reservas de inmediato."
+      },
+      "page": {
+        "slug": "Tu link",
+        "slugHint": "getressy.com/tu-link",
+        "slugChecking": "Verificando…",
+        "slugAvailable": "Disponible",
+        "slugTaken": "Ocupado",
+        "logo": "Logo",
+        "accent": "Color de marca",
+        "language": "Idioma de la página",
+        "openPage": "Abrir mi página",
+        "published": "Página publicada"
+      },
+      "plan": {
+        "current": "Plan actual",
+        "renews": "Se renueva cada mes",
+        "staffUsage": "{used} de {limit} profesionales usados",
+        "upgrade": "Cambiar de plan",
+        "invoices": "Ver facturas"
+      },
+      "payments": {
+        "subtitle": "Conecta un proveedor para cobrar anticipos. Próximamente.",
+        "stripe": "Stripe",
+        "mercadopago": "Mercado Pago",
+        "connect": "Conectar",
+        "comingSoon": "Próximamente"
+      },
+      "toast": {
+        "saved": "Cambios guardados."
+      },
+      "errors": {
+        "nameRequired": "Ingresa el nombre del negocio.",
+        "slugTaken": "Ese link ya está tomado.",
+        "slugFormat": "Usa solo minúsculas, números y guiones.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      }
+    },
+    "reports": {
+      "title": "Reportes",
+      "subtitle": "Cómo va tu negocio.",
+      "range": {
+        "last7": "Últimos 7 días",
+        "last30": "Últimos 30 días",
+        "thisMonth": "Este mes",
+        "thisYear": "Este año"
+      },
+      "stats": {
+        "bookings": "Reservas",
+        "revenue": "Ingresos",
+        "noShowRate": "Tasa de no-show",
+        "avgTicket": "Ticket promedio"
+      },
+      "charts": {
+        "revenueByDay": "Ingresos en el tiempo",
+        "bookingsByDay": "Reservas por día",
+        "topServices": "Servicios top",
+        "newVsReturning": "Clientes nuevos vs recurrentes",
+        "bySource": "Reservas por origen",
+        "byStaff": "Reservas por profesional",
+        "new": "Nuevos",
+        "returning": "Recurrentes"
+      },
+      "source": {
+        "link": "Link directo",
+        "qr": "QR",
+        "instagram": "Instagram",
+        "manual": "Manual",
+        "other": "Otro"
+      },
+      "exportCsv": "Exportar CSV",
+      "exportBusinessOnly": "La exportación CSV es una función del plan Business.",
+      "empty": {
+        "title": "Aún no hay datos suficientes",
+        "body": "Cuando tengas reservas en este rango, aquí verás tus métricas."
+      }
     }
   },
   "styleguide": {

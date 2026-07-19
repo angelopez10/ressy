@@ -12,7 +12,14 @@ import { cn } from '@/lib/utils';
  * de locale, así que basta con re-navegar a la misma ruta con el otro idioma:
  * funciona igual en `/es/styleguide` que en `/es/mi-negocio`.
  */
-export function LocaleSwitcher({ className }: { className?: string }) {
+export function LocaleSwitcher({
+  className,
+  tone = 'accent',
+}: {
+  className?: string;
+  /** 'accent' (default, marketing) = activo en teal suave; 'solid' = activo en ink (booking). */
+  tone?: 'accent' | 'solid';
+}) {
   const t = useTranslations('common.localeSwitcher');
   const activeLocale = useLocale();
   const router = useRouter();
@@ -36,7 +43,9 @@ export function LocaleSwitcher({ className }: { className?: string }) {
       role="group"
       aria-label={t('label')}
     >
-      <Languages className="text-ink-secondary ml-2 size-5" aria-hidden="true" />
+      {tone !== 'solid' && (
+        <Languages className="text-ink-secondary ml-2 size-5" aria-hidden="true" />
+      )}
       {routing.locales.map((locale) => (
         <button
           key={locale}
@@ -46,7 +55,9 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           className={cn(
             'rounded-button px-3 py-1 text-sm font-semibold transition-colors',
             locale === activeLocale
-              ? 'bg-accent-soft text-accent'
+              ? tone === 'solid'
+                ? 'bg-ink text-white'
+                : 'bg-accent-soft text-accent'
               : 'text-ink-secondary hover:text-ink',
           )}
         >

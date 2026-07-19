@@ -2,6 +2,7 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 import { getPublicSupabaseEnv } from './env';
+import type { Database } from './types';
 
 /**
  * Cliente de Supabase para el browser. Usa la publishable key, así que todo lo
@@ -12,5 +13,5 @@ import { getPublicSupabaseEnv } from './env';
  */
 export function createClient() {
   const { url, publishableKey } = getPublicSupabaseEnv();
-  return createBrowserClient(url, publishableKey);
+  return createBrowserClient<Database>(url, publishableKey);
 }

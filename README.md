@@ -102,3 +102,4 @@ Este corte es solo scaffolding. Pendiente, en orden de roadmap (`CLAUDE.md` §7)
 - Máquina de estados de reserva
 - Auth real (Supabase Auth) y protección de rutas del dashboard
 - Tests (Vitest para disponibilidad y timezones, Playwright para el flujo de reserva)
+# ressy

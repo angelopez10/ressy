@@ -1,8 +1,13 @@
 # pnpm 11 bloquea los build scripts por defecto. Estas son las dependencias
-# transitivas del toolchain de Next/Tailwind que sí deben compilar sus
-# binarios nativos al instalar.
-allowBuilds:
-  '@parcel/watcher': true
-  '@swc/core': true
-  sharp: true
-  unrs-resolver: true
+# transitivas del toolchain de Next/Tailwind (+ Twilio/protobuf) que sí deben
+# compilar sus binarios nativos al instalar.
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - protobufjs
+  - sharp
+  - unrs-resolver
+  - esbuild
+# Evita que `pnpm run` reinstale/verifique antes de cada script (rompía por los
+# build scripts ignorados en este entorno).
+verifyDepsBeforeRun: false

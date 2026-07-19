@@ -1,34 +1,37 @@
-import { useTranslations } from 'next-intl';
+import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import { CalendarDays } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/Card';
+import { getDashboardContext } from '@/lib/dashboard/context';
+import { getHomeData } from '@/lib/dashboard/home';
+import { HomeView } from '@/components/dashboard/home/HomeView';
+import { CalendarEmptyState } from '@/components/dashboard/calendar/CalendarEmptyState';
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default async function DashboardPage({ params }: Props) {
+/** Home / Resumen — la primera pantalla tras el login. */
+export default async function DashboardHomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <DashboardHome />;
-}
+  const ctx = await getDashboardContext();
+  if (!ctx) redirect(`/${locale}/onboarding`);
 
-function DashboardHome() {
-  const t = useTranslations('dashboard');
+  const data = await getHomeData(ctx);
+
+  if (data.isEmpty) {
+    return (
+      <div className="border-border bg-surface rounded-card flex-1 border">
+        <CalendarEmptyState slug={ctx.business.slug} locale={locale} />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-h2 text-ink">{t('welcome')}</h1>
-        <p className="text-body text-ink-secondary max-w-2xl">{t('subtitle')}</p>
-      </div>
-
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-          <CalendarDays className="text-ink-tertiary size-8" aria-hidden="true" />
-          <h2 className="text-h3 text-ink">{t('placeholderCard.title')}</h2>
-          <p className="text-body text-ink-secondary max-w-sm">{t('placeholderCard.body')}</p>
-        </CardContent>
-      </Card>
-    </div>
+    <HomeView
+      data={data}
+      businessName={ctx.business.name}
+      timezone={ctx.business.timezone}
+      currency={ctx.business.currency}
+      locale={locale}
+    />
   );
 }

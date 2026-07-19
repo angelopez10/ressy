@@ -1,50 +1,120 @@
-import { useTranslations } from 'next-intl';
-import { CalendarDays, Users, Scissors, UserRound, BarChart3, Settings } from 'lucide-react';
-import { Link } from '@/lib/i18n/navigation';
+'use client';
 
-// Iconos: Lucide, 20px, color ink-secondary (CLAUDE.md §5).
-const NAV_ITEMS = [
-  { key: 'agenda', href: '/dashboard', Icon: CalendarDays },
-  { key: 'services', href: '/dashboard', Icon: Scissors },
-  { key: 'staff', href: '/dashboard', Icon: Users },
-  { key: 'customers', href: '/dashboard', Icon: UserRound },
-  { key: 'reports', href: '/dashboard', Icon: BarChart3 },
-  { key: 'settings', href: '/dashboard', Icon: Settings },
-] as const;
+import { useTranslations } from 'next-intl';
+import {
+  BarChart3,
+  CalendarDays,
+  Home,
+  Scissors,
+  Settings,
+  UserRound,
+  Users,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Link, usePathname } from '@/lib/i18n/navigation';
+import { cn } from '@/lib/utils';
+
+const NAV: { key: string; href: string; Icon: LucideIcon }[] = [
+  { key: 'home', href: '/dashboard', Icon: Home },
+  { key: 'calendar', href: '/dashboard/calendar', Icon: CalendarDays },
+  { key: 'clients', href: '/dashboard/clients', Icon: Users },
+  { key: 'services', href: '/dashboard/services', Icon: Scissors },
+  { key: 'team', href: '/dashboard/team', Icon: UserRound },
+  { key: 'reports', href: '/dashboard/reports', Icon: BarChart3 },
+  { key: 'settings', href: '/dashboard/settings', Icon: Settings },
+];
+
+const TIER_LABEL: Record<string, string> = {
+  free: 'Free',
+  starter: 'Starter',
+  pro: 'Pro',
+  business: 'Business',
+};
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === '/dashboard') return pathname === '/dashboard';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 /**
- * Shell de navegación del dashboard. Sin auth ni estado activo real todavía:
- * todos los items apuntan a `/dashboard` hasta que existan esas rutas.
+ * Navegación del dashboard. Desktop: sidebar fija. Móvil: tira horizontal de
+ * íconos scrolleable bajo el header. El item activo se detecta con la ruta
+ * (sin el prefijo de locale, que `usePathname` de next-intl ya quita).
  */
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  businessName,
+  planTier,
+}: {
+  businessName: string;
+  planTier: string;
+}) {
   const t = useTranslations('dashboard.nav');
   const tCommon = useTranslations('common');
+  const pathname = usePathname();
 
   return (
-    <aside className="border-border bg-surface hidden w-64 shrink-0 border-r lg:block">
-      <div className="flex h-20 items-center px-6">
-        <Link href="/" className="text-h3 text-ink font-extrabold tracking-tight">
-          {tCommon('brand')}
-        </Link>
-      </div>
-
-      <nav className="flex flex-col gap-1 p-4">
-        {NAV_ITEMS.map(({ key, href, Icon }, index) => (
-          <Link
-            key={key}
-            href={href}
-            aria-current={index === 0 ? 'page' : undefined}
-            className={
-              index === 0
-                ? 'text-small rounded-input bg-accent-soft text-accent flex items-center gap-3 px-3 py-2.5 font-semibold'
-                : 'text-small rounded-input text-ink-secondary hover:bg-surface-alt hover:text-ink flex items-center gap-3 px-3 py-2.5 font-semibold transition-colors'
-            }
-          >
-            <Icon className="size-5 shrink-0" aria-hidden="true" />
-            {t(key)}
+    <>
+      {/* Desktop */}
+      <aside className="border-border bg-surface hidden w-64 shrink-0 flex-col border-r lg:flex">
+        <div className="flex h-20 items-center px-6">
+          <Link href="/dashboard" className="text-h3 text-ink font-extrabold tracking-tight">
+            {tCommon('brand')}
           </Link>
-        ))}
+        </div>
+
+        <nav className="flex flex-1 flex-col gap-1 p-4">
+          {NAV.map(({ key, href, Icon }) => {
+            const active = isActive(pathname, href);
+            return (
+              <Link
+                key={key}
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'text-small rounded-input flex items-center gap-3 px-3 py-2.5 font-semibold transition-colors',
+                  active
+                    ? 'bg-accent-soft text-accent'
+                    : 'text-ink-secondary hover:bg-surface-alt hover:text-ink',
+                )}
+              >
+                <Icon className="size-5 shrink-0" aria-hidden="true" />
+                {t(key)}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="border-border flex items-center gap-3 border-t p-4">
+          <div className="bg-ink flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white">
+            {businessName.charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-ink truncate text-sm font-semibold">{businessName}</div>
+            <div className="text-ink-secondary text-xs">{TIER_LABEL[planTier] ?? planTier}</div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Móvil */}
+      <nav className="border-border bg-surface flex gap-1 overflow-x-auto border-b px-2 py-2 lg:hidden">
+        {NAV.map(({ key, href, Icon }) => {
+          const active = isActive(pathname, href);
+          return (
+            <Link
+              key={key}
+              href={href}
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                active ? 'text-accent' : 'text-ink-secondary',
+              )}
+            >
+              <Icon className="size-5" aria-hidden="true" />
+              {t(key)}
+            </Link>
+          );
+        })}
       </nav>
-    </aside>
+    </>
   );
 }
