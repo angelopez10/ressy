@@ -50,3 +50,4 @@ next-env.d.ts
 /scripts
 /design-reference
 /e2e
+.env
