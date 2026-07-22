@@ -7,7 +7,6 @@ import { EmailLayout, EmailButton, EmailH1, EmailText, EmailPanel, INK_TERTIARY,
  * compila a HTML estático (scripts/build-auth-emails.mts) dejando el placeholder
  * `{{ .ConfirmationURL }}` de Supabase como href del botón.
  *
- * Marca RESSY (es un correo de la plataforma, no de un negocio).
  */
 const COPY = {
   es: {
