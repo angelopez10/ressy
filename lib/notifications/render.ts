@@ -13,6 +13,7 @@ import { formatMoney } from '@/lib/db/mappers';
 import { ClientBookingEmail } from '@/emails/ClientBookingEmail';
 import { BusinessNotificationEmail } from '@/emails/BusinessNotificationEmail';
 import { DailySummaryEmail } from '@/emails/DailySummaryEmail';
+import type { StatusTone } from '@/emails/EmailLayout';
 import { copy, type NotifLocale } from './copy';
 import { getAppUrl } from './env';
 import type { AgendaItem, BookingNotifCtx } from './data';
@@ -72,6 +73,25 @@ interface Variant {
   wa: string;
 }
 
+/** Badge de estado por tipo. `post_service` no lleva (la cita ya pasó). */
+function statusFor(
+  type: NotificationType,
+  locale: NotifLocale,
+): { label: string; tone: StatusTone } | undefined {
+  const c = copy(locale);
+  switch (type) {
+    case 'confirmation':
+    case 'reminder':
+      return { label: c.statusConfirmed, tone: 'confirmed' };
+    case 'rescheduled':
+      return { label: c.statusRescheduled, tone: 'rescheduled' };
+    case 'cancelled':
+      return { label: c.statusCancelled, tone: 'cancelled' };
+    default:
+      return undefined;
+  }
+}
+
 function clientVariant(type: NotificationType, ctx: BookingNotifCtx, locale: NotifLocale): Variant {
   const c = copy(locale);
   const biz = ctx.business.name;
@@ -110,6 +130,7 @@ export function buildClientMessage(
   const v = clientVariant(type, ctx, locale);
 
   if (channel === 'email') {
+    const status = statusFor(type, locale);
     const react = React.createElement(ClientBookingEmail, {
       accent: ctx.business.accentColor ?? DEFAULT_ACCENT,
       businessName: ctx.business.name,
@@ -119,6 +140,8 @@ export function buildClientMessage(
       heading: v.heading,
       intro: v.intro,
       rows: clientRows(ctx, locale),
+      statusLabel: status?.label,
+      statusTone: status?.tone,
       ctaUrl: v.cta?.url,
       ctaLabel: v.cta?.label,
       customMessage: ctx.settings.customMessage,
@@ -203,6 +226,32 @@ export function buildDailySummaryMessage(
     footer: c.footer,
   });
   return { to, subject: c.subjectDailySummary(dateLabel), react, text: c.dailySummaryIntro(items.length, dateLabel) };
+}
+
+// ---------------------------------------------------------------------------
+// Trial (aviso de término del plan Team de prueba)
+// ---------------------------------------------------------------------------
+
+export function buildTrialEmailMessage(
+  business: { name: string; logoUrl: string | null; accentColor: string | null; locale: NotifLocale },
+  daysLeft: number,
+  to: string,
+  ctaUrl: string,
+): NotificationMessage {
+  const c = copy(business.locale);
+  const react = React.createElement(BusinessNotificationEmail, {
+    accent: business.accentColor ?? DEFAULT_ACCENT,
+    businessName: business.name,
+    logoUrl: business.logoUrl,
+    preview: c.trialEndingIntro(daysLeft),
+    heading: c.trialEndingHeading,
+    intro: c.trialEndingIntro(daysLeft),
+    rows: [],
+    ctaUrl,
+    ctaLabel: c.trialEndingCta,
+    footer: c.footer,
+  });
+  return { to, subject: c.trialEndingSubject(daysLeft), react, text: c.trialEndingIntro(daysLeft) };
 }
 
 export { formatMoney };

@@ -27,6 +27,7 @@ import { CalendarCheck, DollarSign, UserX, Wallet } from 'lucide-react';
 import { formatMoney } from '@/lib/db/mappers';
 import { exportBookingsCsv } from '@/lib/dashboard/reports.actions';
 import type { ReportsData, ReportRange } from '@/lib/dashboard/reports';
+import type { ReportsLevel } from '@/lib/plans/config';
 
 const ACCENT = '#348D83';
 const INK = '#222222';
@@ -39,18 +40,24 @@ export function ReportsView({
   range,
   currency,
   locale,
-  canExport,
+  level,
 }: {
   data: ReportsData;
   range: ReportRange;
   currency: string;
   locale: string;
-  canExport: boolean;
+  /** Nivel de reportes del plan (fuente de verdad: lib/plans/config.ts). */
+  level: ReportsLevel;
 }) {
   const t = useTranslations('dashboard.reports');
   const router = useRouter();
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
+
+  // basic (Solo) = KPIs + tendencias; advanced (Team+) agrega los desgloses;
+  // el export CSV es solo advanced_csv (Studio).
+  const showBreakdowns = level === 'advanced' || level === 'advanced_csv';
+  const canExport = level === 'advanced_csv';
 
   const money = (n: number) => formatMoney(n, currency, locale);
 
@@ -147,35 +154,39 @@ export function ReportsView({
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={t('charts.topServices')}>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.topServices} layout="vertical" margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
-              <XAxis type="number" hide allowDecimals={false} />
-              <YAxis type="category" dataKey="label" tick={{ fontSize: 12, fill: INK }} tickLine={false} axisLine={false} width={110} />
-              <Tooltip />
-              <Bar dataKey="value" fill={ACCENT} radius={[0, 4, 4, 0]} barSize={18} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        {showBreakdowns ? (
+          <>
+            <ChartCard title={t('charts.topServices')}>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={data.topServices} layout="vertical" margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
+                  <XAxis type="number" hide allowDecimals={false} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 12, fill: INK }} tickLine={false} axisLine={false} width={110} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill={ACCENT} radius={[0, 4, 4, 0]} barSize={18} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
 
-        <ChartCard title={t('charts.byStaff')}>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.byStaff} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: INK_TERTIARY }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: INK_TERTIARY }} tickLine={false} axisLine={false} width={32} allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="value" fill={INK} radius={[4, 4, 0, 0]} barSize={40} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+            <ChartCard title={t('charts.byStaff')}>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={data.byStaff} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: INK_TERTIARY }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: INK_TERTIARY }} tickLine={false} axisLine={false} width={32} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill={INK} radius={[4, 4, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
 
-        <ChartCard title={t('charts.newVsReturning')}>
-          <DonutChart data={newVsReturning} />
-        </ChartCard>
+            <ChartCard title={t('charts.newVsReturning')}>
+              <DonutChart data={newVsReturning} />
+            </ChartCard>
 
-        <ChartCard title={t('charts.bySource')}>
-          <DonutChart data={sourceData} />
-        </ChartCard>
+            <ChartCard title={t('charts.bySource')}>
+              <DonutChart data={sourceData} />
+            </ChartCard>
+          </>
+        ) : null}
       </div>
     </div>
   );

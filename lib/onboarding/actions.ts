@@ -169,7 +169,7 @@ export async function saveSchedule(businessId: string, raw: unknown): Promise<Re
 }
 
 // ---------------------------------------------------------------------------
-// Paso 4 — página pública + PUBLICAR
+// Paso 4 — página pública (SIN publicar todavía)
 // ---------------------------------------------------------------------------
 export async function checkSlug(slug: string, businessId: string): Promise<{ available: boolean }> {
   const db = await createClient();
@@ -180,10 +180,12 @@ export async function checkSlug(slug: string, businessId: string): Promise<{ ava
   return { available: Boolean(data) };
 }
 
-export async function savePageAndPublish(
-  businessId: string,
-  raw: unknown,
-): Promise<Result<{ slug: string }>> {
+/**
+ * Guarda la página (slug/color/idioma) SIN publicar: la publicación es el paso
+ * final tras elegir plan (paso 5). El índice único de slug enforce la unicidad
+ * aunque no esté publicado, así que reservar el slug acá es seguro.
+ */
+export async function savePage(businessId: string, raw: unknown): Promise<Result<{ slug: string }>> {
   const parsed = pageStepSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'invalid' };
   const input = parsed.data;
@@ -203,16 +205,38 @@ export async function savePageAndPublish(
       slug: input.slug,
       accent_color: input.accentColor,
       booking_locale: input.bookingLocale,
-      is_published: true,
     })
     .eq('id', businessId);
 
-  // El índice único de slug es el árbitro final si dos publican a la vez.
   if (error) {
     if (error.code === '23505') return { ok: false, error: 'slugTaken' };
     return { ok: false, error: 'saveFailed' };
   }
   return { ok: true, data: { slug: input.slug } };
+}
+
+// ---------------------------------------------------------------------------
+// Paso 5 — plan (trial de 14 días de Team, sin tarjeta) + PUBLICAR
+// ---------------------------------------------------------------------------
+/**
+ * Publica la booking page. El plan se eligió en el paso 5 pero NO se cobra ni se
+ * fuerza acá: todo negocio nuevo arranca en Team trial de 14 días sin tarjeta
+ * (CLAUDE.md §1), que ya creó `create_business`. La elección del paso 5 es
+ * informativa; el cambio real de plan vive en "Mejorar plan".
+ */
+export async function publishBusiness(businessId: string): Promise<Result<{ slug: string }>> {
+  await requireUser();
+  const db = await createClient();
+
+  const { data, error } = await db
+    .from('businesses')
+    .update({ is_published: true })
+    .eq('id', businessId)
+    .select('slug')
+    .maybeSingle();
+
+  if (error || !data) return { ok: false, error: 'saveFailed' };
+  return { ok: true, data: { slug: data.slug } };
 }
 
 // ---------------------------------------------------------------------------

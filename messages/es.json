@@ -136,44 +136,53 @@
       "perYear": "/año",
       "popular": "Más popular",
       "cta": "Empezar",
-      "tiers": [
-        {
+      "trial": "14 días de Team gratis, sin tarjeta",
+      "tiers": {
+        "free": {
           "name": "Free",
           "tagline": "Para partir",
           "features": [
             "1 profesional",
-            "Booking page propia",
-            "Recordatorios por email"
+            "3 servicios",
+            "25 reservas al mes",
+            "Recordatorios por email",
+            "Marca \"Powered by Ressy\""
           ]
         },
-        {
-          "name": "Starter",
+        "solo": {
+          "name": "Solo",
           "tagline": "Para independientes",
           "features": [
             "1 profesional",
-            "Recordatorios WhatsApp",
-            "Cobro de anticipos"
+            "Servicios y reservas ilimitados",
+            "WhatsApp (100/mes)",
+            "Cobro de anticipos",
+            "Google Calendar 2 vías"
           ]
         },
-        {
-          "name": "Pro",
+        "team": {
+          "name": "Team",
           "tagline": "Para equipos pequeños",
           "features": [
             "Hasta 5 profesionales",
-            "Mini-CRM y notas",
-            "Reportes"
+            "WhatsApp (500/mes)",
+            "Política y cobro de no-show",
+            "Reportes avanzados",
+            "Permisos por profesional"
           ]
         },
-        {
-          "name": "Business",
+        "studio": {
+          "name": "Studio",
           "tagline": "Para crecer en serio",
           "features": [
-            "Profesionales ilimitados",
-            "Google Calendar 2 vías",
-            "Soporte prioritario"
+            "Hasta 15 profesionales (+$2.900 c/u extra)",
+            "WhatsApp (2.000/mes)",
+            "Dominio propio y multi-sucursal",
+            "API y webhooks",
+            "Reportes avanzados + export CSV"
           ]
         }
-      ]
+      }
     },
     "testimonials": {
       "eyebrow": "Historias reales",
@@ -312,7 +321,28 @@
       "contactRequired": "Agrega un correo o teléfono para enviarte el recordatorio.",
       "slotTaken": "Ese horario acaba de ocuparse — elige otro.",
       "slotUnavailable": "Ese horario ya no está disponible. Elige otro.",
+      "atCapacity": "Este negocio no está recibiendo reservas online en este momento.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "unavailable": {
+      "title": "Reservas online en pausa",
+      "body": "Este negocio no está recibiendo reservas online en este momento. Vuelve a intentarlo más tarde o contáctalo directamente."
+    },
+    "paymentReturn": {
+      "success": {
+        "title": "¡Pago recibido!",
+        "body": "Estamos confirmando tu reserva. Apenas se acredite el anticipo te llegará la confirmación por correo o WhatsApp."
+      },
+      "pending": {
+        "title": "Pago en proceso",
+        "body": "Tu pago está siendo procesado. Cuando se acredite, confirmaremos tu reserva y te avisaremos."
+      },
+      "failure": {
+        "title": "El pago no se completó",
+        "body": "Tu horario quedó liberado. Puedes intentar reservar de nuevo cuando quieras."
+      },
+      "retry": "Reservar de nuevo",
+      "disclaimer": "El anticipo lo cobra directamente el negocio en su cuenta de Mercado Pago. La política de reembolso es del negocio; Ressy solo agenda la reserva."
     },
     "confirm": {
       "title": "¡Reserva confirmada!",
@@ -348,7 +378,8 @@
         "completed": "Completada",
         "cancelled_by_client": "Cancelada",
         "cancelled_by_business": "Cancelada por el negocio",
-        "no_show": "No se presentó"
+        "no_show": "No se presentó",
+        "payment_expired": "Pago no completado"
       }
     }
   },
@@ -376,7 +407,14 @@
       "services": "Servicios",
       "schedule": "Horario",
       "page": "Página",
+      "plan": "Plan",
       "done": "Listo"
+    },
+    "plan": {
+      "title": "Elige tu plan",
+      "subtitle": "Elige Free y sigue con la prueba de 14 días sin tarjeta, o suscríbete a un plan pago ahora.",
+      "monthly": "Mensual",
+      "yearly": "Anual · 2 meses gratis"
     },
     "categories": {
       "barbershop": "Barbería",
@@ -472,6 +510,17 @@
     "signOut": "Cerrar sesión",
     "welcome": "Hola de nuevo",
     "subtitle": "Este es el esqueleto del panel. Todavía no hay autenticación ni datos reales conectados.",
+    "banners": {
+      "trial": {
+        "text": "Estás probando Team: te quedan {days} días de prueba 🎉",
+        "cta": "Elegir un plan"
+      },
+      "bookings": {
+        "approaching": "Vas {used} de {limit} reservas este mes 🎉 — mejora tu plan para no frenar",
+        "reached": "Llegaste a tus {limit} reservas del mes: estás perdiendo reservas nuevas. Mejora tu plan para seguir recibiendo.",
+        "cta": "Mejorar plan"
+      }
+    },
     "nav": {
       "home": "Inicio",
       "calendar": "Agenda",
@@ -479,7 +528,13 @@
       "services": "Servicios",
       "team": "Equipo",
       "reports": "Reportes",
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "upgrade": "Mejorar plan"
+    },
+    "upgrade": {
+      "title": "Mejora tu plan",
+      "subtitle": "Estás en {plan}. Cambia cuando quieras, sin permanencia.",
+      "subtitleFree": "Haz crecer tu negocio. Cambia cuando quieras, sin permanencia."
     },
     "actions": {
       "save": "Guardar",
@@ -523,7 +578,8 @@
         "completed": "Completada",
         "cancelled_by_client": "Cancelada por el cliente",
         "cancelled_by_business": "Cancelada",
-        "no_show": "No-show"
+        "no_show": "No-show",
+        "payment_expired": "Pago no completado"
       },
       "override": {
         "blocked": "Bloqueado",
@@ -536,6 +592,17 @@
         "professional": "Profesional",
         "duration": "{count} min",
         "note": "Nota del cliente",
+        "deposit": "Anticipo",
+        "refund": "Reembolsar anticipo",
+        "refundNote": "El reembolso se ejecuta sobre tu cuenta de Mercado Pago. La política de reembolso es tuya; Ressy no es parte de la transacción.",
+        "paymentStatus": {
+          "paid": "Pagado",
+          "refunded": "Reembolsado",
+          "pending": "Pendiente",
+          "failed": "Fallido",
+          "authorized": "Autorizado",
+          "cancelled": "Cancelado"
+        },
         "history": "Historial",
         "visits": "visitas",
         "noShows": "no-shows",
@@ -611,6 +678,8 @@
         "contactRequired": "Agrega un email o teléfono del cliente.",
         "invalidRange": "La hora de término debe ser posterior al inicio.",
         "notAuthorized": "No tienes permiso para hacer eso.",
+        "atCapacity": "Llegaste al tope de 25 reservas del mes en el plan Free. Mejora a Solo (o superior) para reservas ilimitadas.",
+        "refundFailed": "No se pudo reembolsar. Revisa tu conexión con Mercado Pago e inténtalo de nuevo.",
         "generic": "Algo salió mal. Inténtalo de nuevo."
       }
     },
@@ -705,6 +774,14 @@
         "priceHint": "En {currency}.",
         "bufferBefore": "Margen antes (min)",
         "bufferAfter": "Margen después (min)",
+        "deposit": "Anticipo",
+        "depositInherit": "Usar el del negocio",
+        "depositNone": "Sin anticipo",
+        "depositPercent": "Porcentaje del precio",
+        "depositFixed": "Monto fijo",
+        "depositPercentValue": "% del precio",
+        "depositFixedValue": "Monto",
+        "depositHint": "Anula el anticipo global solo para este servicio.",
         "staff": "Quién lo realiza",
         "active": "Reservable"
       },
@@ -724,6 +801,9 @@
         "durationRequired": "La duración debe ser de al menos 5 minutos.",
         "priceInvalid": "Ingresa un precio válido.",
         "staffRequired": "Asigna al menos un profesional.",
+        "planLimitServices": "El plan Free permite hasta 3 servicios. Mejora a Solo para tener servicios ilimitados.",
+        "depositPlan": "Los anticipos están disponibles desde el plan Solo. Mejora tu plan para cobrarlos.",
+        "depositNoMp": "Conecta tu cuenta de Mercado Pago (Ajustes → Pagos) antes de cobrar anticipos.",
         "generic": "Algo salió mal. Inténtalo de nuevo."
       }
     },
@@ -847,18 +927,77 @@
         "published": "Página publicada"
       },
       "plan": {
+        "names": {
+          "free": "Free",
+          "solo": "Solo",
+          "team": "Team",
+          "studio": "Studio"
+        },
         "current": "Plan actual",
+        "trialBadge": "Prueba",
+        "trialStatus": "Prueba de Team · {days} días restantes",
         "renews": "Se renueva cada mes",
-        "staffUsage": "{used} de {limit} profesionales usados",
+        "unlimited": "Ilimitado",
+        "notIncluded": "No incluido",
+        "usage": {
+          "bookings": "Reservas este mes",
+          "staff": "Profesionales",
+          "whatsapp": "WhatsApp este mes",
+          "of": "{used} de {limit}",
+          "ofUnlimited": "{used} · ilimitado"
+        },
         "upgrade": "Cambiar de plan",
-        "invoices": "Ver facturas"
+        "upgradeTitle": "Elige tu plan",
+        "invoices": "Ver facturas",
+        "billing": {
+          "monthly": "Mensual",
+          "yearly": "Anual",
+          "perMonth": "/mes",
+          "perYear": "/año",
+          "yearlyHint": "2 meses gratis",
+          "choose": "Elegir {plan}",
+          "select": "Elegir",
+          "currentBadge": "Actual",
+          "currentPlan": "Plan actual",
+          "yourPlan": "Tu plan",
+          "cancel": "Cancelar plan",
+          "cancelConfirm": "¿Cancelar tu plan? Conservas {plan} hasta el {date} y luego pasas a Free.",
+          "cancelling": "Cancelando…",
+          "cancelled": "Tu plan se cancelará al final del período.",
+          "renewsOn": "Se renueva el {date}",
+          "cancelsOn": "Se cancela el {date} · luego Free",
+          "unavailable": "Los cambios de plan online aún no están disponibles para tu moneda — te contactaremos para ayudarte.",
+          "redirecting": "Redirigiendo al pago…",
+          "error": "No pudimos iniciar el cambio. Inténtalo de nuevo.",
+          "returnPending": "Estamos confirmando tu pago — tu plan se actualiza en un momento."
+        }
       },
       "payments": {
-        "subtitle": "Conecta un proveedor para cobrar anticipos. Próximamente.",
-        "stripe": "Stripe",
-        "mercadopago": "Mercado Pago",
-        "connect": "Conectar",
-        "comingSoon": "Próximamente"
+        "intro": "Conecta tu cuenta de Mercado Pago para cobrar anticipos. El dinero llega directo a tu cuenta: Ressy no cobra comisión ni retiene fondos.",
+        "mpSubtitle": "Cobra anticipos en tu propia cuenta (Chile · CLP)",
+        "status": {
+          "connected": "Conectada",
+          "disconnected": "Desconectada",
+          "error": "Con problemas"
+        },
+        "connect": "Conectar Mercado Pago",
+        "reconnect": "Reconectar",
+        "disconnect": "Desconectar",
+        "disconnected": "Cuenta desconectada.",
+        "error": "Algo salió mal. Inténtalo de nuevo.",
+        "needPaidPlan": "Los anticipos están disponibles desde el plan Solo. Mejora tu plan para cobrarlos.",
+        "alertDisconnected": "Tu cuenta de Mercado Pago está desconectada y tienes anticipos configurados: no podrás cobrar hasta reconectarla.",
+        "depositsTitle": "Anticipos cobrados",
+        "depositsNote": "Estos montos están en tu cuenta de Mercado Pago, no en Ressy.",
+        "noDeposits": "Aún no has cobrado anticipos.",
+        "paymentStatus": {
+          "paid": "Pagado",
+          "refunded": "Reembolsado",
+          "pending": "Pendiente",
+          "failed": "Fallido",
+          "authorized": "Autorizado",
+          "cancelled": "Cancelado"
+        }
       },
       "toast": {
         "saved": "Cambios guardados."
@@ -867,6 +1006,8 @@
         "nameRequired": "Ingresa el nombre del negocio.",
         "slugTaken": "Ese link ya está tomado.",
         "slugFormat": "Usa solo minúsculas, números y guiones.",
+        "depositPlan": "Los anticipos están disponibles desde el plan Solo. Mejora tu plan para cobrarlos.",
+        "depositNoMp": "Conecta tu cuenta de Mercado Pago (pestaña Pagos) antes de activar anticipos.",
         "generic": "Algo salió mal. Inténtalo de nuevo."
       }
     },
@@ -907,6 +1048,11 @@
       "empty": {
         "title": "Aún no hay datos suficientes",
         "body": "Cuando tengas reservas en este rango, aquí verás tus métricas."
+      },
+      "locked": {
+        "title": "Los reportes son una función de pago",
+        "body": "Sigue tus ingresos, los no-shows y tus servicios más pedidos. Mejora tu plan para desbloquear las métricas de tu negocio.",
+        "cta": "Ver planes"
       }
     }
   },

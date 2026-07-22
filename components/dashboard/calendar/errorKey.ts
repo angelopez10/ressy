@@ -11,6 +11,8 @@ export function errorKey(reason: string): string {
       return 'notAuthorized';
     case 'invalid_range':
       return 'invalidRange';
+    case 'at_capacity':
+      return 'atCapacity';
     default:
       return 'generic';
   }

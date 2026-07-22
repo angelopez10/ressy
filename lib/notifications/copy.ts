@@ -35,6 +35,10 @@ export interface NotifCopy {
   labelProfessional: string;
   labelWhere: string;
   labelDuration: (min: number) => string;
+  // Estado de la reserva (badge del email)
+  statusConfirmed: string;
+  statusRescheduled: string;
+  statusCancelled: string;
   manageCta: string;
   bookAgainCta: string;
   addToCalendar: string;
@@ -52,6 +56,11 @@ export interface NotifCopy {
   waReminder: (a: WaArgs) => string;
   waRescheduled: (a: WaArgs) => string;
   waCancelled: (a: WaArgs) => string;
+  // Trial (término del plan Team de prueba)
+  trialEndingSubject: (days: number) => string;
+  trialEndingHeading: string;
+  trialEndingIntro: (days: number) => string;
+  trialEndingCta: string;
   footer: string;
 }
 
@@ -89,6 +98,9 @@ const es: NotifCopy = {
   labelProfessional: 'Profesional',
   labelWhere: 'Dónde',
   labelDuration: (m) => `${m} min`,
+  statusConfirmed: 'Confirmada',
+  statusRescheduled: 'Reagendada',
+  statusCancelled: 'Cancelada',
   manageCta: 'Reagendar o cancelar',
   bookAgainCta: 'Reservar de nuevo',
   addToCalendar: 'Agregar al calendario',
@@ -100,6 +112,14 @@ const es: NotifCopy = {
   dailySummaryHeading: 'Tu agenda de hoy',
   dailySummaryIntro: (c, d) => `Tienes ${c} cita${c === 1 ? '' : 's'} para hoy, ${d}.`,
   dailySummaryEmpty: 'No tienes citas para hoy. ¡A descansar o a llenar la agenda!',
+  trialEndingSubject: (d) =>
+    d <= 0 ? 'Tu prueba de Team terminó' : `Te quedan ${d} día${d === 1 ? '' : 's'} de Team`,
+  trialEndingHeading: 'Tu prueba de Team está por terminar',
+  trialEndingIntro: (d) =>
+    d <= 0
+      ? 'Tu prueba de 14 días de Team terminó y tu cuenta pasó al plan Free. Mejora cuando quieras para recuperar WhatsApp, tu equipo completo y los reportes.'
+      : `Te quedan ${d} día${d === 1 ? '' : 's'} de tu prueba de Team. Elige un plan para no perder WhatsApp, tu equipo y los reportes avanzados.`,
+  trialEndingCta: 'Ver planes',
   waConfirmation: (a) =>
     `✅ *Reserva confirmada* en ${a.business}\n\n📅 ${a.when}\n💇 ${a.service} · ${a.professional}` +
     (a.custom ? `\n\n📝 ${a.custom}` : '') +
@@ -140,6 +160,9 @@ const en: NotifCopy = {
   labelProfessional: 'Professional',
   labelWhere: 'Where',
   labelDuration: (m) => `${m} min`,
+  statusConfirmed: 'Confirmed',
+  statusRescheduled: 'Rescheduled',
+  statusCancelled: 'Cancelled',
   manageCta: 'Reschedule or cancel',
   bookAgainCta: 'Book again',
   addToCalendar: 'Add to calendar',
@@ -151,6 +174,14 @@ const en: NotifCopy = {
   dailySummaryHeading: "Today's schedule",
   dailySummaryIntro: (c, d) => `You have ${c} appointment${c === 1 ? '' : 's'} today, ${d}.`,
   dailySummaryEmpty: 'No appointments today. Time to rest — or fill the calendar!',
+  trialEndingSubject: (d) =>
+    d <= 0 ? 'Your Team trial has ended' : `${d} day${d === 1 ? '' : 's'} left of Team`,
+  trialEndingHeading: 'Your Team trial is ending',
+  trialEndingIntro: (d) =>
+    d <= 0
+      ? 'Your 14-day Team trial has ended and your account moved to the Free plan. Upgrade anytime to get WhatsApp, your full team and reports back.'
+      : `You have ${d} day${d === 1 ? '' : 's'} left of your Team trial. Pick a plan so you don't lose WhatsApp, your team and advanced reports.`,
+  trialEndingCta: 'See plans',
   waConfirmation: (a) =>
     `✅ *Booking confirmed* at ${a.business}\n\n📅 ${a.when}\n💇 ${a.service} · ${a.professional}` +
     (a.custom ? `\n\n📝 ${a.custom}` : '') +

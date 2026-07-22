@@ -9,6 +9,9 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
+import { createServiceClient } from '@/lib/db/service';
+import { getConnectionInfo } from '@/lib/payments/mercadopago/account';
+import { canUseFeature } from '@/lib/plans/config';
 import { getDashboardContext } from './context';
 
 export type SettingsResult = { ok: true } | { ok: false; error: string };
@@ -70,6 +73,15 @@ export async function savePolicies(raw: unknown): Promise<SettingsResult> {
   const parsed = policiesInput.safeParse(raw);
   if (!parsed.success) return { ok: false, error: 'generic' };
   const d = parsed.data;
+
+  // Gating de anticipos (capa de datos): activar cobro de anticipo exige plan
+  // pago Y cuenta MP conectada. Si no, se rechaza (no solo se oculta el botón).
+  if (d.depositType !== 'none') {
+    if (!canUseFeature(ctx.tier, 'deposits')) return { ok: false, error: 'depositPlan' };
+    const conn = await getConnectionInfo(createServiceClient(), ctx.business.id);
+    if (conn.status !== 'connected') return { ok: false, error: 'depositNoMp' };
+  }
+
   const db = await createClient();
   const { error } = await db
     .from('business_policies')

@@ -7,8 +7,15 @@ import { createClient } from '@/lib/db/server';
 
 const emailSchema = z.email();
 
-/** Origen del sitio desde los headers (respeta proxy de Vercel). Para redirectTo. */
+/**
+ * Origen del sitio para el `redirectTo` del magic link. Prioridad:
+ *   1. NEXT_PUBLIC_APP_URL — URL pública configurada (fija, sin ambigüedad de
+ *      proxy/túnel). En prod = el dominio real; en dev con ngrok = el túnel.
+ *   2. Fallback a los headers (respeta el proxy de Vercel) si no está seteada.
+ */
 async function siteOrigin(): Promise<string> {
+  const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (configured) return configured.replace(/\/+$/, '');
   const h = await headers();
   const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000';
   const proto = h.get('x-forwarded-proto') ?? (host.includes('localhost') ? 'http' : 'https');

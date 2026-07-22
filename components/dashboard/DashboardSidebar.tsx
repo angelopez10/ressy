@@ -9,6 +9,7 @@ import {
   Settings,
   UserRound,
   Users,
+  Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Link, usePathname } from '@/lib/i18n/navigation';
@@ -23,13 +24,6 @@ const NAV: { key: string; href: string; Icon: LucideIcon }[] = [
   { key: 'reports', href: '/dashboard/reports', Icon: BarChart3 },
   { key: 'settings', href: '/dashboard/settings', Icon: Settings },
 ];
-
-const TIER_LABEL: Record<string, string> = {
-  free: 'Free',
-  starter: 'Starter',
-  pro: 'Pro',
-  business: 'Business',
-};
 
 function isActive(pathname: string, href: string): boolean {
   if (href === '/dashboard') return pathname === '/dashboard';
@@ -50,6 +44,7 @@ export function DashboardSidebar({
 }) {
   const t = useTranslations('dashboard.nav');
   const tCommon = useTranslations('common');
+  const tPlan = useTranslations('dashboard.settings.plan');
   const pathname = usePathname();
 
   return (
@@ -82,6 +77,24 @@ export function DashboardSidebar({
               </Link>
             );
           })}
+
+          {/* Mejorar plan: separado abajo, con el plan actual como badge. */}
+          <Link
+            href="/dashboard/upgrade"
+            aria-current={isActive(pathname, '/dashboard/upgrade') ? 'page' : undefined}
+            className={cn(
+              'text-small rounded-input mt-auto flex items-center gap-3 px-3 py-2.5 font-semibold transition-colors',
+              isActive(pathname, '/dashboard/upgrade')
+                ? 'bg-accent-soft text-accent'
+                : 'text-ink-secondary hover:bg-surface-alt hover:text-ink',
+            )}
+          >
+            <Zap className="size-5 shrink-0" aria-hidden="true" />
+            {t('upgrade')}
+            <span className="bg-accent-soft text-accent ml-auto rounded-full px-2 py-0.5 text-xs font-bold">
+              {tPlan(`names.${planTier}`)}
+            </span>
+          </Link>
         </nav>
 
         <div className="border-border flex items-center gap-3 border-t p-4">
@@ -90,7 +103,7 @@ export function DashboardSidebar({
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-ink truncate text-sm font-semibold">{businessName}</div>
-            <div className="text-ink-secondary text-xs">{TIER_LABEL[planTier] ?? planTier}</div>
+            <div className="text-ink-secondary text-xs">{tPlan(`names.${planTier}`)}</div>
           </div>
         </div>
       </aside>
@@ -114,6 +127,17 @@ export function DashboardSidebar({
             </Link>
           );
         })}
+        <Link
+          href="/dashboard/upgrade"
+          aria-current={isActive(pathname, '/dashboard/upgrade') ? 'page' : undefined}
+          className={cn(
+            'flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+            isActive(pathname, '/dashboard/upgrade') ? 'text-accent' : 'text-ink-secondary',
+          )}
+        >
+          <Zap className="size-5" aria-hidden="true" />
+          {t('upgrade')}
+        </Link>
       </nav>
     </>
   );

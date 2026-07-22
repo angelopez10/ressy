@@ -13,9 +13,11 @@ import type { NotifSettingsDTO } from '@/lib/dashboard/notifications';
 import { BusinessTab } from './BusinessTab';
 import { PoliciesTab } from './PoliciesTab';
 import { PageTab } from './PageTab';
-import { PlanTab } from './PlanTab';
+import { PlanTab, type UsageDTO as PlanUsageDTO, type PlanBillingDTO } from './PlanTab';
 import { PaymentsTab } from './PaymentsTab';
 import { NotificationsTab } from './NotificationsTab';
+import type { MpConnectionInfo } from '@/lib/payments/mercadopago/account';
+import type { DepositRow } from '@/lib/dashboard/payments';
 
 export interface SettingsBusiness {
   id: string;
@@ -37,7 +39,10 @@ export function SettingsView({
   policies,
   hours,
   notifSettings,
-  staffCount,
+  planUsage,
+  trial,
+  planBilling,
+  payments,
   locale,
   initialTab,
 }: {
@@ -46,7 +51,15 @@ export function SettingsView({
   policies: PoliciesData;
   hours: DayHours[];
   notifSettings: NotifSettingsDTO;
-  staffCount: number;
+  planUsage: { bookings: PlanUsageDTO; staff: PlanUsageDTO; whatsapp: PlanUsageDTO };
+  trial: { isTrial: boolean; daysLeft: number };
+  planBilling: PlanBillingDTO;
+  payments: {
+    connection: MpConnectionInfo;
+    deposits: DepositRow[];
+    canUseDeposits: boolean;
+    hasDepositsConfigured: boolean;
+  };
   locale: string;
   initialTab: string;
 }) {
@@ -85,8 +98,25 @@ export function SettingsView({
         {tab === 'policies' && <PoliciesTab policies={policies} currency={business.currency} />}
         {tab === 'page' && <PageTab business={business} locale={locale} />}
         {tab === 'notifications' && <NotificationsTab settings={notifSettings} tier={tier} />}
-        {tab === 'plan' && <PlanTab tier={tier} staffCount={staffCount} />}
-        {tab === 'payments' && <PaymentsTab />}
+        {tab === 'plan' && (
+          <PlanTab
+            tier={tier}
+            trial={trial}
+            bookings={planUsage.bookings}
+            staff={planUsage.staff}
+            whatsapp={planUsage.whatsapp}
+            billing={planBilling}
+          />
+        )}
+        {tab === 'payments' && (
+          <PaymentsTab
+            connection={payments.connection}
+            deposits={payments.deposits}
+            canUseDeposits={payments.canUseDeposits}
+            hasDepositsConfigured={payments.hasDepositsConfigured}
+            locale={locale}
+          />
+        )}
       </div>
     </div>
   );

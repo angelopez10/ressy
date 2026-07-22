@@ -16,8 +16,11 @@ import 'server-only';
 import { DateTime } from 'luxon';
 import { createServiceClient, type ServiceClient } from '@/lib/db/service';
 import { defaultChannels } from './channels';
-import { buildBusinessMessage, buildClientMessage, buildDailySummaryMessage } from './render';
+import { buildBusinessMessage, buildClientMessage, buildDailySummaryMessage, buildTrialEmailMessage } from './render';
 import { loadBookingContext, loadOwnerEmail, loadAgenda, getSettings, type BookingNotifCtx } from './data';
+import type { NotifLocale } from './copy';
+import { getPlan } from '@/lib/plans/config';
+import { getAppUrl } from './env';
 import type { Channel, ChannelRegistry, NotificationType, SendResult } from './types';
 
 const PAID_CHANNELS: Channel[] = ['whatsapp', 'sms'];
@@ -104,9 +107,32 @@ async function finalize(
   }
 }
 
-/** Canales del cliente, ordenados por preferencia, según plan + settings + config + contacto. */
-function clientChannels(ctx: BookingNotifCtx, registry: ChannelRegistry): { channel: Channel; to: string }[] {
-  const paidAllowed = ctx.business.tier !== 'free' && ctx.settings.whatsappEnabled;
+/**
+ * ¿Queda cuota de WhatsApp este mes para el plan del negocio? La cuota vive en
+ * lib/plans/config.ts (0/100/500/2.000); el consumo en `notification_usage`.
+ * Al agotarse, `clientChannels` deja de ofrecer WhatsApp y el cliente cae a
+ * email — nunca se queda sin notificación (CLAUDE.md §Prompt 09).
+ */
+async function whatsappUnderQuota(db: ServiceClient, businessId: string, tier: BookingNotifCtx['business']['tier']): Promise<boolean> {
+  const quota = getPlan(tier).limits.whatsappPerMonth;
+  if (quota <= 0) return false;
+  const { data } = await db
+    .from('notification_usage')
+    .select('count')
+    .eq('business_id', businessId)
+    .eq('period', period())
+    .eq('channel', 'whatsapp')
+    .maybeSingle();
+  return (data?.count ?? 0) < quota;
+}
+
+/** Canales del cliente, ordenados por preferencia, según plan + cuota + settings + contacto. */
+function clientChannels(
+  ctx: BookingNotifCtx,
+  registry: ChannelRegistry,
+  waAllowedByQuota: boolean,
+): { channel: Channel; to: string }[] {
+  const paidAllowed = ctx.business.tier !== 'free' && ctx.settings.whatsappEnabled && waAllowedByQuota;
   const out: { channel: Channel; to: string }[] = [];
 
   if (paidAllowed && ctx.customer.phone && registry.whatsapp?.isConfigured()) {
@@ -152,7 +178,8 @@ export async function dispatchClientNotification(
     return { status: 'skipped' };
   }
 
-  const ordered = clientChannels(ctx, channels);
+  const waAllowed = await whatsappUnderQuota(db, ctx.business.id, ctx.business.tier);
+  const ordered = clientChannels(ctx, channels, waAllowed);
   if (ordered.length === 0) return { status: 'skipped' };
 
   const dedupKey = args.dedupKey ?? `${args.bookingId}:${args.type}`;
@@ -268,5 +295,56 @@ export async function dispatchDailySummary(
   );
   const result = await email.send(message);
   await finalize(db, reserved.id, result, 'email', to, businessId);
+  return { status: result.ok ? 'sent' : 'failed' };
+}
+
+// ---------------------------------------------------------------------------
+// Trial (aviso de término del plan Team de prueba: día 11 y 14)
+// ---------------------------------------------------------------------------
+
+/**
+ * Email al owner avisando que el trial de Team termina. Reusa toda la capa:
+ * idempotencia por `dedupKey` (`{businessId}:trial:{day}`), plantilla genérica de
+ * negocio y el canal de email. `daysLeft` alimenta el copy (0 = ya terminó).
+ */
+export async function dispatchTrialEmail(
+  args: { businessId: string; day: number; daysLeft: number },
+  overrides?: Partial<DispatchDeps>,
+): Promise<{ status: 'sent' | 'skipped' | 'failed' }> {
+  const { db, channels } = deps(overrides);
+  const email = channels.email;
+  if (!email?.isConfigured()) return { status: 'skipped' };
+
+  const { data: business } = await db
+    .from('businesses')
+    .select('name, logo_url, accent_color, booking_locale')
+    .eq('id', args.businessId)
+    .maybeSingle();
+  if (!business) return { status: 'skipped' };
+
+  const to = await loadOwnerEmail(db, args.businessId);
+  if (!to) return { status: 'skipped' };
+
+  const locale: NotifLocale = business.booking_locale === 'en' ? 'en' : 'es';
+
+  const dedupKey = `${args.businessId}:trial:${args.day}`;
+  const reserved = await reserve(db, {
+    businessId: args.businessId,
+    bookingId: null,
+    type: 'trial_ending',
+    channel: 'email',
+    recipient: to,
+    dedupKey,
+  });
+  if (reserved.skip) return { status: 'skipped' };
+
+  const message = buildTrialEmailMessage(
+    { name: business.name, logoUrl: business.logo_url, accentColor: business.accent_color, locale },
+    args.daysLeft,
+    to,
+    `${getAppUrl()}/${locale}/dashboard/settings`,
+  );
+  const result = await email.send(message);
+  await finalize(db, reserved.id, result, 'email', to, args.businessId);
   return { status: result.ok ? 'sent' : 'failed' };
 }

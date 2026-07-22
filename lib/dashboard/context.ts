@@ -8,6 +8,8 @@ import 'server-only';
  */
 
 import { createClient } from '@/lib/db/server';
+import { toTrialInfo, type TrialInfo } from '@/lib/plans/status';
+import { isPlanId } from '@/lib/plans/config';
 import type { Enums } from '@/lib/db/types';
 
 export { STAFF_LIMIT } from './plan';
@@ -27,6 +29,8 @@ export interface DashboardContext {
     isPublished: boolean;
   };
   tier: Enums<'subscription_tier'>;
+  /** Estado del trial de 14 días (Team). Alimenta el banner del dashboard. */
+  trial: TrialInfo;
   /** ¿El miembro actual ve toda la agenda o solo lo suyo? (admins ⇒ true) */
   canViewAll: boolean;
   /** staff_member del usuario actual en este negocio, si tiene uno. */
@@ -48,7 +52,11 @@ export async function getDashboardContext(): Promise<DashboardContext | null> {
   if (!biz) return null;
 
   const [{ data: sub }, { data: member }] = await Promise.all([
-    db.from('subscriptions').select('tier').eq('business_id', biz.id).maybeSingle(),
+    db
+      .from('subscriptions')
+      .select('tier, is_trial, trial_ends_at')
+      .eq('business_id', biz.id)
+      .maybeSingle(),
     db
       .from('business_members')
       .select('role')
@@ -77,7 +85,11 @@ export async function getDashboardContext(): Promise<DashboardContext | null> {
       address: biz.address,
       isPublished: biz.is_published,
     },
-    tier: sub?.tier ?? 'free',
+    tier: isPlanId(sub?.tier) ? sub.tier : 'free',
+    trial: toTrialInfo({
+      is_trial: sub?.is_trial ?? false,
+      trial_ends_at: sub?.trial_ends_at ?? null,
+    }),
     canViewAll: Boolean(canViewAll),
     staffMemberId: staffId ?? null,
     role: member?.role ?? null,

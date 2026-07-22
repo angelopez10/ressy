@@ -3,10 +3,13 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { LogOut } from 'lucide-react';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
+import { DashboardBanners } from '@/components/dashboard/DashboardBanners';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { ToastProvider } from '@/components/ui/Toast';
 import { getUser } from '@/lib/auth/session';
 import { getDashboardContext } from '@/lib/dashboard/context';
+import { createClient } from '@/lib/db/server';
+import { getPlanUsage } from '@/lib/plans/status';
 
 /**
  * Shell del dashboard, con guard (CLAUDE.md §9): sin sesión → login; sin negocio
@@ -28,6 +31,13 @@ export default async function DashboardLayout({
   const ctx = await getDashboardContext();
   if (!ctx || !ctx.business.isPublished) redirect(`/${locale}/onboarding`);
 
+  // Uso de reservas para el banner de tope. Solo importa cuando el plan tiene
+  // límite finito (Free); en planes ∞ no se pasa nada al banner (evita Infinity).
+  const usage = await getPlanUsage(await createClient(), ctx.business.id, ctx.tier);
+  const bookingsBanner = Number.isFinite(usage.bookings.limit)
+    ? { used: usage.bookings.used, limit: usage.bookings.limit, atLimit: usage.bookings.atLimit }
+    : null;
+
   return (
     <ToastProvider>
       <div className="bg-surface-alt flex min-h-screen flex-col lg:flex-row">
@@ -45,7 +55,10 @@ export default async function DashboardLayout({
               </button>
             </form>
           </header>
-          <main className="flex min-h-0 flex-1 flex-col p-4 sm:p-6 lg:p-8">{children}</main>
+          <main className="flex min-h-0 flex-1 flex-col gap-4 p-4 sm:p-6 lg:p-8">
+            <DashboardBanners trial={ctx.trial} bookings={bookingsBanner} />
+            {children}
+          </main>
         </div>
       </div>
     </ToastProvider>

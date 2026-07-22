@@ -1,10 +1,16 @@
-import { type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
 import { createServerClient } from '@supabase/ssr';
 import { getPublicSupabaseEnv } from '@/lib/db/env';
 import { routing } from '@/lib/i18n/routing';
 
 const intlMiddleware = createIntlMiddleware(routing);
+
+/** Locale del primer segmento de la ruta; cae al default si no es uno soportado. */
+function localeFromPath(pathname: string): string {
+  const seg = pathname.split('/')[1] ?? '';
+  return (routing.locales as readonly string[]).includes(seg) ? seg : routing.defaultLocale;
+}
 
 /**
  * Middleware compuesto: next-intl (prefijo de locale) + refresco de la sesión de
@@ -17,6 +23,24 @@ const intlMiddleware = createIntlMiddleware(routing);
  * edge y no debe ser la única línea de defensa (CLAUDE.md §9).
  */
 export default async function middleware(request: NextRequest) {
+  // Red de seguridad para el callback de auth. Si un `code` de Supabase aterriza
+  // en una ruta de página (p. ej. `/es?code=...`) en vez de en `/api/auth/callback`,
+  // significa que Supabase cayó al Site URL por defecto en lugar de a nuestro
+  // `emailRedirectTo`. Sin esto el code queda colgado en la URL y el login nunca
+  // se completa. Lo reenviamos al handler que canjea el code por sesión.
+  //
+  // El arreglo de fondo es alinear las Redirect URLs en el panel de Supabase; esto
+  // es solo defensa en profundidad para no dejar al usuario sin sesión.
+  const authCode = request.nextUrl.searchParams.get('code');
+  if (authCode && !request.nextUrl.pathname.startsWith('/api/')) {
+    const callback = request.nextUrl.clone();
+    callback.pathname = '/api/auth/callback';
+    callback.search = '';
+    callback.searchParams.set('code', authCode);
+    callback.searchParams.set('next', `/${localeFromPath(request.nextUrl.pathname)}/onboarding`);
+    return NextResponse.redirect(callback);
+  }
+
   const response = intlMiddleware(request);
 
   const { url, publishableKey } = getPublicSupabaseEnv();

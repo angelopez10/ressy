@@ -1,12 +1,23 @@
 import * as React from 'react';
-import { Heading, Text } from '@react-email/components';
-import { EmailLayout, DetailTable, EmailButton, INK, INK_SECONDARY, SURFACE_ALT } from './EmailLayout';
+import {
+  EmailLayout,
+  DetailTable,
+  EmailButton,
+  EmailH1,
+  EmailGreeting,
+  EmailText,
+  EmailPanel,
+  StatusBadge,
+  INK_TERTIARY,
+  FF,
+  type StatusTone,
+} from './EmailLayout';
 
 /**
- * Email al cliente para todo el ciclo de una reserva: confirmación, recordatorio,
- * reagende, cancelación y post-servicio. Comparten estructura; el `variant` solo
- * cambia el encabezado, el intro y el CTA. Todas las cadenas llegan ya resueltas
- * en el idioma del cliente (render.ts), así que el template no sabe de i18n.
+ * Email al CLIENTE FINAL para todo el ciclo de una reserva: confirmación,
+ * recordatorio, reagende, cancelación y post-servicio. Marca del NEGOCIO (el
+ * cliente ve su logo/color). El `variant` solo cambia encabezado, intro y CTA;
+ * las cadenas llegan resueltas en el idioma del cliente (render.ts).
  */
 export interface ClientBookingEmailProps {
   accent: string;
@@ -17,6 +28,9 @@ export interface ClientBookingEmailProps {
   heading: string;
   intro: string;
   rows: { label: string; value: string }[];
+  /** Badge de estado (confirmada/reagendada/cancelada). Ausente en post-servicio. */
+  statusLabel?: string;
+  statusTone?: StatusTone;
   ctaUrl?: string;
   ctaLabel?: string;
   customMessage?: string | null;
@@ -33,6 +47,8 @@ export function ClientBookingEmail({
   heading,
   intro,
   rows,
+  statusLabel,
+  statusTone,
   ctaUrl,
   ctaLabel,
   customMessage,
@@ -40,33 +56,24 @@ export function ClientBookingEmail({
   footer,
 }: ClientBookingEmailProps) {
   return (
-    <EmailLayout preview={preview} businessName={businessName} logoUrl={logoUrl} footer={footer}>
-      <Text style={{ margin: '16px 0 0', fontSize: 14, color: INK_SECONDARY }}>{greeting}</Text>
-      <Heading as="h1" style={{ margin: '4px 0 8px', fontSize: 22, fontWeight: 700, color: INK, letterSpacing: '-0.02em' }}>
-        {heading}
-      </Heading>
-      <Text style={{ margin: 0, fontSize: 15, lineHeight: '1.6', color: INK_SECONDARY }}>{intro}</Text>
+    <EmailLayout preview={preview} businessName={businessName} logoUrl={logoUrl} footer={footer} variant="client">
+      <EmailGreeting>{greeting}</EmailGreeting>
+      <EmailH1>{heading}</EmailH1>
+      <EmailText>{intro}</EmailText>
+
+      {statusLabel && statusTone && (
+        <div style={{ margin: '0 0 14px' }}>
+          <StatusBadge label={statusLabel} tone={statusTone} />
+        </div>
+      )}
 
       <DetailTable rows={rows} />
 
       {timezoneNote && (
-        <Text style={{ margin: '-8px 0 0', fontSize: 12, color: '#B0B0B0' }}>{timezoneNote}</Text>
+        <p style={{ margin: '-14px 0 16px', fontFamily: FF, fontSize: 12, color: INK_TERTIARY }}>{timezoneNote}</p>
       )}
 
-      {customMessage && (
-        <Text
-          style={{
-            margin: '16px 0 0',
-            padding: '12px 14px',
-            backgroundColor: SURFACE_ALT,
-            borderRadius: 12,
-            fontSize: 14,
-            color: INK,
-          }}
-        >
-          {customMessage}
-        </Text>
-      )}
+      {customMessage && <EmailPanel>{customMessage}</EmailPanel>}
 
       {ctaUrl && ctaLabel && <EmailButton href={ctaUrl} label={ctaLabel} accent={accent} />}
     </EmailLayout>

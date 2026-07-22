@@ -154,7 +154,11 @@ export function DetailsStep({
 
       {error && error !== 'slot_taken' && error !== 'slot_unavailable' && (
         <p role="alert" className="text-warning text-small mt-4">
-          {error === 'contact_required' ? errT('contactRequired') : errT('generic')}
+          {error === 'contact_required'
+            ? errT('contactRequired')
+            : error === 'at_capacity'
+              ? errT('atCapacity')
+              : errT('generic')}
         </p>
       )}
 

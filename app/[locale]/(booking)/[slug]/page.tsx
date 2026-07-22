@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { BookingFlow } from '@/components/booking/BookingFlow';
+import { BookingUnavailable } from '@/components/booking/BookingUnavailable';
+import { BookingFooter } from '@/components/booking/BookingFooter';
+import { PaymentReturn, type PaymentReturnStatus } from '@/components/booking/PaymentReturn';
 import { createClient } from '@/lib/db/server';
 import { parseBookingSource } from '@/lib/booking/schema';
 import { summarizeBusinessHours } from '@/lib/booking/format';
@@ -9,8 +12,10 @@ import type { Locale } from '@/lib/i18n/routing';
 
 type Props = {
   params: Promise<{ locale: Locale; slug: string }>;
-  searchParams: Promise<{ src?: string }>;
+  searchParams: Promise<{ src?: string; payment?: string }>;
 };
+
+const PAYMENT_STATES: PaymentReturnStatus[] = ['success', 'pending', 'failure'];
 
 /**
  * Booking page pública (`getressy.com/{slug}`). El shell del negocio y su
@@ -22,13 +27,60 @@ type Props = {
  */
 export default async function BookingPage({ params, searchParams }: Props) {
   const { locale, slug } = await params;
-  const { src } = await searchParams;
+  const { src, payment } = await searchParams;
   setRequestLocale(locale);
 
   const bundle = await loadBundle(slug, locale);
   if (!bundle) notFound();
 
-  return <BookingFlow bundle={bundle} locale={locale} source={parseBookingSource(src)} />;
+  const db = await createClient();
+
+  // ¿Mostrar la marca "Powered by Ressy"? Solo el plan Free la muestra; los pagos
+  // la quitan (feature poweredByRessy). Boolean neutro vía RPC SECURITY DEFINER:
+  // el anon nunca ve el tier. Ante error (null), por defecto SÍ se muestra.
+  const { data: showBranding } = await db.rpc('business_shows_branding', {
+    p_business_id: bundle.business.id,
+  });
+  const branded = showBranding !== false;
+  const footer = branded ? <BookingFooter /> : null;
+
+  // Vuelta desde el checkout de MP. La confirmación real la decide el webhook;
+  // esta pantalla solo informa (success = "confirmando", no "confirmado").
+  if (payment && PAYMENT_STATES.includes(payment as PaymentReturnStatus)) {
+    return (
+      <>
+        <div className="flex-1">
+          <PaymentReturn business={bundle.business} status={payment as PaymentReturnStatus} />
+        </div>
+        {footer}
+      </>
+    );
+  }
+
+  // ¿El negocio acepta reservas online? (topa el plan Free en 25/mes). Si no,
+  // mostramos un estado neutro y digno — jamás un error técnico (CLAUDE.md).
+  const { data: accepting } = await db.rpc('business_accepting_bookings', {
+    p_business_id: bundle.business.id,
+  });
+  if (accepting === false) {
+    return (
+      <>
+        <div className="flex-1">
+          <BookingUnavailable business={bundle.business} />
+        </div>
+        {footer}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex-1">
+        <BookingFlow bundle={bundle} locale={locale} source={parseBookingSource(src)} />
+      </div>
+      {footer}
+    </>
+  );
 }
 
 async function loadBundle(slug: string, locale: string): Promise<BookingBundle | null> {

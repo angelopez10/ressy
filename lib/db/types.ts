@@ -211,6 +211,10 @@ export type Database = {
           buffer_after_min: number;
           is_active: boolean;
           sort_order: number;
+          /** Anticipo por servicio: 'inherit' usa el default del negocio (migración 14). */
+          deposit_override: 'inherit' | 'none' | 'percent' | 'fixed';
+          deposit_percent: number | null;
+          deposit_amount: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -225,6 +229,9 @@ export type Database = {
           buffer_after_min?: number;
           is_active?: boolean;
           sort_order?: number;
+          deposit_override?: 'inherit' | 'none' | 'percent' | 'fixed';
+          deposit_percent?: number | null;
+          deposit_amount?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -301,6 +308,8 @@ export type Database = {
           rescheduled_from_booking_id: string | null;
           /** Secreto por reserva para gestión sin login (migración 07). */
           management_token: string;
+          /** UTC. Vencimiento del hold en pending_payment mientras paga (migración 14). */
+          payment_expires_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -322,6 +331,7 @@ export type Database = {
           cancellation_reason?: string | null;
           rescheduled_from_booking_id?: string | null;
           management_token?: string;
+          payment_expires_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -341,6 +351,8 @@ export type Database = {
           status: Database['public']['Enums']['payment_status'];
           external_id: string | null;
           external_payload: Json | null;
+          method: string | null;
+          receipt_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -355,10 +367,58 @@ export type Database = {
           status?: Database['public']['Enums']['payment_status'];
           external_id?: string | null;
           external_payload?: Json | null;
+          method?: string | null;
+          receipt_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['booking_payments']['Insert']>;
+        Relationships: [];
+      };
+
+      mp_oauth_accounts: {
+        Row: {
+          business_id: string;
+          mp_user_id: string;
+          access_token_enc: string;
+          refresh_token_enc: string;
+          public_key: string | null;
+          scope: string | null;
+          live_mode: boolean;
+          status: 'connected' | 'disconnected' | 'error';
+          expires_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          business_id: string;
+          mp_user_id: string;
+          access_token_enc: string;
+          refresh_token_enc: string;
+          public_key?: string | null;
+          scope?: string | null;
+          live_mode?: boolean;
+          status?: 'connected' | 'disconnected' | 'error';
+          expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['mp_oauth_accounts']['Insert']>;
+        Relationships: [];
+      };
+
+      payment_webhook_events: {
+        Row: {
+          provider: Database['public']['Enums']['payment_provider'];
+          event_id: string;
+          received_at: string;
+        };
+        Insert: {
+          provider: Database['public']['Enums']['payment_provider'];
+          event_id: string;
+          received_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['payment_webhook_events']['Insert']>;
         Relationships: [];
       };
 
@@ -396,8 +456,13 @@ export type Database = {
           business_id: string;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
+          billing_provider: Database['public']['Enums']['payment_provider'] | null;
+          mp_preapproval_id: string | null;
+          mp_payer_id: string | null;
           tier: Database['public']['Enums']['subscription_tier'];
           status: Database['public']['Enums']['subscription_status'];
+          is_trial: boolean;
+          trial_ends_at: string | null;
           current_period_end: string | null;
           cancel_at_period_end: boolean;
           created_at: string;
@@ -407,8 +472,13 @@ export type Database = {
           business_id: string;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
+          billing_provider?: Database['public']['Enums']['payment_provider'] | null;
+          mp_preapproval_id?: string | null;
+          mp_payer_id?: string | null;
           tier?: Database['public']['Enums']['subscription_tier'];
           status?: Database['public']['Enums']['subscription_status'];
+          is_trial?: boolean;
+          trial_ends_at?: string | null;
           current_period_end?: string | null;
           cancel_at_period_end?: boolean;
           created_at?: string;
@@ -681,6 +751,81 @@ export type Database = {
         };
         Returns: undefined;
       };
+
+      // Planes / tope de reservas / trial (migración 13).
+      bookings_limit_for_tier: {
+        Args: { p_tier: Database['public']['Enums']['subscription_tier'] };
+        Returns: number | null;
+      };
+      bookings_used_this_month: {
+        Args: { p_business_id: string };
+        Returns: number;
+      };
+      assert_within_booking_quota: {
+        Args: { p_business_id: string };
+        Returns: undefined;
+      };
+      business_accepting_bookings: {
+        Args: { p_business_id: string };
+        Returns: boolean;
+      };
+      business_shows_branding: {
+        Args: { p_business_id: string };
+        Returns: boolean;
+      };
+      trial_expire_downgrade: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      subscription_apply_mp_event: {
+        Args: {
+          p_business_id: string;
+          p_tier: Database['public']['Enums']['subscription_tier'];
+          p_status: Database['public']['Enums']['subscription_status'];
+          p_mp_preapproval_id: string;
+          p_mp_payer_id?: string | null;
+          p_current_period_end?: string | null;
+          p_cancel_at_period_end?: boolean;
+        };
+        Returns: undefined;
+      };
+      subscription_expire_downgrade: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+
+      // Anticipos / Mercado Pago (migración 14).
+      service_deposit: {
+        Args: { p_business_id: string; p_service_id: string };
+        Returns: number;
+      };
+      booking_confirm_payment: {
+        Args: {
+          p_booking_id: string;
+          p_external_id: string;
+          p_amount: number;
+          p_currency: string;
+          p_method: string | null;
+          p_payload?: Json | null;
+        };
+        Returns: boolean;
+      };
+      booking_fail_payment: {
+        Args: { p_booking_id: string };
+        Returns: boolean;
+      };
+      expire_pending_payments: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      record_payment_refund: {
+        Args: {
+          p_business_id: string;
+          p_external_id: string;
+          p_status: Database['public']['Enums']['payment_status'];
+        };
+        Returns: undefined;
+      };
     };
 
     Enums: {
@@ -691,7 +836,8 @@ export type Database = {
         | 'completed'
         | 'cancelled_by_client'
         | 'cancelled_by_business'
-        | 'no_show';
+        | 'no_show'
+        | 'payment_expired';
       booking_source: 'link' | 'qr' | 'instagram' | 'manual' | 'other';
       payment_provider: 'stripe' | 'mercadopago';
       payment_status:
@@ -704,7 +850,7 @@ export type Database = {
         | 'partially_refunded';
       payment_kind: 'deposit' | 'full' | 'no_show_fee';
       business_role: 'owner' | 'admin' | 'staff';
-      subscription_tier: 'free' | 'starter' | 'pro' | 'business';
+      subscription_tier: 'free' | 'solo' | 'team' | 'studio';
       subscription_status:
         | 'trialing'
         | 'active'
@@ -723,6 +869,7 @@ export type Database = {
         | 'post_service'
         | 'business_new_booking'
         | 'business_cancellation'
+        | 'trial_ending'
         | 'business_daily_summary';
       notification_channel: 'email' | 'whatsapp' | 'sms';
       notification_status: 'pending' | 'sent' | 'failed' | 'skipped';

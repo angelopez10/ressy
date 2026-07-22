@@ -30,5 +30,8 @@ export function statusStyle(status: Enums<'booking_status'>): StatusStyle {
       return { bg: 'bg-warning-soft', bar: 'var(--color-warning)', muted: true, strike: true };
     case 'no_show':
       return { bg: 'bg-surface-alt', bar: 'var(--color-ink-secondary)', muted: true, strike: true };
+    case 'payment_expired':
+      // Anticipo no pagado a tiempo: apagada, el slot ya se liberó.
+      return { bg: 'bg-surface-alt', bar: 'var(--color-ink-tertiary)', muted: true, strike: true };
   }
 }

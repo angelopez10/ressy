@@ -41,6 +41,8 @@ function mapError(message: string | undefined): Reason {
       return 'not_found';
     case 'invalid_transition':
       return 'invalid_transition';
+    case 'booking_limit_reached':
+      return 'at_capacity';
     default:
       return 'error';
   }

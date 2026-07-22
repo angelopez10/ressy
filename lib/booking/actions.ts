@@ -10,7 +10,9 @@
  */
 
 import { createClient } from '@/lib/db/server';
+import { createServiceClient } from '@/lib/db/service';
 import { emitBookingEvent } from '@/lib/inngest/emit';
+import { getPaymentProvider } from '@/lib/payments';
 import { computeAvailability } from '@/lib/availability/engine';
 import { PublicAvailabilityDataSource } from '@/lib/availability/source.public';
 import type { AvailabilityQuery } from '@/lib/availability/types';
@@ -46,6 +48,8 @@ function mapPgError(message: string | undefined): BookingFailure {
       return 'not_found';
     case 'invalid_transition':
       return 'invalid_transition';
+    case 'booking_limit_reached':
+      return 'at_capacity';
     default:
       return 'error';
   }
@@ -125,9 +129,30 @@ export async function createBooking(raw: unknown): Promise<CreateBookingResult> 
     });
 
     if (!error && data && data[0]) {
-      // Dispara confirmación + recordatorios + aviso al negocio (best-effort).
-      await emitBookingEvent('booking/created', data[0].booking_id);
-      return { ok: true, token: data[0].management_token, status: data[0].status };
+      const row = data[0];
+
+      // Anticipo: la reserva quedó en pending_payment. NO confirmamos ni
+      // notificamos todavía — eso lo hace el webhook al aprobarse el pago. Aquí
+      // solo creamos el checkout en la cuenta MP del negocio y devolvemos la URL.
+      if (row.status === 'pending_payment') {
+        const checkoutUrl = await startDepositCheckout(
+          input.businessId,
+          input.serviceId,
+          row.booking_id,
+          input.locale,
+        );
+        if (!checkoutUrl) {
+          // No se pudo crear el cobro: liberamos el slot ya (no esperamos el TTL)
+          // y pedimos reintentar.
+          await createServiceClient().rpc('booking_fail_payment', { p_booking_id: row.booking_id });
+          return { ok: false, reason: 'error' };
+        }
+        return { ok: true, token: row.management_token, status: row.status, checkoutUrl };
+      }
+
+      // Sin anticipo: dispara confirmación + recordatorios + aviso al negocio.
+      await emitBookingEvent('booking/created', row.booking_id);
+      return { ok: true, token: row.management_token, status: row.status };
     }
 
     lastFailure = mapPgError(error?.message);
@@ -136,6 +161,42 @@ export async function createBooking(raw: unknown): Promise<CreateBookingResult> 
   }
 
   return { ok: false, reason: lastFailure };
+}
+
+/**
+ * Crea el checkout del anticipo EN LA CUENTA DEL NEGOCIO y devuelve la URL, o
+ * `null` si algo falla (token de MP caído, monto 0, etc.). Todo el contexto se
+ * lee con service role: `service_deposit` es SECURITY DEFINER y el provider
+ * necesita el token cifrado del negocio.
+ */
+async function startDepositCheckout(
+  businessId: string,
+  serviceId: string,
+  bookingId: string,
+  locale: 'es' | 'en',
+): Promise<string | null> {
+  const svc = createServiceClient();
+  try {
+    const [{ data: amount }, { data: biz }, { data: service }] = await Promise.all([
+      svc.rpc('service_deposit', { p_business_id: businessId, p_service_id: serviceId }),
+      svc.from('businesses').select('slug, currency').eq('id', businessId).single(),
+      svc.from('services').select('name').eq('id', serviceId).single(),
+    ]);
+    if (!amount || amount <= 0 || !biz || !service) return null;
+
+    const checkout = await getPaymentProvider().createDepositCheckout({
+      businessId,
+      bookingId,
+      amount,
+      currency: biz.currency,
+      description: `${locale === 'en' ? 'Deposit' : 'Anticipo'} · ${service.name}`,
+      locale,
+      businessSlug: biz.slug,
+    });
+    return checkout.checkoutUrl;
+  } catch {
+    return null; // el caller libera el slot y pide reintentar
+  }
 }
 
 /**

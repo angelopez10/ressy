@@ -9,7 +9,10 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
+import { createServiceClient } from '@/lib/db/service';
 import { getDashboardContext } from './context';
+import { getLimit, canUseFeature } from '@/lib/plans/config';
+import { getConnectionInfo } from '@/lib/payments/mercadopago/account';
 
 const serviceInput = z.object({
   id: z.guid().optional(),
@@ -21,6 +24,10 @@ const serviceInput = z.object({
   bufferAfterMin: z.coerce.number().int().min(0).max(240).default(0),
   isActive: z.boolean().default(true),
   staffIds: z.array(z.guid()).default([]),
+  // Anticipo por servicio: 'inherit' usa el default del negocio (migración 14).
+  depositOverride: z.enum(['inherit', 'none', 'percent', 'fixed']).default('inherit'),
+  depositPercent: z.coerce.number().int().min(1).max(100).nullable().optional(),
+  depositAmount: z.coerce.number().int().min(0).nullable().optional(),
 });
 
 export type ServiceActionResult = { ok: true; id: string } | { ok: false; error: string };
@@ -54,6 +61,15 @@ export async function saveService(raw: unknown): Promise<ServiceActionResult> {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'generic' };
   }
   const input = parsed.data;
+
+  // Gating de anticipos (capa de datos): si el servicio FIJA un anticipo
+  // (percent/fixed), exige plan pago + cuenta MP conectada. 'inherit'/'none' no.
+  if (input.depositOverride === 'percent' || input.depositOverride === 'fixed') {
+    if (!canUseFeature(ctx.tier, 'deposits')) return { ok: false, error: 'depositPlan' };
+    const conn = await getConnectionInfo(createServiceClient(), ctx.business.id);
+    if (conn.status !== 'connected') return { ok: false, error: 'depositNoMp' };
+  }
+
   const db = await createClient();
 
   const row = {
@@ -65,6 +81,9 @@ export async function saveService(raw: unknown): Promise<ServiceActionResult> {
     buffer_before_min: input.bufferBeforeMin,
     buffer_after_min: input.bufferAfterMin,
     is_active: input.isActive,
+    deposit_override: input.depositOverride,
+    deposit_percent: input.depositOverride === 'percent' ? (input.depositPercent ?? null) : null,
+    deposit_amount: input.depositOverride === 'fixed' ? (input.depositAmount ?? null) : null,
   };
 
   if (input.id) {
@@ -72,6 +91,18 @@ export async function saveService(raw: unknown): Promise<ServiceActionResult> {
     if (error) return { ok: false, error: 'generic' };
     await syncServiceStaff(db, ctx.business.id, input.id, input.staffIds);
     return { ok: true, id: input.id };
+  }
+
+  // Gating por plan (capa de datos): Free = 3 servicios activos (lib/plans/config.ts).
+  // Se cuenta solo para servicios NUEVOS; editar los existentes nunca se bloquea.
+  const limit = getLimit(ctx.tier, 'services');
+  if (Number.isFinite(limit)) {
+    const { count } = await db
+      .from('services')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', ctx.business.id)
+      .eq('is_active', true);
+    if ((count ?? 0) >= limit) return { ok: false, error: 'planLimitServices' };
   }
 
   // Nuevo: sort_order al final.

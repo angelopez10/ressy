@@ -4,9 +4,9 @@ import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
-const KEYS = ['business', 'services', 'schedule', 'page', 'done'] as const;
+const KEYS = ['business', 'services', 'schedule', 'page', 'plan', 'done'] as const;
 
-/** Stepper del wizard (5 pasos). Círculo hecho = ink, actual = acento, futuro = borde. */
+/** Stepper del wizard (6 pasos). Círculo hecho = ink, actual = acento, futuro = borde. */
 export function OnboardingStepper({ currentIndex }: { currentIndex: number }) {
   const t = useTranslations('onboarding.steps');
 

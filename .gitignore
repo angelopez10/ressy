@@ -51,3 +51,4 @@ next-env.d.ts
 /design-reference
 /e2e
 .env
+CLAUDE.md

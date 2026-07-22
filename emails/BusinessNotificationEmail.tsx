@@ -1,8 +1,11 @@
 import * as React from 'react';
-import { Heading, Text } from '@react-email/components';
-import { EmailLayout, DetailTable, EmailButton, INK, INK_SECONDARY } from './EmailLayout';
+import { EmailLayout, DetailTable, EmailButton, EmailH1, EmailText } from './EmailLayout';
 
-/** Email al NEGOCIO: nueva reserva o cancelación de un cliente. */
+/**
+ * Email al NEGOCIO (dueño): nueva reserva, cancelación de un cliente o aviso de
+ * trial. Marca RESSY (lo envía Ressy, no el negocio). El botón usa el teal de
+ * Ressy, no el acento del negocio.
+ */
 export interface BusinessNotificationEmailProps {
   accent: string;
   businessName: string;
@@ -17,7 +20,6 @@ export interface BusinessNotificationEmailProps {
 }
 
 export function BusinessNotificationEmail({
-  accent,
   businessName,
   logoUrl,
   preview,
@@ -29,13 +31,11 @@ export function BusinessNotificationEmail({
   footer,
 }: BusinessNotificationEmailProps) {
   return (
-    <EmailLayout preview={preview} businessName={businessName} logoUrl={logoUrl} footer={footer}>
-      <Heading as="h1" style={{ margin: '16px 0 8px', fontSize: 20, fontWeight: 700, color: INK, letterSpacing: '-0.02em' }}>
-        {heading}
-      </Heading>
-      <Text style={{ margin: 0, fontSize: 15, lineHeight: '1.6', color: INK_SECONDARY }}>{intro}</Text>
-      <DetailTable rows={rows} />
-      {ctaUrl && ctaLabel && <EmailButton href={ctaUrl} label={ctaLabel} accent={accent} />}
+    <EmailLayout preview={preview} businessName={businessName} logoUrl={logoUrl} footer={footer} variant="ressy">
+      <EmailH1>{heading}</EmailH1>
+      <EmailText>{intro}</EmailText>
+      {rows.length > 0 && <DetailTable rows={rows} />}
+      {ctaUrl && ctaLabel && <EmailButton href={ctaUrl} label={ctaLabel} />}
     </EmailLayout>
   );
 }

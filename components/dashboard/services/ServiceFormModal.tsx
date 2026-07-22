@@ -6,6 +6,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { Select } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
 import { saveService } from '@/lib/dashboard/services.actions';
 import type { ServiceDTO, StaffOption } from '@/lib/dashboard/services';
@@ -41,6 +42,16 @@ export function ServiceFormModal({
   const [bufferAfter, setBufferAfter] = useState(String(service?.bufferAfterMin ?? 0));
   const [isActive, setIsActive] = useState(service?.isActive ?? true);
   const [staffIds, setStaffIds] = useState<string[]>(service?.staffIds ?? staff.map((s) => s.id));
+  const [depositOverride, setDepositOverride] = useState(service?.depositOverride ?? 'inherit');
+  const [depositValue, setDepositValue] = useState(
+    String(
+      service?.depositOverride === 'percent'
+        ? (service.depositPercent ?? 30)
+        : service?.depositOverride === 'fixed'
+          ? (service.depositAmount ?? 0)
+          : 30,
+    ),
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -61,6 +72,9 @@ export function ServiceFormModal({
       bufferAfterMin: bufferAfter,
       isActive,
       staffIds,
+      depositOverride,
+      depositPercent: depositOverride === 'percent' ? Number(depositValue) : null,
+      depositAmount: depositOverride === 'fixed' ? Number(depositValue) : null,
     });
     setLoading(false);
     if (res.ok) onSaved(!service);
@@ -99,6 +113,31 @@ export function ServiceFormModal({
             <span className={label}>{t('form.bufferAfter')}</span>
             <Input type="number" min={0} step={5} value={bufferAfter} onChange={(e) => setBufferAfter(e.target.value)} />
           </label>
+        </div>
+
+        {/* Anticipo por servicio: pisa el default del negocio (migración 14). */}
+        <div className="grid grid-cols-2 gap-3">
+          <label className={field}>
+            <span className={label}>{t('form.deposit')}</span>
+            <Select
+              value={depositOverride}
+              onChange={(e) => setDepositOverride(e.target.value as ServiceDTO['depositOverride'])}
+            >
+              <option value="inherit">{t('form.depositInherit')}</option>
+              <option value="none">{t('form.depositNone')}</option>
+              <option value="percent">{t('form.depositPercent')}</option>
+              <option value="fixed">{t('form.depositFixed')}</option>
+            </Select>
+            <span className="text-ink-tertiary text-xs">{t('form.depositHint')}</span>
+          </label>
+          {(depositOverride === 'percent' || depositOverride === 'fixed') && (
+            <label className={field}>
+              <span className={label}>
+                {depositOverride === 'percent' ? t('form.depositPercentValue') : `${t('form.depositFixedValue')} (${currency})`}
+              </span>
+              <Input type="number" min={0} value={depositValue} onChange={(e) => setDepositValue(e.target.value)} />
+            </label>
+          )}
         </div>
 
         {staff.length > 0 && (
@@ -142,6 +181,6 @@ export function ServiceFormModal({
 }
 
 function errKey(e: string): string {
-  const known = ['nameRequired', 'durationRequired', 'priceInvalid', 'staffRequired'];
+  const known = ['nameRequired', 'durationRequired', 'priceInvalid', 'staffRequired', 'depositPlan', 'depositNoMp'];
   return known.includes(e) ? e : 'generic';
 }

@@ -1,46 +1,49 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 import { Link } from '@/lib/i18n/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { PLAN_ORDER, PLANS, priceFor, type Currency, type PlanId } from '@/lib/plans/config';
 import { SectionHeading } from './SectionHeading';
 
 /**
- * Precios base en USD (unidad mayor, solo para display en la landing). El id fija
- * el orden y qué card es la destacada; el copy (tagline, features) sale de i18n.
- * Anual = 10× el mensual (2 meses gratis), redondeado — coincide con el mockup.
+ * Cards de pricing. Precios, orden y card destacada salen de lib/plans/config.ts
+ * (fuente de verdad única); el copy (nombre, tagline, bullets) sale de i18n.
+ *
+ * Moneda: CLP en todos los locales por ahora (mercado principal LATAM/Chile).
+ * La config trae también los precios USD; soportar por región es cambiar esta
+ * constante por una detección cuando el routing exponga la señal de país.
  */
-const TIERS = [
-  { id: 'free', monthly: 0, popular: false },
-  { id: 'starter', monthly: 12, popular: false },
-  { id: 'pro', monthly: 29, popular: true },
-  { id: 'business', monthly: 69, popular: false },
-] as const;
+const CURRENCY: Currency = 'clp';
 
 type TierCopy = { name: string; tagline: string; features: string[] };
 
 export function PricingSection() {
   const t = useTranslations('marketing.pricing');
+  const locale = useLocale();
   const [yearly, setYearly] = useState(false);
-  const tiers = t.raw('tiers') as TierCopy[];
+  const copy = t.raw('tiers') as Record<PlanId, TierCopy>;
 
-  const price = (monthly: number) => {
-    if (monthly === 0) return '$0';
-    return `$${yearly ? monthly * 10 : monthly}`;
-  };
-  const suffix = (monthly: number) => {
-    if (monthly === 0) return '';
-    return yearly ? t('perYear') : t('perMonth');
+  const fmt = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: CURRENCY.toUpperCase(),
+    maximumFractionDigits: 0,
+  });
+
+  const priceLabel = (id: PlanId) => {
+    const amount = priceFor(id, CURRENCY, yearly ? 'yearly' : 'monthly');
+    return fmt.format(amount);
   };
 
   return (
     <section id="pricing" className="bg-surface-alt border-border border-y py-20 sm:py-24">
       <div className="container-page">
-        <SectionHeading eyebrow={t('eyebrow')} title={t('title')} className="mb-8" />
+        <SectionHeading eyebrow={t('eyebrow')} title={t('title')} className="mb-4" />
+        <p className="text-ink-secondary mx-auto mb-8 max-w-md text-center text-sm">{t('trial')}</p>
 
         {/* Toggle mensual / anual */}
         <div className="mb-11 flex justify-center">
@@ -75,35 +78,41 @@ export function PricingSection() {
         </div>
 
         <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {TIERS.map((tier, i) => {
-            const copy = tiers[i];
-            if (!copy) return null;
+          {PLAN_ORDER.map((id) => {
+            const plan = PLANS[id];
+            const c = copy[id];
+            if (!c) return null;
+            const isFree = plan.pricing[CURRENCY].monthly === 0;
             return (
               <Card
-                key={tier.id}
+                key={id}
                 className={cn(
                   'relative flex h-full flex-col p-7',
-                  tier.popular && 'border-accent shadow-card border-2',
+                  plan.popular && 'border-accent shadow-card border-2',
                 )}
               >
-                {tier.popular ? (
+                {plan.popular ? (
                   <span className="bg-accent absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3.5 py-1 text-xs font-bold whitespace-nowrap text-white">
                     {t('popular')}
                   </span>
                 ) : null}
 
-                <div className="text-ink text-lg font-bold">{copy.name}</div>
-                <div className="text-ink-secondary mb-4 text-sm">{copy.tagline}</div>
+                <div className="text-ink text-lg font-bold">{c.name}</div>
+                <div className="text-ink-secondary mb-4 text-sm">{c.tagline}</div>
 
                 <div className="mb-5 flex items-baseline gap-1">
                   <span className="text-ink text-4xl font-extrabold tracking-tight">
-                    {price(tier.monthly)}
+                    {priceLabel(id)}
                   </span>
-                  <span className="text-ink-secondary text-sm">{suffix(tier.monthly)}</span>
+                  {!isFree ? (
+                    <span className="text-ink-secondary text-sm">
+                      {yearly ? t('perYear') : t('perMonth')}
+                    </span>
+                  ) : null}
                 </div>
 
                 <Button
-                  variant={tier.popular ? 'primary' : 'secondary'}
+                  variant={plan.popular ? 'primary' : 'secondary'}
                   className="mb-6 w-full"
                   asChild
                 >
@@ -111,7 +120,7 @@ export function PricingSection() {
                 </Button>
 
                 <ul className="flex flex-col gap-2.5">
-                  {copy.features.map((feature) => (
+                  {c.features.map((feature) => (
                     <li key={feature} className="text-ink flex items-start gap-2.5 text-sm">
                       <Check className="text-accent mt-0.5 size-4 shrink-0" aria-hidden="true" />
                       <span>{feature}</span>

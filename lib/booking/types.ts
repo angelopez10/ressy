@@ -32,11 +32,19 @@ export type BookingFailure =
   | 'not_found'
   /** La reserva ya no está en un estado desde el que el cliente pueda operar. */
   | 'invalid_transition'
+  /** El negocio no está aceptando reservas online ahora (topó su plan). Mensaje neutro. */
+  | 'at_capacity'
   /** Error inesperado. */
   | 'error';
 
 export type CreateBookingResult =
-  | { ok: true; token: string; status: Enums<'booking_status'> }
+  | {
+      ok: true;
+      token: string;
+      status: Enums<'booking_status'>;
+      /** Presente solo cuando hay anticipo: URL del checkout de MP a la que redirigir. */
+      checkoutUrl?: string;
+    }
   | { ok: false; reason: BookingFailure };
 
 export type MutateBookingResult =

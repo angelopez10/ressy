@@ -3,9 +3,13 @@ import {
   dispatchClientNotification,
   dispatchBusinessNotification,
   dispatchDailySummary,
+  dispatchTrialEmail,
 } from '@/lib/notifications/dispatch';
 import { getSettings } from '@/lib/notifications/data';
 import { computeReminderSchedule } from '@/lib/notifications/schedule';
+import { trialDaysLeft } from '@/lib/plans/status';
+import { TRIAL_DAYS, TRIAL_NUDGE_DAYS } from '@/lib/plans/config';
+import { getValidAccessToken } from '@/lib/payments/mercadopago/account';
 import { inngest } from './client';
 
 /**
@@ -150,6 +154,118 @@ export const postServiceThankYou = inngest.createFunction(
   },
 );
 
+/**
+ * Ciclo del trial de 14 días (CLAUDE.md §Prompt 09). Cron diario:
+ *   1. Avisos: email al DÍA 11 (quedan 3) y al DÍA 14 (venció hoy). Idempotentes.
+ *   2. Downgrade: los trials vencidos bajan a Free (RPC que RE-VALIDA el estado
+ *      real al ejecutar). Se hace DESPUÉS de los emails para no perder el aviso
+ *      del día 14 (el downgrade apaga is_trial).
+ */
+export const trialLifecycle = inngest.createFunction(
+  { id: 'trial-lifecycle', retries: 2, triggers: [{ cron: '0 8 * * *' }] },
+  async ({ step }) => {
+    const due = await step.run('find-trials', async () => {
+      const db = createServiceClient();
+      const { data } = await db
+        .from('subscriptions')
+        .select('business_id, trial_ends_at')
+        .eq('is_trial', true);
+      const now = new Date();
+      return (data ?? [])
+        .map((s) => ({ businessId: s.business_id, daysLeft: trialDaysLeft(s.trial_ends_at, now) }))
+        .map((s) => {
+          // Día 11 = quedan TRIAL_NUDGE_DAYS (3). Día 14 = venció (0).
+          if (s.daysLeft === TRIAL_NUDGE_DAYS) return { ...s, day: TRIAL_DAYS - TRIAL_NUDGE_DAYS };
+          if (s.daysLeft <= 0) return { ...s, day: TRIAL_DAYS };
+          return null;
+        })
+        .filter((s): s is { businessId: string; daysLeft: number; day: number } => s !== null);
+    });
+
+    for (const t of due) {
+      await step.run(`trial-email-${t.businessId}-${t.day}`, () =>
+        dispatchTrialEmail({ businessId: t.businessId, day: t.day, daysLeft: t.daysLeft }),
+      );
+    }
+
+    // Downgrade de los vencidos (idempotente: un segundo pase no hace nada).
+    await step.run('downgrade-expired', async () => {
+      const db = createServiceClient();
+      const { data } = await db.rpc('trial_expire_downgrade');
+      return data ?? 0;
+    });
+  },
+);
+
+/**
+ * Expira los holds de pago vencidos (anticipos, sesión 10B). Cron frecuente:
+ * las reservas en `pending_payment` cuyo `payment_expires_at` ya pasó se marcan
+ * `payment_expired` y LIBERAN el slot (la constraint de exclusión deja de
+ * bloquearlas). Bulk + idempotente.
+ */
+export const expirePaymentHolds = inngest.createFunction(
+  { id: 'expire-payment-holds', triggers: [{ cron: '*/3 * * * *' }] },
+  async ({ step }) => {
+    await step.run('expire', async () => {
+      const db = createServiceClient();
+      const { data } = await db.rpc('expire_pending_payments');
+      return data ?? 0;
+    });
+  },
+);
+
+/**
+ * Refresco proactivo de los tokens OAuth de Mercado Pago (sesión 10B). Los
+ * access token duran ~180 días; renovamos con margen. `getValidAccessToken`
+ * refresca si está por expirar y, si el refresh falla, marca la cuenta en
+ * `error` (el dashboard avisa al negocio que reconecte). Cron diario.
+ */
+export const refreshMpTokens = inngest.createFunction(
+  { id: 'refresh-mp-tokens', triggers: [{ cron: '0 6 * * *' }] },
+  async ({ step }) => {
+    const businessIds = await step.run('find-connected', async () => {
+      const db = createServiceClient();
+      const { data } = await db
+        .from('mp_oauth_accounts')
+        .select('business_id')
+        .eq('status', 'connected');
+      return (data ?? []).map((r) => r.business_id);
+    });
+
+    for (const businessId of businessIds) {
+      // Cada negocio en su step: un fallo de refresh (ya marca error dentro) no
+      // corta a los demás.
+      await step.run(`refresh-${businessId}`, async () => {
+        const db = createServiceClient();
+        try {
+          await getValidAccessToken(db, businessId);
+          return 'ok';
+        } catch {
+          return 'error'; // getValidAccessToken ya dejó la cuenta en 'error'
+        }
+      });
+    }
+  },
+);
+
+/**
+ * Baja a Free las suscripciones canceladas cuyo período pagado ya venció
+ * (Mercado Pago, sesión de billing). Hermano de `trialLifecycle`: la RPC
+ * `subscription_expire_downgrade` RE-VALIDA el estado real al ejecutar (solo
+ * toca `cancel_at_period_end` con `current_period_end` pasado) y es idempotente,
+ * así que un segundo pase no hace nada. Cron diario.
+ */
+export const subscriptionLifecycle = inngest.createFunction(
+  { id: 'subscription-lifecycle', retries: 2, triggers: [{ cron: '30 8 * * *' }] },
+  async ({ step }) => {
+    await step.run('downgrade-expired', async () => {
+      const db = createServiceClient();
+      const { data } = await db.rpc('subscription_expire_downgrade');
+      return data ?? 0;
+    });
+  },
+);
+
 /** Funciones registradas en el endpoint. `postServiceThankYou` queda fuera (preparada). */
 export const functions = [
   sendConfirmation,
@@ -157,4 +273,8 @@ export const functions = [
   onRescheduled,
   onCancelled,
   dailySummary,
+  trialLifecycle,
+  expirePaymentHolds,
+  refreshMpTokens,
+  subscriptionLifecycle,
 ];

@@ -5,18 +5,22 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   saveBasics,
-  savePageAndPublish,
+  savePage,
+  publishBusiness,
   saveSchedule,
   saveServices,
 } from '@/lib/onboarding/actions';
+import { startSubscriptionUpgrade } from '@/lib/dashboard/subscription.actions';
 import type { OnboardingDraft, DraftDay } from '@/lib/onboarding/state';
 import type { ServiceDraft } from '@/lib/onboarding/schema';
+import type { BillingCycle, PlanId } from '@/lib/plans/config';
 import { Button } from '@/components/ui/Button';
 import { OnboardingStepper } from './OnboardingStepper';
 import { Step1Business, type BasicsState } from './Step1Business';
 import { Step2Services } from './Step2Services';
 import { Step3Schedule } from './Step3Schedule';
 import { Step4Page, type PageState } from './Step4Page';
+import { Step5Plan } from './Step5Plan';
 import { Step5Done } from './Step5Done';
 
 interface Props {
@@ -25,9 +29,10 @@ interface Props {
 }
 
 /**
- * Orquestador del onboarding (5 pasos). El estado se hidrata del borrador que
+ * Orquestador del onboarding (6 pasos). El estado se hidrata del borrador que
  * carga el server (la DB es la persistencia real) y cada "Continuar" escribe ese
- * paso vía server action antes de avanzar. Refrescar retoma donde quedó.
+ * paso vía server action antes de avanzar. Refrescar retoma donde quedó. El paso
+ * 5 (Plan) es informativo (trial de 14 días sin tarjeta); publicar es su acción.
  */
 export function OnboardingWizard({ draft, locale }: Props) {
   const t = useTranslations('onboarding');
@@ -67,6 +72,9 @@ export function OnboardingWizard({ draft, locale }: Props) {
     bookingLocale: draft.page?.bookingLocale ?? locale,
     logoUrl: draft.page?.logoUrl ?? null,
   });
+  // Plan sugerido por defecto = el popular. Free ⇒ trial; pago ⇒ checkout de MP.
+  const [plan, setPlan] = useState<PlanId>('team');
+  const [cycle, setCycle] = useState<BillingCycle>('monthly');
 
   function persistAndAdvance() {
     setError(null);
@@ -85,15 +93,34 @@ export function OnboardingWizard({ draft, locale }: Props) {
         if (!res.ok) return setError(res.error);
         setStep(4);
       } else if (step === 4 && businessId) {
-        const res = await savePageAndPublish(businessId, page);
+        const res = await savePage(businessId, page);
         if (!res.ok) return setError(res.error);
         setPage((p) => ({ ...p, slug: res.data.slug }));
         setStep(5);
+      } else if (step === 5 && businessId) {
+        // Publica primero (la booking page queda viva en ambos casos).
+        const res = await publishBusiness(businessId);
+        if (!res.ok) return setError(res.error);
+        setPage((p) => ({ ...p, slug: res.data.slug }));
+
+        // Free ⇒ queda con el Team trial de 14 días (sin tarjeta) → Listo.
+        // Pago ⇒ se suscribe en MP y vuelve; si el billing no está disponible
+        // (no CLP / no configurado), no bloqueamos: cae al trial y sigue a Listo.
+        if (plan === 'free') {
+          setStep(6);
+        } else {
+          const sub = await startSubscriptionUpgrade(plan, cycle, locale, 'welcome');
+          if (sub.ok) {
+            window.location.href = sub.checkoutUrl;
+          } else {
+            setStep(6);
+          }
+        }
       }
     });
   }
 
-  const nextLabel = step === 4 ? t('publish') : t('continue');
+  const nextLabel = step === 5 ? t('publish') : t('continue');
 
   return (
     <main className="bg-surface-alt flex min-h-screen flex-col items-center px-5 py-8 sm:py-12">
@@ -124,11 +151,20 @@ export function OnboardingWizard({ draft, locale }: Props) {
             />
           )}
           {step === 5 && (
+            <Step5Plan
+              value={plan}
+              onChange={setPlan}
+              cycle={cycle}
+              onCycleChange={setCycle}
+              currency={basics.currency}
+            />
+          )}
+          {step === 6 && (
             <Step5Done slug={page.slug} accentColor={page.accentColor} locale={locale} />
           )}
         </div>
 
-        {step < 5 && (
+        {step < 6 && (
           <div className="mt-6 flex items-center justify-between gap-3">
             {step > 1 ? (
               <Button

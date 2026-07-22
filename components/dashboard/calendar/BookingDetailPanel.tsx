@@ -17,6 +17,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { formatMoney } from '@/lib/db/mappers';
 import { applyBusinessTransition, fetchCustomerHistory } from '@/lib/dashboard/actions';
+import { getBookingPayment, refundDeposit, type BookingPaymentDTO } from '@/lib/dashboard/payments.actions';
 import type { AgendaBundle, AgendaBookingDTO, CustomerHistoryDTO } from '@/lib/dashboard/types';
 import { useIsMobile } from './useIsMobile';
 import { statusStyle } from './status';
@@ -56,17 +57,36 @@ export function BookingDetailPanel({
   );
   const [confirm, setConfirm] = useState<null | 'no_show' | 'cancelled_by_business'>(null);
   const [error, setError] = useState<string | null>(null);
+  const [payment, setPayment] = useState<BookingPaymentDTO | null>(null);
+  const [refunding, setRefunding] = useState(false);
 
   useEffect(() => {
     let active = true;
     setHistory(null);
+    setPayment(null);
     fetchCustomerHistory(booking.customerId, booking.currency).then((h) => {
       if (active) setHistory(h);
+    });
+    // Anticipo de esta reserva (si lo hay) para mostrar estado + reembolso.
+    getBookingPayment(booking.id).then((p) => {
+      if (active) setPayment(p);
     });
     return () => {
       active = false;
     };
-  }, [booking.customerId, booking.currency]);
+  }, [booking.customerId, booking.currency, booking.id]);
+
+  async function refund() {
+    setRefunding(true);
+    setError(null);
+    const res = await refundDeposit(booking.id);
+    setRefunding(false);
+    if (res.ok) {
+      setPayment((p) => (p ? { ...p, status: 'refunded' } : p));
+    } else {
+      setError(tErr('refundFailed'));
+    }
+  }
 
   const style = statusStyle(booking.status);
   const start = DateTime.fromISO(booking.startsAtIso, { zone: 'utc' }).setZone(tz).setLocale(locale);
@@ -147,6 +167,28 @@ export function BookingDetailPanel({
                 {t('detail.note')}
               </p>
               <p className="text-ink mt-1 text-sm">{booking.note}</p>
+            </div>
+          )}
+
+          {/* Anticipo (si lo hay). El monto está en la cuenta MP del negocio. */}
+          {payment && (
+            <div className="bg-surface-alt rounded-card flex flex-col gap-2 p-3.5">
+              <p className="text-ink-tertiary text-xs font-semibold tracking-wide uppercase">
+                {t('detail.deposit')}
+              </p>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-ink font-semibold">
+                  {formatMoney(payment.amount, payment.currency, locale)}
+                  {payment.method ? <span className="text-ink-secondary font-normal"> · {payment.method}</span> : null}
+                </span>
+                <span className="text-ink-secondary">{t(`detail.paymentStatus.${payment.status}`)}</span>
+              </div>
+              {payment.status === 'paid' && (
+                <Button variant="secondary" size="sm" onClick={refund} loading={refunding}>
+                  {t('detail.refund')}
+                </Button>
+              )}
+              <p className="text-ink-tertiary text-xs">{t('detail.refundNote')}</p>
             </div>
           )}
 

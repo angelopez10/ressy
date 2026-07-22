@@ -109,6 +109,12 @@ export function BookingFlow({ bundle, locale, source }: Props) {
           source,
         });
         if (res.ok) {
+          // Anticipo: MP nos devolvió la URL del checkout hospedado. Redirigimos;
+          // la confirmación real llega por webhook (no por el retorno).
+          if (res.status === 'pending_payment' && res.checkoutUrl) {
+            window.location.href = res.checkoutUrl;
+            return;
+          }
           setResult({ token: res.token, status: res.status });
           setStep('confirm');
         } else if (res.reason === 'slot_taken' || res.reason === 'slot_unavailable') {

@@ -136,44 +136,53 @@
       "perYear": "/yr",
       "popular": "Most popular",
       "cta": "Get started",
-      "tiers": [
-        {
+      "trial": "14 days of Team free, no credit card",
+      "tiers": {
+        "free": {
           "name": "Free",
           "tagline": "To get started",
           "features": [
-            "1 pro",
-            "Your own booking page",
-            "Email reminders"
+            "1 professional",
+            "3 services",
+            "25 bookings per month",
+            "Email reminders",
+            "\"Powered by Ressy\" badge"
           ]
         },
-        {
-          "name": "Starter",
+        "solo": {
+          "name": "Solo",
           "tagline": "For solo pros",
           "features": [
-            "1 pro",
-            "WhatsApp reminders",
-            "Deposits"
+            "1 professional",
+            "Unlimited services & bookings",
+            "WhatsApp (100/mo)",
+            "Deposit collection",
+            "2-way Google Calendar"
           ]
         },
-        {
-          "name": "Pro",
+        "team": {
+          "name": "Team",
           "tagline": "For small teams",
           "features": [
-            "Up to 5 pros",
-            "Mini-CRM & notes",
-            "Reports"
+            "Up to 5 professionals",
+            "WhatsApp (500/mo)",
+            "No-show policy & fees",
+            "Advanced reports",
+            "Per-professional permissions"
           ]
         },
-        {
-          "name": "Business",
+        "studio": {
+          "name": "Studio",
           "tagline": "For serious growth",
           "features": [
-            "Unlimited pros",
-            "2-way Google Calendar",
-            "Priority support"
+            "Up to 15 professionals (+$2,900 CLP each extra)",
+            "WhatsApp (2,000/mo)",
+            "Custom domain & multi-location",
+            "API & webhooks",
+            "Advanced reports + CSV export"
           ]
         }
-      ]
+      }
     },
     "testimonials": {
       "eyebrow": "Real stories",
@@ -312,7 +321,28 @@
       "contactRequired": "Add an email or phone so we can send your reminder.",
       "slotTaken": "That time was just taken — please pick another.",
       "slotUnavailable": "That time is no longer available. Please pick another.",
+      "atCapacity": "This business isn't taking online bookings right now.",
       "generic": "Something went wrong. Please try again."
+    },
+    "unavailable": {
+      "title": "Online booking paused",
+      "body": "This business isn't taking online bookings right now. Please try again later or reach out to them directly."
+    },
+    "paymentReturn": {
+      "success": {
+        "title": "Payment received!",
+        "body": "We're confirming your booking. As soon as the deposit clears, you'll get the confirmation by email or WhatsApp."
+      },
+      "pending": {
+        "title": "Payment in process",
+        "body": "Your payment is being processed. Once it clears, we'll confirm your booking and let you know."
+      },
+      "failure": {
+        "title": "Payment didn't go through",
+        "body": "Your time slot has been released. You can try booking again whenever you like."
+      },
+      "retry": "Book again",
+      "disclaimer": "The deposit is charged directly by the business to its own Mercado Pago account. The refund policy is the business's; Ressy only handles the scheduling."
     },
     "confirm": {
       "title": "Booking confirmed!",
@@ -348,7 +378,8 @@
         "completed": "Completed",
         "cancelled_by_client": "Cancelled",
         "cancelled_by_business": "Cancelled by the business",
-        "no_show": "No-show"
+        "no_show": "No-show",
+        "payment_expired": "Payment not completed"
       }
     }
   },
@@ -376,7 +407,14 @@
       "services": "Services",
       "schedule": "Hours",
       "page": "Page",
+      "plan": "Plan",
       "done": "Done"
+    },
+    "plan": {
+      "title": "Choose your plan",
+      "subtitle": "Pick Free to keep your 14-day trial with no card, or subscribe to a paid plan now.",
+      "monthly": "Monthly",
+      "yearly": "Yearly · 2 months free"
     },
     "categories": {
       "barbershop": "Barbershop",
@@ -472,6 +510,17 @@
     "signOut": "Sign out",
     "welcome": "Welcome back",
     "subtitle": "This is the dashboard shell. No authentication or real data is wired up yet.",
+    "banners": {
+      "trial": {
+        "text": "You're trying Team: {days} days left in your trial 🎉",
+        "cta": "Pick a plan"
+      },
+      "bookings": {
+        "approaching": "You're at {used} of {limit} bookings this month 🎉 — upgrade to keep the momentum",
+        "reached": "You hit your {limit} bookings this month: you're losing new bookings. Upgrade to keep receiving them.",
+        "cta": "Upgrade plan"
+      }
+    },
     "nav": {
       "home": "Home",
       "calendar": "Calendar",
@@ -479,7 +528,13 @@
       "services": "Services",
       "team": "Team",
       "reports": "Reports",
-      "settings": "Settings"
+      "settings": "Settings",
+      "upgrade": "Upgrade plan"
+    },
+    "upgrade": {
+      "title": "Upgrade your plan",
+      "subtitle": "You're on {plan}. Switch anytime, no lock-in.",
+      "subtitleFree": "Grow your business. Switch anytime, no lock-in."
     },
     "actions": {
       "save": "Save",
@@ -523,7 +578,8 @@
         "completed": "Completed",
         "cancelled_by_client": "Cancelled by client",
         "cancelled_by_business": "Cancelled",
-        "no_show": "No-show"
+        "no_show": "No-show",
+        "payment_expired": "Payment not completed"
       },
       "override": {
         "blocked": "Blocked",
@@ -536,6 +592,17 @@
         "professional": "Professional",
         "duration": "{count} min",
         "note": "Client note",
+        "deposit": "Deposit",
+        "refund": "Refund deposit",
+        "refundNote": "The refund runs on your Mercado Pago account. The refund policy is yours; Ressy is not part of the transaction.",
+        "paymentStatus": {
+          "paid": "Paid",
+          "refunded": "Refunded",
+          "pending": "Pending",
+          "failed": "Failed",
+          "authorized": "Authorized",
+          "cancelled": "Cancelled"
+        },
         "history": "History",
         "visits": "visits",
         "noShows": "no-shows",
@@ -611,6 +678,8 @@
         "contactRequired": "Add an email or phone for the client.",
         "invalidRange": "The end time must be after the start.",
         "notAuthorized": "You don't have permission to do that.",
+        "atCapacity": "You hit the Free plan's 25 bookings this month. Upgrade to Solo (or higher) for unlimited bookings.",
+        "refundFailed": "Couldn't process the refund. Check your Mercado Pago connection and try again.",
         "generic": "Something went wrong. Please try again."
       }
     },
@@ -705,6 +774,14 @@
         "priceHint": "In {currency}.",
         "bufferBefore": "Buffer before (min)",
         "bufferAfter": "Buffer after (min)",
+        "deposit": "Deposit",
+        "depositInherit": "Use business default",
+        "depositNone": "No deposit",
+        "depositPercent": "Percentage of price",
+        "depositFixed": "Fixed amount",
+        "depositPercentValue": "% of price",
+        "depositFixedValue": "Amount",
+        "depositHint": "Overrides the global deposit for this service only.",
         "staff": "Who performs it",
         "active": "Bookable"
       },
@@ -724,6 +801,9 @@
         "durationRequired": "Duration must be at least 5 minutes.",
         "priceInvalid": "Enter a valid price.",
         "staffRequired": "Assign at least one professional.",
+        "planLimitServices": "The Free plan allows up to 3 services. Upgrade to Solo for unlimited services.",
+        "depositPlan": "Deposits are available from the Solo plan. Upgrade to take them.",
+        "depositNoMp": "Connect your Mercado Pago account (Settings → Payments) before taking deposits.",
         "generic": "Something went wrong. Please try again."
       }
     },
@@ -847,18 +927,77 @@
         "published": "Page published"
       },
       "plan": {
+        "names": {
+          "free": "Free",
+          "solo": "Solo",
+          "team": "Team",
+          "studio": "Studio"
+        },
         "current": "Current plan",
+        "trialBadge": "Trial",
+        "trialStatus": "Team trial · {days} days left",
         "renews": "Renews monthly",
-        "staffUsage": "{used} of {limit} pros used",
+        "unlimited": "Unlimited",
+        "notIncluded": "Not included",
+        "usage": {
+          "bookings": "Bookings this month",
+          "staff": "Professionals",
+          "whatsapp": "WhatsApp this month",
+          "of": "{used} of {limit}",
+          "ofUnlimited": "{used} · unlimited"
+        },
         "upgrade": "Change plan",
-        "invoices": "View invoices"
+        "upgradeTitle": "Choose your plan",
+        "invoices": "View invoices",
+        "billing": {
+          "monthly": "Monthly",
+          "yearly": "Yearly",
+          "perMonth": "/mo",
+          "perYear": "/yr",
+          "yearlyHint": "2 months free",
+          "choose": "Choose {plan}",
+          "select": "Choose",
+          "currentBadge": "Current",
+          "currentPlan": "Current plan",
+          "yourPlan": "Your plan",
+          "cancel": "Cancel plan",
+          "cancelConfirm": "Cancel your plan? You'll keep {plan} until {date}, then move to Free.",
+          "cancelling": "Cancelling…",
+          "cancelled": "Your plan will be cancelled at the end of the period.",
+          "renewsOn": "Renews on {date}",
+          "cancelsOn": "Cancels on {date} · then Free",
+          "unavailable": "Online plan changes aren't available for your currency yet — we'll reach out to help.",
+          "redirecting": "Redirecting to checkout…",
+          "error": "Couldn't start the change. Please try again.",
+          "returnPending": "We're confirming your payment — your plan updates in a moment."
+        }
       },
       "payments": {
-        "subtitle": "Connect a provider to take deposits. Coming soon.",
-        "stripe": "Stripe",
-        "mercadopago": "Mercado Pago",
-        "connect": "Connect",
-        "comingSoon": "Coming soon"
+        "intro": "Connect your Mercado Pago account to take deposits. The money goes straight to your account — Ressy takes no commission and holds no funds.",
+        "mpSubtitle": "Take deposits into your own account (Chile · CLP)",
+        "status": {
+          "connected": "Connected",
+          "disconnected": "Disconnected",
+          "error": "Needs attention"
+        },
+        "connect": "Connect Mercado Pago",
+        "reconnect": "Reconnect",
+        "disconnect": "Disconnect",
+        "disconnected": "Account disconnected.",
+        "error": "Something went wrong. Please try again.",
+        "needPaidPlan": "Deposits are available from the Solo plan. Upgrade to take them.",
+        "alertDisconnected": "Your Mercado Pago account is disconnected and you have deposits configured: you won't be able to charge until you reconnect it.",
+        "depositsTitle": "Deposits collected",
+        "depositsNote": "These amounts are in your Mercado Pago account, not in Ressy.",
+        "noDeposits": "You haven't collected any deposits yet.",
+        "paymentStatus": {
+          "paid": "Paid",
+          "refunded": "Refunded",
+          "pending": "Pending",
+          "failed": "Failed",
+          "authorized": "Authorized",
+          "cancelled": "Cancelled"
+        }
       },
       "toast": {
         "saved": "Changes saved."
@@ -867,6 +1006,8 @@
         "nameRequired": "Enter your business name.",
         "slugTaken": "That link is already taken.",
         "slugFormat": "Use only lowercase letters, numbers and hyphens.",
+        "depositPlan": "Deposits are available from the Solo plan. Upgrade to take them.",
+        "depositNoMp": "Connect your Mercado Pago account (Payments tab) before enabling deposits.",
         "generic": "Something went wrong. Please try again."
       }
     },
@@ -907,6 +1048,11 @@
       "empty": {
         "title": "Not enough data yet",
         "body": "Once you have bookings in this range, your metrics show up here."
+      },
+      "locked": {
+        "title": "Reports are a paid feature",
+        "body": "Track revenue, no-shows and your busiest services. Upgrade to unlock your business metrics.",
+        "cta": "See plans"
       }
     }
   },

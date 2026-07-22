@@ -1,10 +1,11 @@
 'use server';
 
-/** Export CSV de reservas — función del plan Business (CLAUDE.md §1 · tiers). */
+/** Export CSV de reservas — reportes nivel `advanced_csv`, solo Studio (lib/plans/config.ts). */
 
 import { createClient } from '@/lib/db/server';
 import { getDashboardContext } from './context';
 import { rangeToUtc, type ReportRange } from './reports';
+import { getPlan } from '@/lib/plans/config';
 import type { Enums } from '@/lib/db/types';
 
 export type CsvResult = { ok: true; csv: string; filename: string } | { ok: false; error: string };
@@ -17,7 +18,7 @@ function esc(v: string | number | null): string {
 export async function exportBookingsCsv(range: ReportRange): Promise<CsvResult> {
   const ctx = await getDashboardContext();
   if (!ctx) return { ok: false, error: 'notAuthorized' };
-  if (ctx.tier !== 'business') return { ok: false, error: 'planFeature' };
+  if (getPlan(ctx.tier).features.reports !== 'advanced_csv') return { ok: false, error: 'planFeature' };
 
   const { fromIso, toIso } = rangeToUtc(range, ctx.business.timezone);
   const db = await createClient();

@@ -12,6 +12,7 @@ const TONE: Record<Enums<'booking_status'>, 'neutral' | 'accent' | 'success' | '
   cancelled_by_client: 'warning',
   cancelled_by_business: 'warning',
   no_show: 'warning',
+  payment_expired: 'neutral',
 };
 
 /** Estado de reserva → Badge por tono (mapeo en la capa de bookings, no en el primitivo). */

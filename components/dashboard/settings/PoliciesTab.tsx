@@ -40,8 +40,12 @@ export function PoliciesTab({ policies, currency }: { policies: PoliciesData; cu
       noShowFeeAmount: noShowFee,
     });
     setLoading(false);
-    if (res.ok) toast(t('toast.saved'));
-    else toast(t('errors.generic'), 'error');
+    if (res.ok) {
+      toast(t('toast.saved'));
+    } else {
+      const key = res.error === 'depositPlan' || res.error === 'depositNoMp' ? res.error : 'generic';
+      toast(t(`errors.${key}`), 'error');
+    }
   }
 
   return (

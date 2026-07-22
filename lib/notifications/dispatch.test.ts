@@ -15,6 +15,7 @@ vi.mock('./render', () => ({
   buildClientMessage: () => ({ to: 'x', text: 'hi' }),
   buildBusinessMessage: () => ({ to: 'x', text: 'hi' }),
   buildDailySummaryMessage: () => ({ to: 'x', text: 'hi' }),
+  buildTrialEmailMessage: () => ({ to: 'x', text: 'hi' }),
 }));
 
 import { dispatchClientNotification } from './dispatch';
@@ -23,12 +24,22 @@ import type { BookingNotifCtx } from './data';
 import type { NotificationChannel } from './types';
 
 /** Fake mínimo de la tabla `notifications`: idempotencia por dedup_key en memoria. */
-function makeFakeDb() {
+function makeFakeDb(waUsage: number | null = null) {
   const store = new Map<string, { id: string; status: string }>();
   let n = 0;
   return {
     _store: store,
-    from() {
+    from(table: string) {
+      // notification_usage: contador de canales pagos. `waUsage` fija el consumo
+      // de WhatsApp del mes (null ⇒ cuota intacta).
+      if (table === 'notification_usage') {
+        const chain = {
+          select: () => chain,
+          eq: () => chain,
+          maybeSingle: async () => ({ data: waUsage === null ? null : { count: waUsage } }),
+        };
+        return chain;
+      }
       return {
         insert: (row: { dedup_key: string }) => ({
           select: () => ({
@@ -123,7 +134,7 @@ describe('dispatchClientNotification', () => {
   });
 
   it('fallback: si WhatsApp falla, cae a email', async () => {
-    mockedLoad.mockResolvedValue(makeCtx({ tier: 'pro', phone: '+56900000000', whatsappEnabled: true }));
+    mockedLoad.mockResolvedValue(makeCtx({ tier: 'team', phone: '+56900000000', whatsappEnabled: true }));
     const whatsapp = mockChannel('whatsapp', false);
     const email = mockChannel('email', true);
     const db = makeFakeDb();
@@ -167,5 +178,33 @@ describe('dispatchClientNotification', () => {
     expect(whatsapp.send).not.toHaveBeenCalled();
     expect(email.send).toHaveBeenCalledTimes(1);
     expect(res.channel).toBe('email');
+  });
+
+  it('cuota WhatsApp agotada ⇒ cae a email sin intentar WhatsApp (nunca deja sin aviso)', async () => {
+    // Team = 500/mes. Ya se usaron 500 ⇒ WhatsApp no se ofrece; email cubre.
+    mockedLoad.mockResolvedValue(makeCtx({ tier: 'team', phone: '+56900000000', whatsappEnabled: true }));
+    const whatsapp = mockChannel('whatsapp', true);
+    const email = mockChannel('email', true);
+    const db = makeFakeDb(500);
+
+    const res = await dispatchClientNotification({ bookingId: 'bk1', type: 'confirmation' }, { db, channels: { whatsapp, email } });
+
+    expect(whatsapp.send).not.toHaveBeenCalled();
+    expect(email.send).toHaveBeenCalledTimes(1);
+    expect(res.channel).toBe('email');
+  });
+
+  it('con cuota disponible, WhatsApp se usa antes que email', async () => {
+    // Team con 499/500 usados: aún queda 1 ⇒ WhatsApp primero.
+    mockedLoad.mockResolvedValue(makeCtx({ tier: 'team', phone: '+56900000000', whatsappEnabled: true }));
+    const whatsapp = mockChannel('whatsapp', true);
+    const email = mockChannel('email', true);
+    const db = makeFakeDb(499);
+
+    const res = await dispatchClientNotification({ bookingId: 'bk1', type: 'confirmation' }, { db, channels: { whatsapp, email } });
+
+    expect(whatsapp.send).toHaveBeenCalledTimes(1);
+    expect(email.send).not.toHaveBeenCalled();
+    expect(res.channel).toBe('whatsapp');
   });
 });
