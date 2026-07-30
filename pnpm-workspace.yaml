@@ -1,3 +1,10 @@
+allowBuilds:
+  '@parcel/watcher': set this to true or false
+  '@swc/core': set this to true or false
+  core-js: set this to true or false
+  protobufjs: set this to true or false
+  sharp: set this to true or false
+  unrs-resolver: set this to true or false
 # pnpm 11 bloquea los build scripts por defecto. Estas son las dependencias
 # transitivas del toolchain de Next/Tailwind (+ Twilio/protobuf) que sí deben
 # compilar sus binarios nativos al instalar.

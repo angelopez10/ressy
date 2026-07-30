@@ -2,7 +2,7 @@ import 'server-only';
 
 /** Lectura de las preferencias de notificaciones para la tab de Ajustes. */
 
-import { createClient } from '@/lib/db/server';
+import { getTenantDb } from './tenant';
 
 export interface NotifSettingsDTO {
   confirmationEnabled: boolean;
@@ -37,7 +37,7 @@ export const NOTIF_DEFAULTS: NotifSettingsDTO = {
 };
 
 export async function getNotifSettings(businessId: string): Promise<NotifSettingsDTO> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const { data } = await db
     .from('notification_settings')
     .select('*')

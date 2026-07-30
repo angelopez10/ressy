@@ -3,7 +3,15 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PLAN_ORDER, PLANS, priceFor, type BillingCycle, type Currency, type PlanId } from '@/lib/plans/config';
+import {
+  formatPlanPrice,
+  PLAN_ORDER,
+  PLANS,
+  priceFor,
+  type BillingCycle,
+  type Currency,
+  type PlanId,
+} from '@/lib/plans/config';
 
 type TierCopy = { name: string; tagline: string; features: string[] };
 
@@ -32,12 +40,6 @@ export function Step5Plan({
 
   const cur: Currency = currency.toLowerCase() === 'usd' ? 'usd' : 'clp';
   const copy = tPricing.raw('tiers') as Record<PlanId, TierCopy>;
-
-  const fmt = new Intl.NumberFormat(uiLocale, {
-    style: 'currency',
-    currency: cur.toUpperCase(),
-    maximumFractionDigits: 0,
-  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -110,13 +112,14 @@ export function Step5Plan({
                 </div>
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-ink text-3xl font-extrabold tracking-tight">{fmt.format(amount)}</span>
-                {!isFree ? (
-                  <span className="text-ink-secondary text-sm">
-                    {cycle === 'yearly' ? tPricing('perYear') : tPricing('perMonth')}
-                  </span>
-                ) : null}
+              <div className="flex flex-wrap items-baseline gap-x-1">
+                <span className="text-ink text-3xl font-extrabold tracking-tight">
+                  {formatPlanPrice(amount, cur, uiLocale)}
+                </span>
+                <span className="text-ink-secondary text-sm">
+                  {cur.toUpperCase()}
+                  {!isFree ? (cycle === 'yearly' ? tPricing('perYear') : tPricing('perMonth')) : ''}
+                </span>
               </div>
 
               <ul className="flex flex-col gap-1.5">

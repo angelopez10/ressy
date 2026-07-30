@@ -41,7 +41,17 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(callback);
   }
 
-  const response = intlMiddleware(request);
+  // El panel de Super Admin vive FUERA de `[locale]`: es solo para el equipo de
+  // Ressy y no lleva i18n. Si pasara por next-intl, `/admin` se redirigiría a
+  // `/es/admin` y la ruta no existiría. Igual necesita el refresco de sesión de
+  // abajo, así que solo se saltea el middleware de intl.
+  //
+  // Esto NO es el guard: quién puede entrar lo decide `requireAdmin()` en el
+  // layout y en cada server action (lib/admin/guard.ts). El middleware corre en
+  // edge y nunca es la única línea de defensa (CLAUDE.md §9).
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+
+  const response = isAdminRoute ? NextResponse.next({ request }) : intlMiddleware(request);
 
   const { url, publishableKey } = getPublicSupabaseEnv();
   const supabase = createServerClient(url, publishableKey, {

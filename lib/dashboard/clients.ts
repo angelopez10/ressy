@@ -6,7 +6,7 @@ import 'server-only';
  * para el volumen de un negocio de servicios es suficiente.
  */
 
-import { createClient } from '@/lib/db/server';
+import { getTenantDb } from './tenant';
 import type { Enums } from '@/lib/db/types';
 
 export interface ClientRow {
@@ -64,7 +64,7 @@ function aggregate(rows: BookingAgg[]) {
 }
 
 export async function getClients(businessId: string): Promise<ClientRow[]> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const [{ data: customers }, { data: bookings }] = await Promise.all([
     db
       .from('customers')
@@ -94,7 +94,7 @@ export async function getClients(businessId: string): Promise<ClientRow[]> {
 }
 
 export async function getClientDetail(businessId: string, customerId: string): Promise<ClientDetail | null> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const { data: c } = await db
     .from('customers')
     .select('id, full_name, email, phone, notes, tags, created_at')
@@ -106,6 +106,7 @@ export async function getClientDetail(businessId: string, customerId: string): P
   const { data: bookings } = await db
     .from('bookings')
     .select('id, starts_at, status, price_amount, services(name)')
+    .eq('business_id', businessId)
     .eq('customer_id', customerId)
     .order('starts_at', { ascending: false });
 

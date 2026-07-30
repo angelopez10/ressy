@@ -10,8 +10,9 @@
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
 import { createServiceClient } from '@/lib/db/service';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
 import { getLimit, canUseFeature } from '@/lib/plans/config';
+import { trackServer } from '@/lib/analytics/server';
 import { getConnectionInfo } from '@/lib/payments/mercadopago/account';
 
 const serviceInput = z.object({
@@ -33,7 +34,8 @@ const serviceInput = z.object({
 export type ServiceActionResult = { ok: true; id: string } | { ok: false; error: string };
 
 async function requireAdmin() {
-  const ctx = await getDashboardContext();
+  // Escritura ⇒ contexto escribible: bloquea la impersonación de soporte.
+  const ctx = await getWritableDashboardContext();
   if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) return null;
   return ctx;
 }
@@ -102,7 +104,10 @@ export async function saveService(raw: unknown): Promise<ServiceActionResult> {
       .select('id', { count: 'exact', head: true })
       .eq('business_id', ctx.business.id)
       .eq('is_active', true);
-    if ((count ?? 0) >= limit) return { ok: false, error: 'planLimitServices' };
+    if ((count ?? 0) >= limit) {
+      await trackServer('plan_limit_reached', ctx.business.id, { plan: ctx.tier, limit: 'services' });
+      return { ok: false, error: 'planLimitServices' };
+    }
   }
 
   // Nuevo: sort_order al final.

@@ -36,6 +36,10 @@ export type Database = {
           accent_color: string | null;
           address: string | null;
           is_published: boolean;
+          /** Suspensión por el equipo de Ressy. Al suspender se apaga is_published. */
+          suspended_at: string | null;
+          suspended_reason: string | null;
+          published_before_suspend: boolean | null;
           created_at: string;
           updated_at: string;
         };
@@ -51,6 +55,9 @@ export type Database = {
           accent_color?: string | null;
           address?: string | null;
           is_published?: boolean;
+          suspended_at?: string | null;
+          suspended_reason?: string | null;
+          published_before_suspend?: boolean | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -578,6 +585,172 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['notification_usage']['Insert']>;
         Relationships: [];
       };
+
+      // ---------------------------------------------------------------------
+      // Super Admin — todas con RLS deny-all: solo alcanzables con service role
+      // y detrás del guard de `lib/admin/guard.ts`.
+      // ---------------------------------------------------------------------
+
+      ressy_admins: {
+        Row: {
+          user_id: string;
+          email: string;
+          name: string | null;
+          role: 'owner' | 'support';
+          granted_by: string | null;
+          granted_at: string;
+          revoked_at: string | null;
+        };
+        Insert: {
+          user_id: string;
+          email: string;
+          name?: string | null;
+          role?: 'owner' | 'support';
+          granted_by?: string | null;
+          granted_at?: string;
+          revoked_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['ressy_admins']['Insert']>;
+        Relationships: [];
+      };
+
+      admin_otp_challenges: {
+        Row: {
+          id: string;
+          user_id: string;
+          code_hash: string;
+          attempts: number;
+          expires_at: string;
+          consumed_at: string | null;
+          ip: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          code_hash: string;
+          attempts?: number;
+          expires_at: string;
+          consumed_at?: string | null;
+          ip?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['admin_otp_challenges']['Insert']>;
+        Relationships: [];
+      };
+
+      admin_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          method: 'email_otp' | 'totp';
+          verified_at: string;
+          expires_at: string;
+          revoked_at: string | null;
+          ip: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          method?: 'email_otp' | 'totp';
+          verified_at?: string;
+          expires_at: string;
+          revoked_at?: string | null;
+          ip?: string | null;
+          user_agent?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['admin_sessions']['Insert']>;
+        Relationships: [];
+      };
+
+      admin_impersonations: {
+        Row: {
+          id: string;
+          admin_user_id: string;
+          business_id: string;
+          reason: string | null;
+          started_at: string;
+          expires_at: string;
+          ended_at: string | null;
+          ip: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          id?: string;
+          admin_user_id: string;
+          business_id: string;
+          reason?: string | null;
+          started_at?: string;
+          expires_at: string;
+          ended_at?: string | null;
+          ip?: string | null;
+          user_agent?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['admin_impersonations']['Insert']>;
+        Relationships: [];
+      };
+
+      /** Append-only: un trigger bloquea UPDATE/DELETE incluso para service role. */
+      admin_audit_log: {
+        Row: {
+          id: string;
+          admin_user_id: string | null;
+          admin_email: string;
+          action: string;
+          business_id: string | null;
+          business_name: string | null;
+          payload: Json;
+          ip: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          admin_user_id?: string | null;
+          admin_email: string;
+          action: string;
+          business_id?: string | null;
+          business_name?: string | null;
+          payload?: Json;
+          ip?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+
+      mrr_daily_snapshots: {
+        Row: {
+          day: string;
+          mrr_usd_cents: number;
+          mrr_clp_cents: number;
+          mrr_total_usd_cents: number;
+          usd_per_clp: number | null;
+          active_businesses: number;
+          paying_businesses: number;
+          trialing_businesses: number;
+          by_tier: Json;
+          created_at: string;
+        };
+        Insert: {
+          day: string;
+          mrr_usd_cents?: number;
+          mrr_clp_cents?: number;
+          mrr_total_usd_cents?: number;
+          usd_per_clp?: number | null;
+          active_businesses?: number;
+          paying_businesses?: number;
+          trialing_businesses?: number;
+          by_tier?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['mrr_daily_snapshots']['Insert']>;
+        Relationships: [];
+      };
     };
 
     Views: {
@@ -823,6 +996,124 @@ export type Database = {
           p_business_id: string;
           p_external_id: string;
           p_status: Database['public']['Enums']['payment_status'];
+        };
+        Returns: undefined;
+      };
+
+      // ---------------------------------------------------------------------
+      // Super Admin — SECURITY DEFINER, grant EXCLUSIVO a service_role.
+      // Llamarlas fuera del contexto verificado de admin es un agujero: van
+      // siempre detrás de `requireAdmin()` (lib/admin/guard.ts).
+      // ---------------------------------------------------------------------
+
+      admin_log: {
+        Args: {
+          p_admin_user_id: string;
+          p_admin_email: string;
+          p_action: string;
+          p_business_id?: string | null;
+          p_payload?: Json;
+          p_ip?: string | null;
+          p_user_agent?: string | null;
+        };
+        Returns: string;
+      };
+
+      admin_businesses_page: {
+        Args: {
+          p_prices: Json;
+          p_usd_per_clp: number;
+          p_search?: string | null;
+          p_plan?: string | null;
+          p_status?: string | null;
+          p_currency?: string | null;
+          p_health?: string | null;
+          p_trial_ending?: boolean;
+          p_sort?: string;
+          p_dir?: string;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          id: string;
+          slug: string;
+          name: string;
+          currency: string;
+          timezone: string;
+          tier: string;
+          status: string;
+          is_trial: boolean;
+          trial_ends_at: string | null;
+          suspended_at: string | null;
+          is_published: boolean;
+          created_at: string;
+          last_activity: string;
+          bookings_count: number;
+          mrr_amount: number;
+          mrr_usd: number;
+          health: string;
+          state: string;
+          total_count: number;
+        }[];
+      };
+
+      admin_overview_stats: {
+        Args: { p_prices: Json; p_usd_per_clp: number; p_from: string; p_to: string };
+        Returns: Json;
+      };
+
+      admin_business_detail: { Args: { p_business_id: string }; Returns: Json };
+
+      admin_platform_alerts: { Args: Record<string, never>; Returns: Json };
+
+      admin_recent_activity: { Args: { p_limit?: number }; Returns: Json };
+
+      admin_extend_trial: {
+        Args: {
+          p_business_id: string;
+          p_days: number;
+          p_admin_user_id: string;
+          p_admin_email: string;
+          p_ip?: string | null;
+          p_user_agent?: string | null;
+        };
+        Returns: string;
+      };
+
+      admin_change_plan: {
+        Args: {
+          p_business_id: string;
+          p_tier: Database['public']['Enums']['subscription_tier'];
+          p_reason: string;
+          p_admin_user_id: string;
+          p_admin_email: string;
+          p_ip?: string | null;
+          p_user_agent?: string | null;
+        };
+        Returns: undefined;
+      };
+
+      admin_set_suspended: {
+        Args: {
+          p_business_id: string;
+          p_suspended: boolean;
+          p_reason: string;
+          p_admin_user_id: string;
+          p_admin_email: string;
+          p_ip?: string | null;
+          p_user_agent?: string | null;
+        };
+        Returns: undefined;
+      };
+
+      admin_cancel_subscription: {
+        Args: {
+          p_business_id: string;
+          p_reason: string;
+          p_admin_user_id: string;
+          p_admin_email: string;
+          p_ip?: string | null;
+          p_user_agent?: string | null;
         };
         Returns: undefined;
       };

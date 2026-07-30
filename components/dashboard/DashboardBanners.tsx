@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Sparkles, AlertTriangle, Clock } from 'lucide-react';
 import { Link } from '@/lib/i18n/navigation';
+import { track } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 
 /**
@@ -41,6 +42,7 @@ export function DashboardBanners({
           text={t('trial.text', { days: trial.daysLeft })}
           cta={t('trial.cta')}
           href={upgradeHref}
+          from="trial_banner"
         />
       ) : null}
 
@@ -55,6 +57,7 @@ export function DashboardBanners({
           }
           cta={t('bookings.cta')}
           href={upgradeHref}
+          from="bookings_banner"
         />
       ) : null}
     </div>
@@ -67,12 +70,15 @@ function Banner({
   text,
   cta,
   href,
+  from,
 }: {
   tone: 'accent' | 'warning';
   Icon: typeof Clock;
   text: string;
   cta: string;
   href: string;
+  /** De dónde salió el CTA de upgrade (para el funnel de conversión). */
+  from: string;
 }) {
   return (
     <div
@@ -88,6 +94,7 @@ function Banner({
       <span className="min-w-0 flex-1 font-medium">{text}</span>
       <Link
         href={href}
+        onClick={() => track('upgrade_cta_clicked', { from })}
         className={cn(
           'shrink-0 font-semibold underline underline-offset-2',
           tone === 'warning' ? 'text-warning' : 'text-accent',

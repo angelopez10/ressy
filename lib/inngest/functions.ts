@@ -9,7 +9,10 @@ import { getSettings } from '@/lib/notifications/data';
 import { computeReminderSchedule } from '@/lib/notifications/schedule';
 import { trialDaysLeft } from '@/lib/plans/status';
 import { TRIAL_DAYS, TRIAL_NUDGE_DAYS } from '@/lib/plans/config';
+import { trackServer, commonPropsFor } from '@/lib/analytics/server';
 import { getValidAccessToken } from '@/lib/payments/mercadopago/account';
+import { planPriceTable } from '@/lib/admin/pricing';
+import { getUsdPerClp } from '@/lib/admin/env';
 import { inngest } from './client';
 
 /**
@@ -186,6 +189,18 @@ export const trialLifecycle = inngest.createFunction(
       await step.run(`trial-email-${t.businessId}-${t.day}`, () =>
         dispatchTrialEmail({ businessId: t.businessId, day: t.day, daysLeft: t.daysLeft }),
       );
+      // Analytics del ciclo de trial. Idempotente como el email: el cron corre
+      // una vez al día y solo casa el día 11 / 14 exacto.
+      await step.run(`trial-analytics-${t.businessId}-${t.day}`, async () => {
+        const db = createServiceClient();
+        const common = await commonPropsFor(db, t.businessId);
+        if (t.day === TRIAL_DAYS - TRIAL_NUDGE_DAYS) {
+          await trackServer('trial_ending_soon', t.businessId, common);
+        } else if (t.day === TRIAL_DAYS) {
+          await trackServer('trial_ended', t.businessId, common);
+        }
+        return 'ok';
+      });
     }
 
     // Downgrade de los vencidos (idempotente: un segundo pase no hace nada).
@@ -266,6 +281,91 @@ export const subscriptionLifecycle = inngest.createFunction(
   },
 );
 
+/**
+ * Foto diaria del MRR para el panel de admin.
+ *
+ * Existe porque el MRR histórico NO se puede reconstruir con exactitud desde
+ * `subscriptions`: la tabla guarda el plan de HOY, no el que tenía cada negocio
+ * en cada fecha. Sin snapshots, un gráfico de "MRR en el tiempo" sería una
+ * estimación disfrazada de dato duro — inaceptable para una métrica de dinero.
+ *
+ * Los importes salen de `lib/plans/config.ts` (fuente de verdad única), igual
+ * que en el resto del panel. Idempotente por la PK del día: si el cron corre
+ * dos veces, la segunda pisa con el mismo valor.
+ */
+export const mrrSnapshot = inngest.createFunction(
+  { id: 'mrr-snapshot', retries: 2, triggers: [{ cron: '0 4 * * *' }] },
+  async ({ step }) => {
+    return step.run('snapshot', async () => {
+      const db = createServiceClient();
+
+      const { data: rows } = await db
+        .from('subscriptions')
+        .select('business_id, tier, status, is_trial, businesses!inner(currency, suspended_at)');
+
+      const prices = planPriceTable();
+      const usdPerClp = getUsdPerClp();
+
+      let usd = 0;
+      let clp = 0;
+      let paying = 0;
+      let trialing = 0;
+      let active = 0;
+      const byTier: Record<string, number> = {};
+
+      for (const row of (rows ?? []) as unknown as {
+        tier: string;
+        status: string;
+        is_trial: boolean;
+        businesses: { currency: string; suspended_at: string | null };
+      }[]) {
+        // Las cuentas suspendidas no aportan MRR: su booking page está caída.
+        if (row.businesses?.suspended_at) continue;
+        active += 1;
+        if (row.is_trial) trialing += 1;
+
+        const isClp = (row.businesses?.currency ?? '').toLowerCase() === 'clp';
+        const amount =
+          row.tier === 'free' || row.is_trial || !['active', 'past_due'].includes(row.status)
+            ? 0
+            : ((isClp ? prices[row.tier]?.clp : prices[row.tier]?.usd) ?? 0);
+
+        if (amount > 0) {
+          paying += 1;
+          byTier[row.tier] = (byTier[row.tier] ?? 0) + 1;
+          if (isClp) clp += amount;
+          else usd += amount;
+        }
+      }
+
+      // Se guarda en la unidad MENOR (CLAUDE.md §3). CLP no tiene decimales.
+      const day = new Date().toISOString().slice(0, 10);
+      const { error } = await db.from('mrr_daily_snapshots').upsert(
+        {
+          day,
+          mrr_usd_cents: Math.round(usd * 100),
+          mrr_clp_cents: Math.round(clp),
+          mrr_total_usd_cents: Math.round((usd + clp * usdPerClp) * 100),
+          usd_per_clp: usdPerClp,
+          active_businesses: active,
+          paying_businesses: paying,
+          trialing_businesses: trialing,
+          by_tier: byTier,
+        },
+        { onConflict: 'day' },
+      );
+      if (error) {
+        // Nunca en silencio: sin esto el gráfico del panel queda con un hueco
+        // que nadie va a poder reconstruir después.
+        console.error('[mrr-snapshot] no se pudo guardar el snapshot', { day, error: error.message });
+        throw new Error(error.message);
+      }
+
+      return { day, paying, active };
+    });
+  },
+);
+
 /** Funciones registradas en el endpoint. `postServiceThankYou` queda fuera (preparada). */
 export const functions = [
   sendConfirmation,
@@ -277,4 +377,5 @@ export const functions = [
   expirePaymentHolds,
   refreshMpTokens,
   subscriptionLifecycle,
+  mrrSnapshot,
 ];

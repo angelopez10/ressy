@@ -1,20 +1,23 @@
 import 'server-only';
 
 /**
- * Lecturas del calendario del dashboard. Todo pasa por el cliente autenticado de
- * Supabase, así que la RLS de la sesión 06 hace el trabajo de tenant Y de
- * permisos: un staff sin `can_view_all_bookings` recibe SOLO sus reservas
- * (política `members read bookings`). Aquí no se re-filtra por negocio a mano;
- * confiar en un filtro de app en vez de RLS sería el bug que CLAUDE.md §9
- * previene.
+ * Lecturas del calendario del dashboard.
+ *
+ * Con el cliente de RLS, la política `members read bookings` sigue haciendo el
+ * trabajo de permisos DENTRO del negocio: un staff sin `can_view_all_bookings`
+ * recibe solo sus reservas. Eso no cambia.
+ *
+ * Lo que sí se agregó es el filtro EXPLÍCITO por `business_id` en cada query
+ * (CLAUDE.md §3). No reemplaza a RLS —son capas, no alternativas—: existe
+ * porque bajo una impersonación de soporte el cliente es elevado y RLS no
+ * acota. Para un usuario normal el filtro es redundante y no cambia resultados.
  *
  * Se carga únicamente el rango visible (día o semana), indexado por
  * `bookings_business_starts_idx`.
  */
 
-import { createClient } from '@/lib/db/server';
-import { getUserBusiness } from '@/lib/auth/session';
 import { parseAnchor, rangeFor, anchorToDateString } from './grid';
+import { getTenantDb, resolveTenant } from './tenant';
 import type {
   AgendaBundle,
   AgendaBookingDTO,
@@ -68,16 +71,16 @@ export async function getAgenda(
   view: CalendarView,
   anchorDate: string | undefined,
 ): Promise<AgendaBundle | null> {
-  const base = await getUserBusiness();
-  if (!base) return null;
+  // Resuelve el tenant y el cliente en un solo lugar: bajo impersonación de
+  // soporte el negocio no sale de la sesión del usuario (CLAUDE.md §3).
+  const tenant = await resolveTenant();
+  if (!tenant) return null;
+  const { db, businessId } = tenant;
 
-  const db = await createClient();
-
-  // Fila completa del negocio para tz/moneda/locale (getUserBusiness no las trae).
   const { data: bizRow } = await db
     .from('businesses')
     .select('id, slug, name, timezone, currency, booking_locale')
-    .eq('id', base.id)
+    .eq('id', businessId)
     .single();
   if (!bizRow) return null;
 
@@ -93,26 +96,30 @@ export async function getAgenda(
       db
         .from('staff_members')
         .select('id, name, role, sort_order')
+        .eq('business_id', businessId)
         .eq('is_active', true)
         .order('sort_order', { ascending: true }),
       db
         .from('services')
         .select('id, name, duration_min, price_amount, sort_order')
+        .eq('business_id', businessId)
         .eq('is_active', true)
         .order('sort_order', { ascending: true }),
-      db.from('service_staff').select('service_id, staff_member_id'),
-      db.from('business_hours').select('open_time, close_time'),
+      db.from('service_staff').select('service_id, staff_member_id').eq('business_id', businessId),
+      db.from('business_hours').select('open_time, close_time').eq('business_id', businessId),
       db
         .from('bookings')
         .select(
           'id, starts_at, ends_at, status, source, staff_member_id, service_id, customer_id, notes, price_amount, currency, services(name, duration_min), customers(full_name, phone, email)',
         )
+        .eq('business_id', businessId)
         .gte('starts_at', fromIso)
         .lt('starts_at', toIso)
         .order('starts_at', { ascending: true }),
       db
         .from('schedule_overrides')
         .select('id, staff_member_id, kind, starts_at, ends_at, reason')
+        .eq('business_id', businessId)
         .lt('starts_at', toIso)
         .gt('ends_at', fromIso),
     ]);
@@ -195,16 +202,21 @@ export async function getAgenda(
 /**
  * Mini-historial del cliente (mini-CRM) para el panel de detalle. `visits` =
  * reservas completadas; `noShows` = no-shows; `totalSpent` = suma de completadas.
- * RLS acota a los clientes del negocio del usuario.
+ *
+ * `businessId` lo resuelve el SERVIDOR (nunca llega del cliente) y se aplica
+ * como filtro explícito: sin él, un `customerId` arbitrario devolvería el
+ * historial de otro negocio en cuanto el cliente sea el elevado.
  */
 export async function getCustomerHistory(
   customerId: string,
   currency: string,
+  businessId: string,
 ): Promise<CustomerHistoryDTO> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const { data } = await db
     .from('bookings')
     .select('status, price_amount')
+    .eq('business_id', businessId)
     .eq('customer_id', customerId);
 
   let visits = 0;

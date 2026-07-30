@@ -7,7 +7,7 @@ import 'server-only';
  */
 
 import { DateTime } from 'luxon';
-import { createClient } from '@/lib/db/server';
+import { getTenantDb } from './tenant';
 import type { Enums } from '@/lib/db/types';
 
 export type ReportRange = 'last7' | 'last30' | 'thisMonth' | 'thisYear';
@@ -71,7 +71,7 @@ export async function getReports(
   fromIso: string,
   toIso: string,
 ): Promise<ReportsData> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const [{ data: rows }, { data: services }, { data: staff }, { count: newCount }] = await Promise.all([
     db
       .from('bookings')

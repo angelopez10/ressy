@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/db/service';
 import { getSubscriptionBilling } from '@/lib/payments';
 import type { SubscriptionInfo } from '@/lib/payments/billing.types';
+import { trackServer, commonPropsFor } from '@/lib/analytics/server';
+import { isPlanId, planRank, type PlanId } from '@/lib/plans/config';
 
 /**
  * Webhook de SUSCRIPCIONES del plan (Mercado Pago, cuenta de RESSY). SEPARADO del
@@ -81,6 +83,14 @@ export async function POST(request: Request) {
   // en ese caso). Sin tier ⇒ ignorar en vez de aplicar algo incoherente.
   if (info.status === 'active' && !info.tier) return NextResponse.json({ ok: true, ignored: true });
 
+  // Tier ANTERIOR (para distinguir alta / upgrade / downgrade). Se lee antes de
+  // aplicar; la RPC no lo devuelve.
+  const { data: prevSub } = await db
+    .from('subscriptions')
+    .select('tier, is_trial')
+    .eq('business_id', info.businessId)
+    .maybeSingle();
+
   const { error } = await db.rpc('subscription_apply_mp_event', {
     p_business_id: info.businessId,
     p_tier: info.tier ?? 'free', // ignorado por la RPC si status != 'active'
@@ -102,5 +112,55 @@ export async function POST(request: Request) {
   }
 
   console.info('[mp-sub] aplicado ✓', { businessId: info.businessId, tier: info.tier, status: info.status });
+
+  // Analytics de monetización. El dedup del evento (arriba) garantiza que un
+  // reintento del webhook no re-trackea. Se decide comparando el tier anterior.
+  await trackSubscriptionEvent(db, info, prevSub);
+
   return NextResponse.json({ ok: true });
+}
+
+/**
+ * Traduce un cambio de suscripción a UN evento de analytics (o ninguno):
+ * alta / upgrade / downgrade / cancelación / pago fallido. `prevSub` es el
+ * estado antes de aplicar; sin él, un `active` se toma como alta.
+ */
+async function trackSubscriptionEvent(
+  db: ReturnType<typeof createServiceClient>,
+  info: SubscriptionInfo,
+  prevSub: { tier: string; is_trial: boolean } | null,
+): Promise<void> {
+  const businessId = info.businessId!;
+  const common = await commonPropsFor(db, businessId);
+  const cycle = info.cycle ?? 'monthly';
+  const prevTier: PlanId = isPlanId(prevSub?.tier) ? (prevSub!.tier as PlanId) : 'free';
+  const wasTrialOrFree = !prevSub || prevSub.is_trial || prevTier === 'free';
+
+  if (info.status === 'past_due' || info.status === 'unpaid') {
+    await trackServer('payment_failed', businessId, common);
+    return;
+  }
+  if (info.status === 'canceled') {
+    await trackServer('subscription_cancelled', businessId, { ...common, plan: prevTier });
+    return;
+  }
+  if (info.status === 'active' && info.tier) {
+    const newTier = info.tier;
+    if (wasTrialOrFree) {
+      await trackServer('subscription_started', businessId, { ...common, plan: newTier, cycle });
+    } else if (planRank(newTier) > planRank(prevTier)) {
+      await trackServer('subscription_upgraded', businessId, {
+        ...common,
+        previous_plan: prevTier,
+        new_plan: newTier,
+      });
+    } else if (planRank(newTier) < planRank(prevTier)) {
+      await trackServer('subscription_downgraded', businessId, {
+        ...common,
+        previous_plan: prevTier,
+        new_plan: newTier,
+      });
+    }
+    // Mismo tier ⇒ renovación: no es un evento de conversión.
+  }
 }

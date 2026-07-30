@@ -12,12 +12,13 @@ import { createClient } from '@/lib/db/server';
 import { createServiceClient } from '@/lib/db/service';
 import { getConnectionInfo } from '@/lib/payments/mercadopago/account';
 import { canUseFeature } from '@/lib/plans/config';
-import { getDashboardContext } from './context';
+import { getDashboardContext, getWritableDashboardContext } from './context';
 
 export type SettingsResult = { ok: true } | { ok: false; error: string };
 
 async function requireAdmin() {
-  const ctx = await getDashboardContext();
+  // Escritura ⇒ contexto escribible: bloquea la impersonación de soporte.
+  const ctx = await getWritableDashboardContext();
   if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) return null;
   return ctx;
 }

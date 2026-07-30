@@ -20,6 +20,8 @@ import { buildBusinessMessage, buildClientMessage, buildDailySummaryMessage, bui
 import { loadBookingContext, loadOwnerEmail, loadAgenda, getSettings, type BookingNotifCtx } from './data';
 import type { NotifLocale } from './copy';
 import { getPlan } from '@/lib/plans/config';
+import { trackServer } from '@/lib/analytics/server';
+import type { AnalyticsEventMap } from '@/lib/analytics/events';
 import { getAppUrl } from './env';
 import type { Channel, ChannelRegistry, NotificationType, SendResult } from './types';
 
@@ -40,6 +42,19 @@ function deps(overrides?: Partial<DispatchDeps>): DispatchDeps {
 
 function period(now = new Date()): string {
   return DateTime.fromJSDate(now, { zone: 'utc' }).toFormat('yyyy-MM');
+}
+
+/** Deriva el tipo de recordatorio (24h/2h) del dedupKey `...:reminder:<min>`. */
+function reminderKind(dedupKey: string | undefined): AnalyticsEventMap['reminder_sent']['kind'] {
+  const minutes = Number(dedupKey?.match(/reminder:(\d+)/)?.[1]);
+  if (minutes === 1440) return '24h';
+  if (minutes === 120) return '2h';
+  return 'other';
+}
+
+/** Solo `email`/`whatsapp`/`sms` son canales de analytics. */
+function analyticsChannel(channel: Channel): AnalyticsEventMap['reminder_sent']['channel'] {
+  return channel === 'whatsapp' || channel === 'sms' ? channel : 'email';
 }
 
 /**
@@ -200,10 +215,28 @@ export async function dispatchClientNotification(
     const message = buildClientMessage(args.type, channel, ctx, to);
     const result = await impl.send(message);
     await finalize(db, reserved.id, result, channel, to, ctx.business.id);
-    if (result.ok) return { status: 'sent', channel };
+    if (result.ok) {
+      if (args.type === 'reminder') {
+        await trackServer('reminder_sent', ctx.business.id, {
+          plan: ctx.business.tier,
+          channel: analyticsChannel(channel),
+          kind: reminderKind(args.dedupKey),
+        });
+      }
+      return { status: 'sent', channel };
+    }
     // Falló este canal → el loop intenta el siguiente (fallback a email).
   }
 
+  // Ningún canal entregó. Solo los recordatorios se trackean (la confirmación y
+  // otros tipos tienen su propia semántica). `reason` es un enum sin PII.
+  if (args.type === 'reminder') {
+    await trackServer('reminder_failed', ctx.business.id, {
+      plan: ctx.business.tier,
+      channel: analyticsChannel(ordered[0]?.channel ?? 'email'),
+      reason: 'delivery_error',
+    });
+  }
   return { status: 'failed', channel: undefined };
 }
 
