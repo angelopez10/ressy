@@ -61,6 +61,27 @@ function mapPgError(message: string | undefined): BookingFailure {
   }
 }
 
+/**
+ * `reason: 'error'` es, por definición, algo que NO modelamos. Sin este log la
+ * causa real (código de Postgres, detail, hint) se pierde y en prod solo queda
+ * un `{ok:false,reason:'error'}` inaccionable — justo lo que CLAUDE.md §6
+ * prohíbe. Se loguea el contexto de negocio (business_id, booking_id) y NUNCA
+ * PII del cliente final: nada de email/teléfono/nombre (§9).
+ */
+function logUnexpectedPgError(
+  op: string,
+  error: { message?: string; code?: string; details?: string; hint?: string } | null | undefined,
+  context: Record<string, string | null | undefined>,
+) {
+  console.error(`[booking:${op}] error inesperado de Postgres`, {
+    ...context,
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Disponibilidad
 // ---------------------------------------------------------------------------
@@ -165,6 +186,14 @@ export async function createBooking(raw: unknown): Promise<CreateBookingResult> 
     }
 
     lastFailure = mapPgError(error?.message);
+    if (lastFailure === 'error') {
+      logUnexpectedPgError('create', error, {
+        businessId: input.businessId,
+        serviceId: input.serviceId,
+        staffMemberId,
+        startsAt: input.startsAt,
+      });
+    }
     // Solo tiene sentido reintentar con otro staff si ESTE perdió la carrera.
     if (lastFailure !== 'slot_taken') break;
   }
@@ -195,7 +224,18 @@ async function startDepositCheckout(
       svc.from('businesses').select('slug, currency').eq('id', businessId).single(),
       svc.from('services').select('name').eq('id', serviceId).single(),
     ]);
-    if (!amount || amount <= 0 || !biz || !service) return null;
+    if (!amount || amount <= 0 || !biz || !service) {
+      // Precondición faltante: sin esto el fallo es indistinguible de un token
+      // de MP caído. Solo ids y montos, nada de PII.
+      console.error('[booking:deposit] faltan datos para crear el cobro', {
+        businessId,
+        bookingId,
+        amount,
+        hasBusiness: Boolean(biz),
+        hasService: Boolean(service),
+      });
+      return null;
+    }
 
     const checkout = await getPaymentProvider().createDepositCheckout({
       businessId,
@@ -207,8 +247,15 @@ async function startDepositCheckout(
       businessSlug: biz.slug,
     });
     return checkout.checkoutUrl;
-  } catch {
-    return null; // el caller libera el slot y pide reintentar
+  } catch (err) {
+    // El caller libera el slot y pide reintentar, pero el motivo (token de MP
+    // vencido, clave de cifrado ausente, API caída) tiene que quedar registrado.
+    console.error('[booking:deposit] no se pudo crear el checkout', {
+      businessId,
+      bookingId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return null;
   }
 }
 
@@ -276,7 +323,11 @@ export async function cancelBooking(raw: unknown): Promise<MutateBookingResult> 
     p_token: input.token,
     p_reason: input.reason ?? '',
   });
-  if (error) return { ok: false, reason: mapPgError(error.message) };
+  if (error) {
+    const reason = mapPgError(error.message);
+    if (reason === 'error') logUnexpectedPgError('cancel', error, {});
+    return { ok: false, reason };
+  }
   // Cancela recordatorios pendientes + avisa (best-effort).
   const { data: bookingId } = await db.rpc('booking_id_for_token', { p_token: input.token });
   if (bookingId) {
@@ -294,7 +345,16 @@ export async function rescheduleBooking(raw: unknown): Promise<MutateBookingResu
     p_new_starts_at: input.startsAt,
     p_new_staff_member_id: input.staffMemberId,
   });
-  if (error) return { ok: false, reason: mapPgError(error.message) };
+  if (error) {
+    const reason = mapPgError(error.message);
+    if (reason === 'error') {
+      logUnexpectedPgError('reschedule', error, {
+        staffMemberId: input.staffMemberId,
+        startsAt: input.startsAt,
+      });
+    }
+    return { ok: false, reason };
+  }
   const { data: bookingId } = await db.rpc('booking_id_for_token', { p_token: input.token });
   if (bookingId) {
     await emitBookingEvent('booking/rescheduled', bookingId);
