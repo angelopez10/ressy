@@ -7,7 +7,14 @@ import { Link } from '@/lib/i18n/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { PLAN_ORDER, PLANS, priceFor, type Currency, type PlanId } from '@/lib/plans/config';
+import {
+  formatPlanPrice,
+  PLAN_ORDER,
+  PLANS,
+  priceFor,
+  type Currency,
+  type PlanId,
+} from '@/lib/plans/config';
 import { SectionHeading } from './SectionHeading';
 
 /**
@@ -28,16 +35,8 @@ export function PricingSection() {
   const [yearly, setYearly] = useState(false);
   const copy = t.raw('tiers') as Record<PlanId, TierCopy>;
 
-  const fmt = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: CURRENCY.toUpperCase(),
-    maximumFractionDigits: 0,
-  });
-
-  const priceLabel = (id: PlanId) => {
-    const amount = priceFor(id, CURRENCY, yearly ? 'yearly' : 'monthly');
-    return fmt.format(amount);
-  };
+  const priceLabel = (id: PlanId) =>
+    formatPlanPrice(priceFor(id, CURRENCY, yearly ? 'yearly' : 'monthly'), CURRENCY, locale);
 
   return (
     <section id="pricing" className="bg-surface-alt border-border border-y py-20 sm:py-24">
@@ -100,15 +99,16 @@ export function PricingSection() {
                 <div className="text-ink text-lg font-bold">{c.name}</div>
                 <div className="text-ink-secondary mb-4 text-sm">{c.tagline}</div>
 
-                <div className="mb-5 flex items-baseline gap-1">
-                  <span className="text-ink text-4xl font-extrabold tracking-tight">
+                {/* Moneda y ciclo van bajo el monto: "29.900 CLP /año" en una sola
+                    línea desborda la card en el grid de 4 columnas. */}
+                <div className="mb-5">
+                  <div className="text-ink text-4xl font-extrabold tracking-tight">
                     {priceLabel(id)}
-                  </span>
-                  {!isFree ? (
-                    <span className="text-ink-secondary text-sm">
-                      {yearly ? t('perYear') : t('perMonth')}
-                    </span>
-                  ) : null}
+                  </div>
+                  <div className="text-ink-secondary text-sm">
+                    {CURRENCY.toUpperCase()}
+                    {!isFree ? (yearly ? t('perYear') : t('perMonth')) : ''}
+                  </div>
                 </div>
 
                 <Button

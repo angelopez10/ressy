@@ -1054,6 +1054,12 @@
         "body": "Track revenue, no-shows and your busiest services. Upgrade to unlock your business metrics.",
         "cta": "See plans"
       }
+    },
+    "suspended": {
+      "title": "Account suspended",
+      "body": "The Ressy team suspended this account, so your booking page is offline and no new bookings can be taken.",
+      "reason": "Reason",
+      "contact": "Get in touch so we can sort it out:"
     }
   },
   "styleguide": {

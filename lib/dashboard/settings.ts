@@ -2,7 +2,7 @@ import 'server-only';
 
 /** Lecturas de Ajustes: políticas + horario del negocio + uso de staff. */
 
-import { createClient } from '@/lib/db/server';
+import { getTenantDb } from './tenant';
 import type { Enums } from '@/lib/db/types';
 import type { DayHours } from '@/components/dashboard/WeeklyHoursEditor';
 
@@ -23,7 +23,7 @@ export interface SettingsData {
 }
 
 export async function getSettingsData(businessId: string): Promise<SettingsData> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const [{ data: policies }, { data: hours }, { count }] = await Promise.all([
     db
       .from('business_policies')

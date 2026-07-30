@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createBooking } from '@/lib/booking/actions';
+import { track } from '@/lib/analytics';
 import type {
   BookingBundle,
   BookingFailure,
@@ -47,6 +48,19 @@ export function BookingFlow({ bundle, locale, source }: Props) {
   const [conflict, setConflict] = useState<BookingFailure | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const businessId = bundle.business.id;
+
+  // Funnel de la booking page (client-side). Solo identificadores/enum, cero PII
+  // del cliente final. La vista se cuenta una vez al montar.
+  useEffect(() => {
+    track('booking_page_viewed', { business_id: businessId, locale });
+  }, [businessId, locale]);
+
+  // El paso "details" muestra el formulario ⇒ el visitante lo empezó.
+  useEffect(() => {
+    if (step === 'details') track('booking_form_started', { business_id: businessId, locale });
+  }, [step, businessId, locale]);
+
   const service = useMemo(
     () => bundle.services.find((s) => s.id === serviceId) ?? null,
     [bundle.services, serviceId],
@@ -73,9 +87,10 @@ export function BookingFlow({ bundle, locale, source }: Props) {
       setServiceId(id);
       setStaffMemberId(undefined);
       setSlot(null);
+      track('service_selected', { business_id: businessId, locale });
       goStep('staff');
     },
-    [goStep],
+    [goStep, businessId, locale],
   );
 
   const onSelectStaff = useCallback(
@@ -90,9 +105,10 @@ export function BookingFlow({ bundle, locale, source }: Props) {
   const onPickSlot = useCallback(
     (picked: SlotDTO) => {
       setSlot(picked);
+      track('slot_selected', { business_id: businessId, locale });
       goStep('details');
     },
-    [goStep],
+    [goStep, businessId, locale],
   );
 
   const onConfirm = useCallback(
@@ -100,7 +116,7 @@ export function BookingFlow({ bundle, locale, source }: Props) {
       if (!service || !slot) return;
       startTransition(async () => {
         const res: CreateBookingResult = await createBooking({
-          businessId: bundle.business.id,
+          businessId,
           serviceId: service.id,
           staffMemberId: staffMemberId ?? null,
           startsAt: slot.startsAtIso,
@@ -109,6 +125,12 @@ export function BookingFlow({ bundle, locale, source }: Props) {
           source,
         });
         if (res.ok) {
+          // Cierre del funnel de la booking page. `with_deposit` = fue al checkout.
+          track('booking_confirmed', {
+            business_id: businessId,
+            locale,
+            with_deposit: res.status === 'pending_payment',
+          });
           // Anticipo: MP nos devolvió la URL del checkout hospedado. Redirigimos;
           // la confirmación real llega por webhook (no por el retorno).
           if (res.status === 'pending_payment' && res.checkoutUrl) {
@@ -127,7 +149,7 @@ export function BookingFlow({ bundle, locale, source }: Props) {
         }
       });
     },
-    [bundle.business.id, locale, service, slot, source, staffMemberId],
+    [businessId, locale, service, slot, source, staffMemberId],
   );
 
   const stepIndex = ORDER.indexOf(step);

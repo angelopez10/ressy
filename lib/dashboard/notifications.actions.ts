@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
 
 export type NotifSettingsResult = { ok: true } | { ok: false; error: string };
 
@@ -25,7 +25,7 @@ const schema = z.object({
 });
 
 export async function saveNotificationSettings(raw: unknown): Promise<NotifSettingsResult> {
-  const ctx = await getDashboardContext();
+  const ctx = await getWritableDashboardContext();
   if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) return { ok: false, error: 'notAuthorized' };
   const parsed = schema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: 'generic' };

@@ -12,7 +12,7 @@ import { createServiceClient } from '@/lib/db/service';
 import { getSubscriptionBilling } from '@/lib/payments';
 import { getMpTestPayerEmail } from '@/lib/payments/env';
 import type { BillingCycle } from '@/lib/plans/config';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
 
 type UpgradeResult = { ok: true; checkoutUrl: string } | { ok: false; error: string };
 type CancelResult = { ok: true } | { ok: false; error: string };
@@ -21,7 +21,8 @@ const PAID_TIERS = ['solo', 'team', 'studio'] as const;
 type PaidTier = (typeof PAID_TIERS)[number];
 
 async function requireAdmin() {
-  const ctx = await getDashboardContext();
+  // Escritura ⇒ contexto escribible: bloquea la impersonación de soporte.
+  const ctx = await getWritableDashboardContext();
   if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) return null;
   return ctx;
 }

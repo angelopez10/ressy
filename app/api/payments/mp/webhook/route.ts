@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/db/service';
 import { emitBookingEvent } from '@/lib/inngest/emit';
+import { trackBookingCreated } from '@/lib/analytics/booking-events';
 import { getPaymentProvider } from '@/lib/payments';
 
 /**
@@ -82,6 +83,9 @@ export async function POST(request: Request) {
     // así el cliente no recibe dos correos por reintentos del webhook.
     if (didConfirm) {
       await emitBookingEvent('booking/created', bookingId);
+      // Analytics: la reserva con anticipo recién ahora es REAL. El guard
+      // `didConfirm` garantiza que un reintento del webhook no re-trackea.
+      await trackBookingCreated(db, bookingId, { withDeposit: true });
     }
   } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
     // Pago fallido ⇒ libera el slot. El cliente ve el fallo en la página de

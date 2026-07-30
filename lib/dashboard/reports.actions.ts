@@ -3,7 +3,7 @@
 /** Export CSV de reservas — reportes nivel `advanced_csv`, solo Studio (lib/plans/config.ts). */
 
 import { createClient } from '@/lib/db/server';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
 import { rangeToUtc, type ReportRange } from './reports';
 import { getPlan } from '@/lib/plans/config';
 import type { Enums } from '@/lib/db/types';
@@ -16,7 +16,7 @@ function esc(v: string | number | null): string {
 }
 
 export async function exportBookingsCsv(range: ReportRange): Promise<CsvResult> {
-  const ctx = await getDashboardContext();
+  const ctx = await getWritableDashboardContext();
   if (!ctx) return { ok: false, error: 'notAuthorized' };
   if (getPlan(ctx.tier).features.reports !== 'advanced_csv') return { ok: false, error: 'planFeature' };
 

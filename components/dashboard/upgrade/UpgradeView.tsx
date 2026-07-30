@@ -9,7 +9,15 @@ import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils';
-import { PLAN_ORDER, PLANS, priceFor, type BillingCycle, type Currency, type PlanId } from '@/lib/plans/config';
+import {
+  formatPlanPrice,
+  PLAN_ORDER,
+  PLANS,
+  priceFor,
+  type BillingCycle,
+  type Currency,
+  type PlanId,
+} from '@/lib/plans/config';
 import {
   cancelSubscription,
   reconcileSubscription,
@@ -60,12 +68,6 @@ export function UpgradeView({
       if (r.ok) router.refresh();
     });
   }, [justReturned, router]);
-
-  const fmt = new Intl.NumberFormat(uiLocale, {
-    style: 'currency',
-    currency: CURRENCY.toUpperCase(),
-    maximumFractionDigits: 0,
-  });
 
   function choose(id: PlanId) {
     if (!billingEnabled) {
@@ -158,13 +160,20 @@ export function UpgradeView({
               <div className="text-ink text-lg font-bold">{c.name}</div>
               <div className="text-ink-secondary mb-4 text-sm">{c.tagline}</div>
 
-              <div className="mb-5 flex items-baseline gap-1">
-                <span className="text-ink text-4xl font-extrabold tracking-tight">{fmt.format(amount)}</span>
-                {!isFree ? (
-                  <span className="text-ink-secondary text-sm">
-                    {cycle === 'yearly' ? tPlan('billing.perYear') : tPlan('billing.perMonth')}
-                  </span>
-                ) : null}
+              {/* Moneda y ciclo bajo el monto: en una línea, "29.900 CLP /año"
+                  desborda la card en el grid de 4 columnas (igual que la landing). */}
+              <div className="mb-5">
+                <div className="text-ink text-4xl font-extrabold tracking-tight">
+                  {formatPlanPrice(amount, CURRENCY, uiLocale)}
+                </div>
+                <div className="text-ink-secondary text-sm">
+                  {CURRENCY.toUpperCase()}
+                  {!isFree
+                    ? cycle === 'yearly'
+                      ? tPlan('billing.perYear')
+                      : tPlan('billing.perMonth')
+                    : ''}
+                </div>
               </div>
 
               <Button

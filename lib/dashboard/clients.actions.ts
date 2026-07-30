@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
 
 export type ClientActionResult = { ok: true; id: string } | { ok: false; error: string };
 
@@ -21,7 +21,7 @@ const customerInput = z
   });
 
 export async function saveCustomer(raw: unknown): Promise<ClientActionResult> {
-  const ctx = await getDashboardContext();
+  const ctx = await getWritableDashboardContext();
   if (!ctx) return { ok: false, error: 'notAuthorized' };
   const parsed = customerInput.safeParse(raw);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'generic' };
@@ -52,7 +52,7 @@ const notesInput = z.object({
 });
 
 export async function updateCustomerNotes(raw: unknown): Promise<ClientActionResult> {
-  const ctx = await getDashboardContext();
+  const ctx = await getWritableDashboardContext();
   if (!ctx) return { ok: false, error: 'notAuthorized' };
   const parsed = notesInput.safeParse(raw);
   if (!parsed.success) return { ok: false, error: 'generic' };

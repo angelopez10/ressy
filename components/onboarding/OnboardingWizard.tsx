@@ -160,7 +160,12 @@ export function OnboardingWizard({ draft, locale }: Props) {
             />
           )}
           {step === 6 && (
-            <Step5Done slug={page.slug} accentColor={page.accentColor} locale={locale} />
+            <Step5Done
+              slug={page.slug}
+              accentColor={page.accentColor}
+              locale={locale}
+              businessId={businessId}
+            />
           )}
         </div>
 

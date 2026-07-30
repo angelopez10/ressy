@@ -1,14 +1,18 @@
 import 'server-only';
 
 /**
- * Datos de la pantalla Home / Resumen. Todo RLS-scoped (el usuario ve solo su
- * negocio y, si es staff limitado, solo su columna). "Hoy" y "esta semana" se
- * calculan en la tz del negocio con Luxon (CLAUDE.md §3), nunca la del server.
+ * Datos de la pantalla Home / Resumen. "Hoy" y "esta semana" se calculan en la
+ * tz del negocio con Luxon (CLAUDE.md §3), nunca la del server.
+ *
+ * Toda query filtra por `business_id` de forma EXPLÍCITA (CLAUDE.md §3), no
+ * solo por RLS: bajo una impersonación de soporte el cliente es elevado y RLS
+ * no acota nada. Para un usuario normal el filtro es redundante y no cambia
+ * ningún resultado.
  */
 
 import { DateTime } from 'luxon';
-import { createClient } from '@/lib/db/server';
 import type { DashboardContext } from './context';
+import { getTenantDb } from './tenant';
 import type { Enums } from '@/lib/db/types';
 
 const LIVE: Enums<'booking_status'>[] = ['pending_payment', 'confirmed', 'rescheduled'];
@@ -34,7 +38,8 @@ export interface HomeData {
 }
 
 export async function getHomeData(ctx: DashboardContext): Promise<HomeData> {
-  const db = await createClient();
+  const db = await getTenantDb();
+  const biz = ctx.business.id;
   const tz = ctx.business.timezone;
   const now = DateTime.now().setZone(tz);
   const dayStart = now.startOf('day');
@@ -48,15 +53,17 @@ export async function getHomeData(ctx: DashboardContext): Promise<HomeData> {
 
   const [totalRes, todayRes, upcomingRes, pendingRes, noShowRes, newClientsRes, staffRes, hoursRes] =
     await Promise.all([
-      db.from('bookings').select('id', { count: 'exact', head: true }).eq('business_id', ctx.business.id),
+      db.from('bookings').select('id', { count: 'exact', head: true }).eq('business_id', biz),
       db
         .from('bookings')
         .select('status, price_amount, starts_at, ends_at')
+        .eq('business_id', biz)
         .gte('starts_at', fromIso)
         .lt('starts_at', toIso),
       db
         .from('bookings')
         .select('id, starts_at, status, services(name), customers(full_name)')
+        .eq('business_id', biz)
         .in('status', LIVE)
         .gte('starts_at', nowIso)
         .lt('starts_at', toIso)
@@ -65,19 +72,30 @@ export async function getHomeData(ctx: DashboardContext): Promise<HomeData> {
       db
         .from('bookings')
         .select('id', { count: 'exact', head: true })
+        .eq('business_id', biz)
         .eq('status', 'pending_payment')
         .gte('starts_at', nowIso),
       db
         .from('bookings')
         .select('id', { count: 'exact', head: true })
+        .eq('business_id', biz)
         .eq('status', 'no_show')
         .gte('starts_at', weekAgoIso),
       db
         .from('customers')
         .select('id', { count: 'exact', head: true })
+        .eq('business_id', biz)
         .gte('created_at', weekAgoIso),
-      db.from('staff_members').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      db.from('business_hours').select('open_time, close_time').eq('weekday', isoWeekday),
+      db
+        .from('staff_members')
+        .select('id', { count: 'exact', head: true })
+        .eq('business_id', biz)
+        .eq('is_active', true),
+      db
+        .from('business_hours')
+        .select('open_time, close_time')
+        .eq('business_id', biz)
+        .eq('weekday', isoWeekday),
     ]);
 
   const today = todayRes.data ?? [];
