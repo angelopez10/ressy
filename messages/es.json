@@ -36,7 +36,10 @@
       "micro": "Sin tarjeta de crédito · Plan gratis para siempre",
       "cardTitle": "Nueva reserva",
       "cardSub": "Hoy 10:30 · confirmada",
-      "imageAlt": "Página de reservas de Ressy en un teléfono"
+      "imageAlt": "Página de reservas de Ressy en un teléfono",
+      "demoBusiness": "Barbería Bravo",
+      "demoPickTime": "Elige un horario",
+      "demoBook": "Reservar en 1 clic"
     },
     "trust": {
       "label": "Pensado para negocios de servicios de todo tipo",

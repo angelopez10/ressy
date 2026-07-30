@@ -36,7 +36,10 @@
       "micro": "No credit card · Free plan forever",
       "cardTitle": "New booking",
       "cardSub": "Today 10:30 · confirmed",
-      "imageAlt": "Ressy booking page shown on a phone"
+      "imageAlt": "Ressy booking page shown on a phone",
+      "demoBusiness": "Bravo Barbershop",
+      "demoPickTime": "Pick a time",
+      "demoBook": "Book in 1 tap"
     },
     "trust": {
       "label": "Built for every kind of service business",
