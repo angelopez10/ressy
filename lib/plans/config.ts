@@ -113,7 +113,14 @@ export const PLANS: Record<PlanId, Plan> = {
     order: 0,
     popular: false,
     pricing: { usd: { monthly: 0, yearly: 0 }, clp: { monthly: 0, yearly: 0 } },
-    limits: { staff: 1, extraSeatUsd: null, extraSeatClp: null, services: 3, bookingsPerMonth: 25, whatsappPerMonth: 0 },
+    limits: {
+      staff: 1,
+      extraSeatUsd: null,
+      extraSeatClp: null,
+      services: 3,
+      bookingsPerMonth: 25,
+      whatsappPerMonth: 0,
+    },
     features: {
       poweredByRessy: true,
       customDomain: false,
@@ -136,7 +143,14 @@ export const PLANS: Record<PlanId, Plan> = {
     order: 1,
     popular: false,
     pricing: { usd: { monthly: 9, yearly: 90 }, clp: { monthly: 9900, yearly: 99000 } },
-    limits: { staff: 1, extraSeatUsd: null, extraSeatClp: null, services: UNLIMITED, bookingsPerMonth: UNLIMITED, whatsappPerMonth: 100 },
+    limits: {
+      staff: 1,
+      extraSeatUsd: null,
+      extraSeatClp: null,
+      services: UNLIMITED,
+      bookingsPerMonth: UNLIMITED,
+      whatsappPerMonth: 100,
+    },
     features: {
       poweredByRessy: false,
       customDomain: false,
@@ -159,7 +173,14 @@ export const PLANS: Record<PlanId, Plan> = {
     order: 2,
     popular: true,
     pricing: { usd: { monthly: 19, yearly: 190 }, clp: { monthly: 19900, yearly: 199000 } },
-    limits: { staff: 5, extraSeatUsd: null, extraSeatClp: null, services: UNLIMITED, bookingsPerMonth: UNLIMITED, whatsappPerMonth: 500 },
+    limits: {
+      staff: 5,
+      extraSeatUsd: null,
+      extraSeatClp: null,
+      services: UNLIMITED,
+      bookingsPerMonth: UNLIMITED,
+      whatsappPerMonth: 500,
+    },
     features: {
       poweredByRessy: false,
       customDomain: false,
@@ -182,7 +203,14 @@ export const PLANS: Record<PlanId, Plan> = {
     order: 3,
     popular: false,
     pricing: { usd: { monthly: 29, yearly: 290 }, clp: { monthly: 29900, yearly: 299000 } },
-    limits: { staff: 15, extraSeatUsd: 3, extraSeatClp: 2900, services: UNLIMITED, bookingsPerMonth: UNLIMITED, whatsappPerMonth: 2000 },
+    limits: {
+      staff: 15,
+      extraSeatUsd: 3,
+      extraSeatClp: 2900,
+      services: UNLIMITED,
+      bookingsPerMonth: UNLIMITED,
+      whatsappPerMonth: 2000,
+    },
     features: {
       poweredByRessy: false,
       customDomain: true,
@@ -226,7 +254,10 @@ export function getLimit(id: PlanId | string | null | undefined, key: keyof Plan
 }
 
 /** ¿El plan tiene la feature? Los booleanos se devuelven tal cual; los niveles → true si ≠ 'none'/'basic-sin-valor'. */
-export function canUseFeature(id: PlanId | string | null | undefined, key: keyof PlanFeatures): boolean {
+export function canUseFeature(
+  id: PlanId | string | null | undefined,
+  key: keyof PlanFeatures,
+): boolean {
   const value = getPlan(id).features[key];
   if (typeof value === 'boolean') return value;
   if (typeof value === 'number') return value > 0; // p. ej. platformFeePct: “tiene fee”
@@ -235,12 +266,42 @@ export function canUseFeature(id: PlanId | string | null | undefined, key: keyof
 }
 
 /** Precio en unidad mayor para la moneda y ciclo pedidos. */
-export function priceFor(id: PlanId | string | null | undefined, currency: Currency, cycle: BillingCycle): number {
+export function priceFor(
+  id: PlanId | string | null | undefined,
+  currency: Currency,
+  cycle: BillingCycle,
+): number {
   return getPlan(id).pricing[currency][cycle];
 }
 
+/**
+ * Precio de plan (unidad MAYOR) → string localizado para las cards de pricing.
+ *
+ * - `useGrouping: 'always'`: el `es` genérico (España) no agrupa 1000–9999, así
+ *   que 9900 salía "9900" al lado de "19.900". Agrupar siempre da consistencia
+ *   entre cards y el look de es-CL. Mismo criterio que `lib/booking/format.ts`.
+ * - `narrowSymbol`: "$19.900" en vez de "19.900 CLP". El código de moneda es lo
+ *   que desbordaba la card en el número grande; va en la línea secundaria.
+ * - `es` → `es-CL`: el `es` genérico pospone el símbolo ("9.900 $"); el mercado
+ *   principal es Chile, donde va antepuesto ("$9.900"), como en el mockup.
+ */
+export function formatPlanPrice(amount: number, currency: Currency, locale: string): string {
+  const displayLocale = locale.toLowerCase().startsWith('es') ? 'es-CL' : locale;
+  return new Intl.NumberFormat(displayLocale, {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    currencyDisplay: 'narrowSymbol',
+    maximumFractionDigits: 0,
+    useGrouping: 'always',
+  }).format(amount);
+}
+
 /** ¿`used` alcanzó el tope del límite? `UNLIMITED` nunca topa. */
-export function isAtLimit(id: PlanId | string | null | undefined, key: keyof PlanLimits, used: number): boolean {
+export function isAtLimit(
+  id: PlanId | string | null | undefined,
+  key: keyof PlanLimits,
+  used: number,
+): boolean {
   return used >= getLimit(id, key);
 }
 

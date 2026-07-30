@@ -11,7 +11,16 @@
  */
 
 import { createClient } from '@/lib/db/server';
+import { createServiceClient } from '@/lib/db/service';
 import { emitBookingEvent } from '@/lib/inngest/emit';
+import {
+  trackBookingCreated,
+  trackBookingCancelled,
+  trackBookingCompleted,
+  trackBookingNoShow,
+  trackBookingRescheduled,
+} from '@/lib/analytics/booking-events';
+import { trackServer } from '@/lib/analytics/server';
 import type { BookingFailure } from '@/lib/booking/types';
 import {
   blockTimeSchema,
@@ -21,6 +30,7 @@ import {
 } from './schema';
 import type { AgendaActionResult, CreateManualBookingResult, CustomerHistoryDTO } from './types';
 import { getCustomerHistory } from './queries';
+import { resolveTenant } from './tenant';
 
 type Reason = BookingFailure | 'not_authorized' | 'invalid_range';
 
@@ -59,8 +69,16 @@ export async function applyBusinessTransition(raw: unknown): Promise<AgendaActio
   });
   if (error) return { ok: false, reason: mapError(error.message) };
   // El negocio canceló ⇒ cancela recordatorios + avisa. Completada ⇒ hook post-servicio.
-  if (input.target === 'cancelled_by_business') await emitBookingEvent('booking/cancelled', input.bookingId);
-  else if (input.target === 'completed') await emitBookingEvent('booking/completed', input.bookingId);
+  const svc = createServiceClient();
+  if (input.target === 'cancelled_by_business') {
+    await emitBookingEvent('booking/cancelled', input.bookingId);
+    await trackBookingCancelled(svc, input.bookingId, 'business');
+  } else if (input.target === 'completed') {
+    await emitBookingEvent('booking/completed', input.bookingId);
+    await trackBookingCompleted(svc, input.bookingId);
+  } else if (input.target === 'no_show') {
+    await trackBookingNoShow(svc, input.bookingId);
+  }
   return { ok: true };
 }
 
@@ -75,6 +93,7 @@ export async function rescheduleAsBusiness(raw: unknown): Promise<AgendaActionRe
   });
   if (error) return { ok: false, reason: mapError(error.message) };
   await emitBookingEvent('booking/rescheduled', input.bookingId);
+  await trackBookingRescheduled(createServiceClient(), input.bookingId, 'business');
   return { ok: true };
 }
 
@@ -94,10 +113,18 @@ export async function createManualBooking(raw: unknown): Promise<CreateManualBoo
     p_note: input.note || null,
   });
   if (error || !data || !data[0]) {
-    return { ok: false, reason: mapError(error?.message) };
+    const reason = mapError(error?.message);
+    if (reason === 'at_capacity') {
+      await trackServer('plan_limit_reached', input.businessId, { limit: 'bookings' });
+    }
+    return { ok: false, reason };
   }
   // Reserva manual confirmada ⇒ confirmación al cliente + recordatorios.
   await emitBookingEvent('booking/created', data[0].booking_id);
+  await trackBookingCreated(createServiceClient(), data[0].booking_id, {
+    withDeposit: false,
+    origin: 'manual',
+  });
   return { ok: true, bookingId: data[0].booking_id };
 }
 
@@ -117,10 +144,18 @@ export async function blockTime(raw: unknown): Promise<AgendaActionResult> {
   return { ok: true };
 }
 
-/** Mini-historial del cliente para el panel de detalle. */
+/**
+ * Mini-historial del cliente para el panel de detalle.
+ *
+ * El negocio se resuelve en el servidor: es una server action, o sea un
+ * endpoint POST direccionable, así que el `customerId` que llega del cliente se
+ * acota contra el tenant de la sesión y nunca al revés (CLAUDE.md §3).
+ */
 export async function fetchCustomerHistory(
   customerId: string,
   currency: string,
 ): Promise<CustomerHistoryDTO> {
-  return getCustomerHistory(customerId, currency);
+  const tenant = await resolveTenant();
+  if (!tenant) return { visits: 0, noShows: 0, totalSpent: 0, currency };
+  return getCustomerHistory(customerId, currency, tenant.businessId);
 }

@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { useTranslations } from 'next-intl';
 import { CalendarPlus, Check, Copy, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { track } from '@/lib/analytics';
 
 /**
  * Estado vacío ACCIONABLE (activación): en vez de una grilla muerta, el puente
@@ -28,6 +29,7 @@ export function CalendarEmptyState({ slug, locale }: { slug: string; locale: str
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
+      track('booking_link_shared', { channel: 'copy' });
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -57,7 +59,12 @@ export function CalendarEmptyState({ slug, locale }: { slug: string; locale: str
 
         <div className="flex flex-col gap-2.5">
           <Button asChild>
-            <a href={waHref} target="_blank" rel="noopener noreferrer">
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track('booking_link_shared', { channel: 'whatsapp' })}
+            >
               <Share2 aria-hidden="true" />
               {t('share')}
             </a>

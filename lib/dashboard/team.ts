@@ -2,7 +2,7 @@ import 'server-only';
 
 /** Lecturas de Equipo. RLS acota al negocio. */
 
-import { createClient } from '@/lib/db/server';
+import { getTenantDb } from './tenant';
 
 export interface TeamMember {
   id: string;
@@ -19,7 +19,7 @@ export interface ServiceOption {
 }
 
 export async function getTeam(businessId: string): Promise<TeamMember[]> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const [{ data: staff }, { data: links }] = await Promise.all([
     db
       .from('staff_members')
@@ -51,7 +51,7 @@ export async function getTeam(businessId: string): Promise<TeamMember[]> {
 export async function getStaffSchedules(
   businessId: string,
 ): Promise<Record<string, { weekday: number; startTime: string; endTime: string }[]>> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const { data } = await db
     .from('staff_schedules')
     .select('staff_member_id, weekday, start_time, end_time')
@@ -68,7 +68,7 @@ export async function getStaffSchedules(
 }
 
 export async function getServiceOptions(businessId: string): Promise<ServiceOption[]> {
-  const db = await createClient();
+  const db = await getTenantDb();
   const { data } = await db
     .from('services')
     .select('id, name')

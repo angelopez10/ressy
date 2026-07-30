@@ -1054,6 +1054,12 @@
         "body": "Sigue tus ingresos, los no-shows y tus servicios más pedidos. Mejora tu plan para desbloquear las métricas de tu negocio.",
         "cta": "Ver planes"
       }
+    },
+    "suspended": {
+      "title": "Cuenta suspendida",
+      "body": "El equipo de Ressy suspendió esta cuenta, así que tu página de reservas está fuera de línea y no se pueden tomar nuevas reservas.",
+      "reason": "Motivo",
+      "contact": "Escribinos para resolverlo:"
     }
   },
   "styleguide": {

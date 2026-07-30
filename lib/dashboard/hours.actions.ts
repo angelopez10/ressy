@@ -9,7 +9,7 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
 
 export type HoursActionResult = { ok: true } | { ok: false; error: string };
 
@@ -24,7 +24,7 @@ const daySchema = z
 const daysSchema = z.array(daySchema).max(7);
 
 export async function saveBusinessHours(raw: unknown): Promise<HoursActionResult> {
-  const ctx = await getDashboardContext();
+  const ctx = await getWritableDashboardContext();
   if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) return { ok: false, error: 'notAuthorized' };
   const parsed = daysSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: 'generic' };
@@ -46,7 +46,7 @@ export async function saveBusinessHours(raw: unknown): Promise<HoursActionResult
 }
 
 export async function saveStaffSchedule(staffId: string, raw: unknown): Promise<HoursActionResult> {
-  const ctx = await getDashboardContext();
+  const ctx = await getWritableDashboardContext();
   if (!ctx) return { ok: false, error: 'notAuthorized' };
   const id = z.guid().parse(staffId);
   const parsed = daysSchema.safeParse(raw);

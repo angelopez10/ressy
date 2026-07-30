@@ -12,6 +12,12 @@
 import { createClient } from '@/lib/db/server';
 import { createServiceClient } from '@/lib/db/service';
 import { emitBookingEvent } from '@/lib/inngest/emit';
+import {
+  trackBookingCreated,
+  trackBookingCancelled,
+  trackBookingRescheduled,
+} from '@/lib/analytics/booking-events';
+import { trackServer } from '@/lib/analytics/server';
 import { getPaymentProvider } from '@/lib/payments';
 import { computeAvailability } from '@/lib/availability/engine';
 import { PublicAvailabilityDataSource } from '@/lib/availability/source.public';
@@ -152,6 +158,9 @@ export async function createBooking(raw: unknown): Promise<CreateBookingResult> 
 
       // Sin anticipo: dispara confirmación + recordatorios + aviso al negocio.
       await emitBookingEvent('booking/created', row.booking_id);
+      // Analytics: la reserva ya es REAL (confirmed). Con anticipo esto lo hace
+      // el webhook al aprobarse el pago (no acá, que quedó en pending_payment).
+      await trackBookingCreated(createServiceClient(), row.booking_id, { withDeposit: false });
       return { ok: true, token: row.management_token, status: row.status };
     }
 
@@ -160,6 +169,10 @@ export async function createBooking(raw: unknown): Promise<CreateBookingResult> 
     if (lastFailure !== 'slot_taken') break;
   }
 
+  // Tope de reservas del Free alcanzado ⇒ palanca de conversión.
+  if (lastFailure === 'at_capacity') {
+    await trackServer('plan_limit_reached', input.businessId, { limit: 'bookings' });
+  }
   return { ok: false, reason: lastFailure };
 }
 
@@ -266,7 +279,10 @@ export async function cancelBooking(raw: unknown): Promise<MutateBookingResult> 
   if (error) return { ok: false, reason: mapPgError(error.message) };
   // Cancela recordatorios pendientes + avisa (best-effort).
   const { data: bookingId } = await db.rpc('booking_id_for_token', { p_token: input.token });
-  if (bookingId) await emitBookingEvent('booking/cancelled', bookingId);
+  if (bookingId) {
+    await emitBookingEvent('booking/cancelled', bookingId);
+    await trackBookingCancelled(createServiceClient(), bookingId, 'client');
+  }
   return { ok: true, status: data };
 }
 
@@ -280,6 +296,9 @@ export async function rescheduleBooking(raw: unknown): Promise<MutateBookingResu
   });
   if (error) return { ok: false, reason: mapPgError(error.message) };
   const { data: bookingId } = await db.rpc('booking_id_for_token', { p_token: input.token });
-  if (bookingId) await emitBookingEvent('booking/rescheduled', bookingId);
+  if (bookingId) {
+    await emitBookingEvent('booking/rescheduled', bookingId);
+    await trackBookingRescheduled(createServiceClient(), bookingId, 'client');
+  }
   return { ok: true, status: data };
 }

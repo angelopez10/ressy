@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/db/server';
 import { getUser } from '@/lib/auth/session';
+import { trackServer } from '@/lib/analytics/server';
 import {
   businessBasicsSchema,
   pageStepSchema,
@@ -70,6 +71,7 @@ export async function saveBasics(raw: unknown): Promise<Result<{ businessId: str
     if (staffId) {
       await db.from('staff_members').update({ name: input.ownerName }).eq('id', staffId);
     }
+    await trackServer('onboarding_step_completed', existing.id, { step: 1 });
     return { ok: true, data: { businessId: existing.id } };
   }
 
@@ -82,6 +84,13 @@ export async function saveBasics(raw: unknown): Promise<Result<{ businessId: str
     p_owner_name: input.ownerName,
   });
   if (error || !businessId) return { ok: false, error: 'saveFailed' };
+
+  // Negocio recién creado: alta + arranque del trial de Team (create_business ya
+  // lo inició). `method` sale del proveedor de auth (magic link = email).
+  const method = user.app_metadata?.provider === 'google' ? 'google' : 'email';
+  await trackServer('business_signed_up', businessId, { method });
+  await trackServer('trial_started', businessId, {});
+  await trackServer('onboarding_step_completed', businessId, { step: 1 });
   return { ok: true, data: { businessId } };
 }
 
@@ -124,6 +133,7 @@ export async function saveServices(businessId: string, raw: unknown): Promise<Re
   const { error: linkErr } = await db.from('service_staff').insert(links);
   if (linkErr) return { ok: false, error: 'saveFailed' };
 
+  await trackServer('onboarding_step_completed', businessId, { step: 2 });
   return { ok: true };
 }
 
@@ -165,6 +175,7 @@ export async function saveSchedule(businessId: string, raw: unknown): Promise<Re
   const { error: sErr } = await db.from('staff_schedules').insert(schedules);
   if (sErr) return { ok: false, error: 'saveFailed' };
 
+  await trackServer('onboarding_step_completed', businessId, { step: 3 });
   return { ok: true };
 }
 
@@ -212,6 +223,7 @@ export async function savePage(businessId: string, raw: unknown): Promise<Result
     if (error.code === '23505') return { ok: false, error: 'slugTaken' };
     return { ok: false, error: 'saveFailed' };
   }
+  await trackServer('onboarding_step_completed', businessId, { step: 4 });
   return { ok: true, data: { slug: input.slug } };
 }
 
@@ -236,6 +248,9 @@ export async function publishBusiness(businessId: string): Promise<Result<{ slug
     .maybeSingle();
 
   if (error || !data) return { ok: false, error: 'saveFailed' };
+  // Paso final: página publicada ⇒ onboarding terminado.
+  await trackServer('onboarding_step_completed', businessId, { step: 5 });
+  await trackServer('onboarding_completed', businessId, {});
   return { ok: true, data: { slug: data.slug } };
 }
 

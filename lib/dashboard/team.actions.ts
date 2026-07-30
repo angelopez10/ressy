@@ -9,12 +9,14 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/db/server';
-import { getDashboardContext } from './context';
+import { getWritableDashboardContext } from './context';
+import { trackServer } from '@/lib/analytics/server';
 
 export type TeamActionResult = { ok: true; id: string } | { ok: false; error: string };
 
 async function requireAdmin() {
-  const ctx = await getDashboardContext();
+  // Escritura ⇒ contexto escribible: bloquea la impersonación de soporte.
+  const ctx = await getWritableDashboardContext();
   if (!ctx || (ctx.role !== 'owner' && ctx.role !== 'admin')) return null;
   return ctx;
 }
@@ -70,7 +72,11 @@ export async function saveStaff(raw: unknown): Promise<TeamActionResult> {
     p_service_ids: input.serviceIds,
   });
   if (error) {
-    return { ok: false, error: error.message === 'plan_limit_reached' ? 'planLimit' : 'generic' };
+    if (error.message === 'plan_limit_reached') {
+      await trackServer('plan_limit_reached', ctx.business.id, { plan: ctx.tier, limit: 'staff' });
+      return { ok: false, error: 'planLimit' };
+    }
+    return { ok: false, error: 'generic' };
   }
   return { ok: true, id: data as string };
 }

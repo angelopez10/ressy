@@ -6,6 +6,7 @@ import QRCode from 'qrcode';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/lib/i18n/navigation';
 import { Button } from '@/components/ui/Button';
+import { track, setBusinessGroup } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 
 /**
@@ -17,10 +18,13 @@ export function Step5Done({
   slug,
   accentColor,
   locale,
+  businessId,
 }: {
   slug: string;
   accentColor: string;
   locale: 'es' | 'en';
+  /** Presente en el flujo de onboarding; ausente para el retorno (WelcomeView). */
+  businessId?: string | null;
 }) {
   const t = useTranslations('onboarding.step5');
   const [url, setUrl] = useState('');
@@ -30,6 +34,9 @@ export function Step5Done({
 
   useEffect(() => {
     setShown(true);
+    // Atribuye los eventos de compartir al negocio (funnel de onboarding por
+    // grupo), sin crear un perfil personal.
+    if (businessId) setBusinessGroup(businessId);
     const bookingUrl = `${window.location.origin}/${locale}/${slug}`;
     setUrl(bookingUrl);
     QRCode.toDataURL(bookingUrl, {
@@ -39,7 +46,7 @@ export function Step5Done({
     })
       .then(setQr)
       .catch(() => setQr(null));
-  }, [slug, locale]);
+  }, [slug, locale, businessId]);
 
   // Muestra el link sin protocolo, más legible.
   const prettyUrl = url.replace(/^https?:\/\//, '');
@@ -47,6 +54,7 @@ export function Step5Done({
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
+      track('booking_link_shared', { channel: 'copy' });
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -100,14 +108,23 @@ export function Step5Done({
       {/* Compartir + descargar */}
       <div className="flex flex-col gap-2.5">
         <Button asChild style={{ background: accentColor }}>
-          <a href={waHref} target="_blank" rel="noopener noreferrer">
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track('booking_link_shared', { channel: 'whatsapp' })}
+          >
             <MessageCircle className="size-4" aria-hidden="true" />
             {t('shareWhatsapp')}
           </a>
         </Button>
         {qr && (
           <Button asChild variant="secondary">
-            <a href={qr} download={`${slug}-qr.png`}>
+            <a
+              href={qr}
+              download={`${slug}-qr.png`}
+              onClick={() => track('booking_link_shared', { channel: 'qr' })}
+            >
               <Download className="size-4" aria-hidden="true" />
               {t('downloadQr')}
             </a>
